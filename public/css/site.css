@@ -1,0 +1,82 @@
+
+body {
+    background-color: #fff;
+    font-family: "Muli", "Verdana", sans-serif;
+    color: #000;
+}
+
+.is-selected {
+    color: white !important;
+}
+
+.bs-bordered {
+    border: 1px solid red;
+    padding: 3px;
+}
+
+.bs-arena-right {
+    margin: 3px 3px 3px 0;
+}
+
+.bs-arena-left {
+    margin: 3px 0 3px 3px;
+}
+
+.bs-no-data {
+    color: #c40000 !important;
+    font-weight: bold;
+}
+
+.bs-errors-title, .bs-msgs-title {
+    color: #a2a2a2;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.bs-errors {
+    color: #c40000 !important;
+    font-weight: bold;
+}
+
+.bs-status {
+    color: #c40000 !important;
+    font-weight: bold;
+}
+
+.bs-msgs {
+    color: #0000c4 !important;
+    font-weight: bold;
+}
+
+.bs-add-link {
+    color: #0000c4 !important;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin: 0 10px 10px 0;
+}
+
+.bs-pos-table {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.bs-pos-cell-header {
+    background-color: #a2a2a2 !important;
+    color: #fff !important;
+}
+
+.bs-pos-cell-selected {
+    background-color: #0000c4 !important;
+    color: #fff !important;
+}
+
+.bs-pos-cell-started {
+    background-color: #00c4c4 !important;
+    color: #fff !important;
+}
+
+.bs-pos-cell-available {
+    background-color: #c400c4 !important;
+    color: #fff !important;
+}

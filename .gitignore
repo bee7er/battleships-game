@@ -1,7 +1,5 @@
 /vendor/
 node_modules/
-npm-debug.log
-yarn-error.log
 
 # Laravel 4 specific
 bootstrap/compiled.php
@@ -17,10 +15,8 @@ public_html/hot
 
 storage/*.key
 .env
-Homestead.yaml
-Homestead.json
-/.vagrant
-.phpunit.result.cache
+.env.example
+.gitattributes
 
 /public/build
 /storage/pail
@@ -28,3 +24,8 @@ Homestead.json
 .env.production
 .phpactor.json
 auth.json
+
+.DS_Store
+.idea/
+
+bereadme.txt
