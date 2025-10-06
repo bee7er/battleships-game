@@ -23,11 +23,41 @@ class Fleet extends Model
      * @var array
      */
     protected $fillable = ['name'];
-    
+
     /**
-     * Retrieve entire fleet details for a game from the db table
+     * Retrieve fleet object for a user/game combination
      */
     public static function getFleet($gameId, $userId)
+    {
+        // Change mode
+        $builder = self::select(
+            array(
+                'fleets.id',
+                'fleets.name as fleet_name',
+                'fleets.user_id',
+                'fleets.game_id'
+            )
+        );
+
+        $fleet = $builder
+            ->where("fleets.game_id", "=", $gameId)
+            ->where("fleets.user_id", "=", $userId);
+
+        if (!isset($fleet) || $fleet->count() <= 0) {
+            throw new Exception("Could not find fleet with game id '$gameId' and user id '$userId'");
+        }
+
+        if ($fleet->count() > 1) {
+            throw new Exception("More than one fleet with game id '$gameId' and user id '$userId'");
+        }
+
+        return $fleet->get()[0];
+    }
+    
+    /**
+     * Retrieve entire fleet details for a game
+     */
+    public static function getFleetDetails($gameId, $userId)
     {
         // Change mode
         $builder = self::select(

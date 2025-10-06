@@ -54,8 +54,10 @@ class GamesController extends Controller
 
 		// Load the games for the current user
 		$games = Game::getGames($userId);
-
-		//dd($games);
+		foreach($games as &$game) {
+			// Get the user's fleet for each game
+			$game->fleet = Fleet::getFleet($game->id, $userId);
+		}
 
 		return view('pages.games.games', compact('loggedIn', 'games', 'errors', 'msgs'));
 	}
@@ -75,6 +77,7 @@ class GamesController extends Controller
 
 		$userId = $this->auth->user()->id;
 		$gameId = $request->get('gameId');
+		$fleetId = 0;
 
 		$errors = [];
 		$msgs = [];
@@ -82,7 +85,10 @@ class GamesController extends Controller
 		$game = null;
 		try {
 			$game = Game::getGame($gameId);
-			$fleet = Fleet::getFleet($gameId, $userId);
+			$fleet = Fleet::getFleetDetails($gameId, $userId);
+			if (isset($fleet) && count($fleet) > 0) {
+				$fleetId = $fleet[0]->id;
+			}
 		} catch(Exception $e) {
 			Log::notice("Error getting game: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
 			$errors[] = $e->getMessage();
@@ -94,6 +100,6 @@ class GamesController extends Controller
 		//dd($users);
 		//dd($fleet);
 
-		return view('pages.games.editGame', compact('loggedIn', 'game', 'users', 'fleet', 'errors', 'msgs'));
+		return view('pages.games.editGame', compact('loggedIn', 'game', 'users', 'fleet', 'fleetId', 'errors', 'msgs'));
 	}
 }

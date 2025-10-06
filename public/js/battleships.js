@@ -32,17 +32,21 @@ function ajaxCall(url, data) {
         url: url,
         data: data,
         contentType: 'application/json',
+        dataType: 'text',
         cache: false,
         processData: false
     }).success(function (response) {
         // Successful update
 
-        console.log(response);
+        console.log('Receiving: ' + response);
 
     }).fail(function (jqXHR, textStatus, errorThrown) {
 
         alert("Error on Ajax call");
-        alert(errorThrown);
+
+        console.log(textStatus);
+        console.log(errorThrown);
+        console.log(jqXHR.getAllResponseHeaders());
 
         return false;
     });

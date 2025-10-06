@@ -61,6 +61,7 @@ use App\Game;
             {{ csrf_field() }}
 
             <input type="hidden" name="gameId" id="gameId" value="{{$game->id}}" />
+            <input type="hidden" name="fleetId" id="fleetId" value="{{$fleetId}}" />
 
             <div class="field">
                 <label class="label">Game Name</label>
@@ -110,7 +111,6 @@ use App\Game;
                     <tr class="">
                         <td class="cell" id="id_{{$fleetVessel->fleet_vessel_id}}">
                             <input type="radio"
-                                   id="sel_vessel_{{$fleetVessel->fleet_vessel_id}}"
                                    name="vessel" value="{{$fleetVessel->fleet_vessel_id}}" />
                         </td>
                         <td class="cell" id="name_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->vessel_name}}</td>
@@ -174,12 +174,7 @@ use App\Game;
     <script type="text/javascript">
         var startPos = [];
         var endPos = [];
-        var vesselLocations = {
-            vesselId: 0,
-            vesselLength: 0,
-            locations: []
-        };
-        var vesselLocationSet = false;
+        var vesselLocations = initFleetVesselData();
 
         /**
          * Allocates a cell to a vessel
@@ -193,40 +188,38 @@ use App\Game;
             }
             let max_col = 10;
             let max_row = 10;
-            let vesselId = selected.val();
+            let fleetVesselId = selected.val();
             let elemIdData = elem.id.split('_');
             let row = parseInt(elemIdData[1]);
             let col = parseInt(elemIdData[2]);
-            let vesselLength = parseInt($('#length_' + vesselId).html()); // the selected vessel length
+            let fleetId = $('#fleetId').val();
+            let vesselLength = parseInt($('#length_' + fleetVesselId).html()); // the selected vessel length
             if (1 == vesselLength) {
-                elem.innerHTML = $('#name_' + vesselId).html()[0].toUpperCase();
+                elem.innerHTML = $('#name_' + fleetVesselId).html()[0].toUpperCase();
                 $(elem).addClass('bs-pos-cell-selected');
 
             } else {
-                elem.innerHTML = $('#name_' + vesselId).html()[0].toUpperCase();
+                elem.innerHTML = $('#name_' + fleetVesselId).html()[0].toUpperCase();
                 $(elem).addClass('bs-pos-cell-started');
             }
 
-            clickedLocation(row, col, vesselLength);
-            if (true == vesselLocationSet) {
-                // Save the vessel location
-                // vesselId
-                //
-                vesselLocations.vesselId = vesselId;
-                vesselLocations.vesselLength = vesselLength;
-                vesselLocations.locations[vesselLocations.locations.length] = startPos;
-                vesselLocations.locations[vesselLocations.locations.length] = endPos;
+            if (true == clickedLocation(row, col, vesselLength)) {
+                if (1 == vesselLength) {
+                    // Save the vessel location to the server
+                    vesselLocations.fleetId = fleetId;
+                    vesselLocations.fleetVesselId = fleetVesselId;
+                    vesselLocations.vesselLength = vesselLength;
+                    vesselLocations.locations[vesselLocations.locations.length] = startPos;
+                    vesselLocations.locations[vesselLocations.locations.length] = endPos;
 
-                console.log(vesselLocations);
+                    console.log('Sending: ' + JSON.stringify(vesselLocations));
 
-                ajaxCall('setVesselLocation', vesselLocations);
+                    ajaxCall('setVesselLocation', JSON.stringify(vesselLocations));
 
-                vesselLocations = {
-                    vesselId: 0,
-                    vesselLength: 0,
-                    locations: []
-                };
-                vesselLocationSet = false;
+                    vesselLocations = initFleetVesselData();
+                    startPos = [];
+                    endPos = [];
+                }
             }
             else {
                 availableCells(row, col, vesselLength);
@@ -247,12 +240,16 @@ use App\Game;
                     endPos[0] = row;
                     endPos[1] = col;
 
-                    vesselLocationSet = true;
+                    return true;
                 }
             } else {
                 endPos[0] = row;
                 endPos[1] = col;
+
+                return true;
             }
+
+            return false;
         }
 
         /**
@@ -274,6 +271,19 @@ use App\Game;
                 }
             }
 
+        }
+
+        /**
+         * Initialise the fleet vessel data structure
+         */
+        function initFleetVesselData()
+        {
+            return {
+                fleetId: 0,
+                fleetVesselId: 0,
+                vesselLength: 0,
+                locations: []
+            };
         }
 
         $(document).ready( function()

@@ -20,7 +20,8 @@ use App\Game;
                 <thead>
                 <tr>
                     <th>Id</th>
-                    <th>Name</th>
+                    <th>Game Name</th>
+                    <th>Fleet Name</th>
                     <th>Opponent</th>
                     <th>Status</th>
                     <th>Started at</th>
@@ -31,7 +32,8 @@ use App\Game;
                 <tfoot>
                 <tr>
                     <th>Id</th>
-                    <th>Name</th>
+                    <th>Game Name</th>
+                    <th>Fleet Name</th>
                     <th>Opponent</th>
                     <th>Status</th>
                     <th>Started at</th>
@@ -46,6 +48,7 @@ use App\Game;
                     <tr>
                         <td>{{$game->id}}</td>
                         <td>{{$game->name}}</td>
+                        <td>{{$game->fleet->fleet_name}}</td>
                         <td>{{$game->opponent_name}}</td>
                         <td>{{$game->status}}</td>
                         <td>{{$game->started_at}}</td>

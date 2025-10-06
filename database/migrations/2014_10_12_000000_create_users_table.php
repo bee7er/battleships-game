@@ -18,6 +18,7 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password', 60);
+            $table->string('user_token', 16);       // For user verification when using the API functions
             $table->boolean('admin')->default(false);
             $table->rememberToken();
             $table->timestamps();
