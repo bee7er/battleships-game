@@ -130,26 +130,26 @@ use App\Game;
                 <table class="table is-bordered is-striped bs-pos-table">
                     <tbody>
 
-                    @for ($row=0; $row<=10; $row++)
-                        <tr class="" id="row{{$row}}">
+                    @for ($i=0; $i<=10; $i++)
+                        <tr class="" id="row{{$i}}">
 
-                            @for ($col=0; $col<=10; $col++)
+                            @for ($j=0; $j<=10; $j++)
 
-                                @if ($row == 0)
-                                    @if ($col > 0)
-                                        <td class="cell has-text-centered bs-pos-cell-header">{{$col}}</td>
+                                @if ($i == 0)
+                                    @if ($j > 0)
+                                        <td class="cell has-text-centered bs-pos-cell-header">{{$j}}</td>
                                     @else
                                         <td class="cell">&nbsp;</td>
                                     @endif
                                 @else
-                                    @if ($col == 0)
-                                        @if ($row > 0)
-                                            <td class="cell has-text-centered bs-pos-cell-header">{{$row}}</td>
+                                    @if ($j == 0)
+                                        @if ($i > 0)
+                                            <td class="cell has-text-centered bs-pos-cell-header">{{$i}}</td>
                                         @else
                                             <td class="cell">&nbsp;</td>
                                         @endif
                                     @else
-                                        <td class="cell has-text-centered" id="cell_{{$row}}_{{$col}}" onclick="allocateCell(this);">O</td>
+                                        <td class="cell has-text-centered" id="cell_{{$i}}_{{$j}}" onclick="allocateCell(this);">O</td>
                                     @endif
                                 @endif
 
@@ -168,7 +168,8 @@ use App\Game;
 
 @section('page-scripts')
     <script type="text/javascript">
-        var vesselRowCol = [];
+        var startPos = [];
+        var endPos = [];
         var vesselLocations = initFleetVesselData();
 
         /**
@@ -204,14 +205,16 @@ use App\Game;
                     vesselLocations.fleetId = fleetId;
                     vesselLocations.fleetVesselId = fleetVesselId;
                     vesselLocations.vesselLength = vesselLength;
-                    vesselLocations.locations[vesselLocations.locations.length] = vesselRowCol;
+                    vesselLocations.locations[vesselLocations.locations.length] = startPos;
+                    vesselLocations.locations[vesselLocations.locations.length] = endPos;
 
                     console.log('Sending: ' + JSON.stringify(vesselLocations));
 
                     ajaxCall('setVesselLocation', JSON.stringify(vesselLocations));
 
                     vesselLocations = initFleetVesselData();
-                    vesselRowCol = [];
+                    startPos = [];
+                    endPos = [];
                 }
             }
             else {
@@ -224,33 +227,25 @@ use App\Game;
          */
         function clickedLocation(row, col, vesselLength)
         {
-            if (0 == vesselRowCol.length)
+            if (0 == startPos.length)
             {
-                vesselRowCol[0] = row;
-                vesselRowCol[1] = col;
+                startPos[0] = row;
+                startPos[1] = col;
                 if (1 == vesselLength) {
+                    // Length 1, so start and end are the same
+                    endPos[0] = row;
+                    endPos[1] = col;
 
                     return true;
                 }
+            } else {
+                endPos[0] = row;
+                endPos[1] = col;
+
+                return true;
             }
 
             return false;
-        }
-
-        /**
-         * Plot vessels which have been allocated positions on the grid
-         */
-        function plotExistingLocations()
-        {
-            @if (isset($fleetVesselLocations) && count($fleetVesselLocations) > 0)
-                @foreach($fleetVesselLocations as $fleetVesselLocation)
-                    @if (isset($fleetVesselLocation) && count($fleetVesselLocation) > 0)
-                        @foreach($fleetVesselLocation as $fleetVesselLocationCoord)
-                            $('#cell_{{$fleetVesselLocationCoord->row}}_{{$fleetVesselLocationCoord->col}}').html('X');
-                        @endforeach
-                    @endif
-                @endforeach
-            @endif
         }
 
         /**
@@ -289,9 +284,7 @@ use App\Game;
 
         $(document).ready( function()
         {
-            plotExistingLocations();
-
-            return true;
+            return false;
         });
     </script>
 @endsection

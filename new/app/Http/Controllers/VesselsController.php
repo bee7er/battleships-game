@@ -49,29 +49,29 @@ class VesselsController extends Controller
 			$vesselLength = Input::get('vesselLength');
 			$locations = Input::get('locations');
 
-			//$user = User::where('email', $request->get(self::VESSEL_ID))->first();
+			Log::info('Data' . print_r(Input::all(), true));
+
+//			$user = User::where('email', $request->get(self::VESSEL_ID))->first();
 //			if ($user) {
-			if (true) {
+//				$user->checkUserToken($request->get(User::USERTOKEN));
+//
+//
 
-				//$user->checkUserToken($request->get(User::USERTOKEN));
+			$fleetVessel = FleetVessel::where('fleet_vessel_id', $fleetVesselId)
+				->firstOrFail();
+			$fleetVesselLocations = FleetVesselLocation::getFleetVesselLocationss($fleetVesselId);
 
-				$fleetVessel = FleetVessel::where('id', $fleetVesselId)->firstOrFail();
-				if (true == FleetVesselLocation::replaceFleetVesselLocations($fleetVessel->id, $locations)) {
+			Log::info('Data' . print_r($fleetVesselLocations, true));
 
-					$result = 'OK';
-
-
-				} else {
-					$message = "Could not replace the fleet vessel locations for id '$fleetVesselId'";
-					Log::info('Error: ' . $message);
-					$result = 'Error';
-				}
-
-			} else {
-				$message = "Could not find user with email: " . $request->get(self::VESSEL_ID);
-				Log::info('Error: ' . $message);
-				$result = 'Error';
-			}
+//				$result = 'OK';
+//
+//			} else {
+//				// User can only be added by the administrator
+//				$message = "Could not find user with email: " . $request->get(self::VESSEL_ID);
+//				Log::info('Error: ' . $message);
+//				$renderId = 0;
+//				$result = 'Error';
+//			}
 
 		} catch(\Exception $exception) {
 			$result = 'Error';

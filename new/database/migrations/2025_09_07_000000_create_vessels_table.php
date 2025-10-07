@@ -3,9 +3,9 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
-use App\FleetVessel;
+use App\Vessel;
 
-class CreateFleetVesselsTable extends Migration
+class CreateVesselsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,16 +14,18 @@ class CreateFleetVesselsTable extends Migration
      */
     public function up()
     {
-        Schema::create('fleet_vessels', function (Blueprint $table) {
+        Schema::create('vessels', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id')->unsigned();
-            $table->integer('fleet_id')->unsigned();
-            $table->integer('vessel_id')->unsigned();
-            $table->enum('status', [
-                FleetVessel::FLEET_VESSEL_AVAILABLE,
-                FleetVessel::FLEET_VESSEL_POSITIONED,
-                FleetVessel::FLEET_VESSEL_DESTROYED]
+            $table->enum('name', [
+                Vessel::VESSEL_TYPE_BATTLESHIP,
+                Vessel::VESSEL_TYPE_DESTROYER,
+                Vessel::VESSEL_TYPE_SUBMARINE,
+                Vessel::VESSEL_TYPE_ZODIAC,
+                ]
             );
+            $table->integer('length');
+            $table->integer('points');
             $table->timestamps();
         });
     }
@@ -35,6 +37,6 @@ class CreateFleetVesselsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('fleet_vessels');
+        Schema::drop('vessels');
     }
 }
