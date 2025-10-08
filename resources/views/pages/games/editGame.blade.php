@@ -1,4 +1,5 @@
 <?php
+use App\FleetVessel;
 use App\Game;
 ?>
 
@@ -71,7 +72,7 @@ use App\Game;
             </div>
             <div class="field">
                 <div class="bs-status">
-                    Current status: {{ucfirst($game->status)}}
+                    Current game status: {{ucfirst($game->status)}}
                 </div>
             </div>
 
@@ -94,7 +95,7 @@ use App\Game;
                 </div>
             </div>
 
-            <table class="table is-bordered is-striped bs-pos-table">
+            <table class="table is-bordered is-striped bs-plot-table">
                 <tbody>
 
                 <tr class="">
@@ -103,18 +104,20 @@ use App\Game;
                     <th class="cell">Status</th>
                     <th class="cell">Length</th>
                     <th class="cell">Points</th>
+                    <th class="cell">Id</th>
                 </tr>
 
                 @foreach ($fleet as $fleetVessel)
                     <tr class="">
-                        <td class="cell" id="id_{{$fleetVessel->fleet_vessel_id}}">
-                            <input type="radio"
+                        <td class="cell">
+                            <input type="radio" id="radio_id_{{$fleetVessel->fleet_vessel_id}}"
                                    name="vessel" value="{{$fleetVessel->fleet_vessel_id}}" />
                         </td>
                         <td class="cell" id="name_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->vessel_name}}</td>
                         <td class="cell" id="status_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->status}}</td>
                         <td class="cell" id="length_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->length}}</td>
                         <td class="cell" id="points_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->points}}</td>
+                        <td class="cell" id="points_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->fleet_vessel_id}}</td>
                     </tr>
                 @endforeach
 
@@ -123,11 +126,12 @@ use App\Game;
 
             <div class="field">
                 <div class="">
-                    Vessel Locations:
+                    Vessel Locations:<span id="notification" class="bs-notification">&nbsp;</span>
                 </div>
+
             </div>
 
-                <table class="table is-bordered is-striped bs-pos-table">
+                <table class="table is-bordered is-striped bs-plot-table">
                     <tbody>
 
                     @for ($row=0; $row<=10; $row++)
@@ -137,19 +141,20 @@ use App\Game;
 
                                 @if ($row == 0)
                                     @if ($col > 0)
-                                        <td class="cell has-text-centered bs-pos-cell-header">{{$col}}</td>
+                                        <td class="cell has-text-centered bs-plot-cell-header">{{$col}}</td>
                                     @else
                                         <td class="cell">&nbsp;</td>
                                     @endif
                                 @else
                                     @if ($col == 0)
                                         @if ($row > 0)
-                                            <td class="cell has-text-centered bs-pos-cell-header">{{$row}}</td>
+                                            <td class="cell has-text-centered bs-plot-cell-header">{{$row}}</td>
                                         @else
                                             <td class="cell">&nbsp;</td>
                                         @endif
                                     @else
-                                        <td class="cell has-text-centered" id="cell_{{$row}}_{{$col}}" onclick="allocateCell(this);">O</td>
+                                        <td class="cell has-text-centered bs-pos-cell-blank"
+                                            id="cell_{{$row}}_{{$col}}" onclick="onClickAllocateCell(this);">O</td>
                                     @endif
                                 @endif
 
@@ -168,89 +173,141 @@ use App\Game;
 
 @section('page-scripts')
     <script type="text/javascript">
-        var vesselRowCol = [];
-        var vesselLocations = initFleetVesselData();
+        var fleetVessels = [];
+        var fleetVessel = {};
+        var fleetVesselLocations = [];
+        var max_col = 10;
+        var max_row = 10;
+
+        // Load all the existing data for the fleet
+        @foreach ($fleet as $fleetVessel)
+
+            fleetVesselLocations = [];
+
+            @foreach ($fleetVessel->locations as $fleetVesselLocation)
+                fleetVesselLocations[fleetVesselLocations.length] = {
+                    id: {{$fleetVesselLocation['id']}},
+                    fleet_vessel_id: {{$fleetVesselLocation['fleet_vessel_id']}},
+                    row: {{$fleetVesselLocation['row']}},
+                    col: {{$fleetVesselLocation['col']}},
+                    vessel_name: '{{$fleetVesselLocation['vessel_name']}}',
+                };
+            @endforeach
+
+            fleetVessel = {
+                fleetVesselId: {{$fleetVessel->fleet_vessel_id}},
+                vessel_name: '{{$fleetVessel->vessel_name}}',
+                status: '{{$fleetVessel['status']}}',
+                length: {{$fleetVessel->length}},
+                points: {{$fleetVessel->points}},
+                locations: fleetVesselLocations
+            };
+
+            fleetVessels[fleetVessels.length] = fleetVessel;
+        @endforeach
 
         /**
          * Allocates a cell to a vessel
          */
-        function allocateCell(elem)
+        function onClickAllocateCell(elem)
         {
             let selected = $("input[type='radio'][name='vessel']:checked");
             if (selected.length <= 0) {
-                alert('Please select a vessel to allocate to this position');
+                showNotification('Please select a vessel to allocate to this position');
                 return false;
             }
-            let max_col = 10;
-            let max_row = 10;
-            let fleetVesselId = selected.val();
+
+            if ($(elem).hasClass('bs-pos-cell-plotted')) {
+                showNotification('The location you clicked on has already been taken');
+                return false;
+            }
+
+            // Get row/col from the clicked element
             let elemIdData = elem.id.split('_');
             let row = parseInt(elemIdData[1]);
             let col = parseInt(elemIdData[2]);
-            let fleetId = $('#fleetId').val();
-            let vesselLength = parseInt($('#length_' + fleetVesselId).html()); // the selected vessel length
-            if (1 == vesselLength) {
-                elem.innerHTML = $('#name_' + fleetVesselId).html()[0].toUpperCase();
-                $(elem).addClass('bs-pos-cell-selected');
 
-            } else {
-                elem.innerHTML = $('#name_' + fleetVesselId).html()[0].toUpperCase();
-                $(elem).addClass('bs-pos-cell-started');
-            }
+            let fleetVesselId = selected.val();
+            fleetVessel = findFleetVessel(fleetVesselId);
+            fleetVessel.locations[fleetVessel.locations.length] = {
+                id: 0,
+                fleet_vessel_id: fleetVesselId,
+                row: row,
+                col: col,
+                vessel_name: fleetVessel.vessel_name
+            };
 
-            if (true == clickedLocation(row, col, vesselLength)) {
-                if (1 == vesselLength) {
-                    // Save the vessel location to the server
-                    vesselLocations.fleetId = fleetId;
-                    vesselLocations.fleetVesselId = fleetVesselId;
-                    vesselLocations.vesselLength = vesselLength;
-                    vesselLocations.locations[vesselLocations.locations.length] = vesselRowCol;
+            // Post the new location to the server and await the return in the callback
+            ajaxCall('setVesselLocation', JSON.stringify(fleetVessel), updateFleetVessel);
 
-                    console.log('Sending: ' + JSON.stringify(vesselLocations));
-
-                    ajaxCall('setVesselLocation', JSON.stringify(vesselLocations));
-
-                    vesselLocations = initFleetVesselData();
-                    vesselRowCol = [];
-                }
-            }
-            else {
-                availableCells(row, col, vesselLength);
-            }
-        }
-
-        /**
-         * Capture the clicked location
-         */
-        function clickedLocation(row, col, vesselLength)
-        {
-            if (0 == vesselRowCol.length)
-            {
-                vesselRowCol[0] = row;
-                vesselRowCol[1] = col;
-                if (1 == vesselLength) {
-
-                    return true;
-                }
-            }
+            // Plot available cells around the clicked cell, if any
+            availableCells(row, col, fleetVessel.length);
 
             return false;
         }
 
         /**
+         * Handle the asynchronous Ajax call
+         * @param returnedFleetVessel: is the returned data for this callback
+         */
+        function updateFleetVessel(returnedFleetVessel)
+        {
+            fleetVessel = findFleetVessel(returnedFleetVessel['fleetVesselId']);
+
+            // Update the fleet vessel as a result of the new location
+            fleetVessel.status = returnedFleetVessel['status'];
+            fleetVessel.locations = returnedFleetVessel['locations'];
+
+            // Set the attributes of the clicked cell, by replotting all fleet locations
+            plotFleetLocations();
+        }
+
+        /**
+         * Find the fleet vessel details based on the fleet vessel id
+         */
+        function findFleetVessel(fleetVesselId)
+        {
+            for (let i=0; i<fleetVessels.length; i++) {
+                let fleetVessel = fleetVessels[i];
+                if (fleetVesselId == fleetVessel.fleetVesselId) {
+                    return fleetVessel;
+                }
+            }
+            alert('Error: Could not find fleet vessel for id ' + fleetVesselId);
+        }
+
+        /**
          * Plot vessels which have been allocated positions on the grid
          */
-        function plotExistingLocations()
+        function plotFleetLocations()
         {
-            @if (isset($fleetVesselLocations) && count($fleetVesselLocations) > 0)
-                @foreach($fleetVesselLocations as $fleetVesselLocation)
-                    @if (isset($fleetVesselLocation) && count($fleetVesselLocation) > 0)
-                        @foreach($fleetVesselLocation as $fleetVesselLocationCoord)
-                            $('#cell_{{$fleetVesselLocationCoord->row}}_{{$fleetVesselLocationCoord->col}}').html('X');
-                        @endforeach
-                    @endif
-                @endforeach
-            @endif
+            for (let i=0; i<fleetVessels.length; i++) {
+                let fleetVessel = fleetVessels[i];
+                // Update the status, which may have changed
+                $('#status_' + fleetVessel.fleetVesselId).html(fleetVessel.status);
+                // Plot each location
+                for (let j=0; j<fleetVessel.locations.length; j++) {
+                    let location = fleetVessel.locations[j];
+                    let cssClass = 'bs-pos-cell-started';
+                    if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
+                        cssClass = 'bs-pos-cell-plotted';
+                        // Disable the corresponding radio button, as this vessel is fully plotted
+                        $('#radio_id_' + location.fleet_vessel_id).prop("disabled", true);
+                    }
+                    let tableCell = $('#cell_' + location.row + '_' + location.col);
+                    tableCell.addClass(cssClass);
+                    tableCell.html(location.vessel_name.toUpperCase().charAt(0));
+                }
+                // NB If the selected vessel from above is now plotted then deselect it
+                let selected = $("input[type='radio'][name='vessel']:checked");
+                if (selected.length > 0) {
+                    let fleetVesselId = selected.val();
+                    fleetVessel = findFleetVessel(fleetVesselId);
+                    if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
+                        $("input[type='radio'][name='vessel']").prop('checked', false);
+                    }
+                }
+            }
         }
 
         /**
@@ -275,21 +332,17 @@ use App\Game;
         }
 
         /**
-         * Initialise the fleet vessel data structure
+         * Output a notification
          */
-        function initFleetVesselData()
+        function showNotification(message)
         {
-            return {
-                fleetId: 0,
-                fleetVesselId: 0,
-                vesselLength: 0,
-                locations: []
-            };
+            $('#notification').html(message).show();
+            $('#notification').delay(3000).fadeOut();
         }
 
         $(document).ready( function()
         {
-            plotExistingLocations();
+            plotFleetLocations();
 
             return true;
         });

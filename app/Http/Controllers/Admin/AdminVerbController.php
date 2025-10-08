@@ -240,7 +240,6 @@ class AdminVerbController extends Controller
 			return new Verb();
 		}
 
-		// Change mode
 		return Verb::findOrFail(
 			$id,
 			array(

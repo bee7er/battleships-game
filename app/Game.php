@@ -67,7 +67,6 @@ class Game extends Model
             return new Game();
         }
 
-        // Change mode
         $builder = self::select(
             array(
                 'games.id',

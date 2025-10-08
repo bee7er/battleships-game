@@ -25,6 +25,9 @@ class FleetVesselLocationsTableSeeder extends Seeder {
         $fleetVesselLocation->col = 5;
         $fleetVesselLocation->save();
 
+        $fleetVessel->status = FleetVessel::FLEET_VESSEL_PLOTTED;
+        $fleetVessel->save();
+
     }
 
 }

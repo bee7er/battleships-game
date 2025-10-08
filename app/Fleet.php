@@ -29,7 +29,6 @@ class Fleet extends Model
      */
     public static function getFleet($gameId, $userId)
     {
-        // Change mode
         $builder = self::select(
             array(
                 'fleets.id',

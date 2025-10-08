@@ -39,33 +39,20 @@ class VesselsController extends Controller
 	{
 		$message = "Data received OK";
 		$result = 'Error';
+		$fleetVessel = Input::all();
+
 		try {
-
-			$message = "Yeah all good";
-			$result = 'OK';
-
-			$fleetId = Input::get('fleetId');
-			$fleetVesselId = Input::get('fleetVesselId');
-			$vesselLength = Input::get('vesselLength');
-			$locations = Input::get('locations');
-
 			//$user = User::where('email', $request->get(self::VESSEL_ID))->first();
 //			if ($user) {
 			if (true) {
 
 				//$user->checkUserToken($request->get(User::USERTOKEN));
 
-				$fleetVessel = FleetVessel::where('id', $fleetVesselId)->firstOrFail();
-				if (true == FleetVesselLocation::replaceFleetVesselLocations($fleetVessel->id, $locations)) {
+				// Update the fleet vessel status, returned below
+				$fleetVessel['status'] =
+					FleetVesselLocation::addNewLocation($fleetVessel['fleetVesselId'], $fleetVessel['locations']);
 
-					$result = 'OK';
-
-
-				} else {
-					$message = "Could not replace the fleet vessel locations for id '$fleetVesselId'";
-					Log::info('Error: ' . $message);
-					$result = 'Error';
-				}
+				$result = 'OK';
 
 			} else {
 				$message = "Could not find user with email: " . $request->get(self::VESSEL_ID);
@@ -81,7 +68,8 @@ class VesselsController extends Controller
 
 		$returnData = [
 			"message" => $message,
-			"result" => $result
+			"result" => $result,
+			"returnedData" => $fleetVessel
 		];
 
 		return $returnData;   // Gets converted to json

@@ -91,8 +91,10 @@ class GamesController extends Controller
 			if (isset($fleet) && count($fleet) > 0) {
 				$fleetId = $fleet[0]->id;
 
-				foreach($fleet as $fleetVessel) {
-					$fleetVesselLocations[] = FleetVesselLocation::getFleetVesselLocations($fleetVessel->fleet_vessel_id);
+				foreach($fleet as &$fleetVessel) {
+					$locations = FleetVesselLocation::getFleetVesselLocations($fleetVessel->fleet_vessel_id);
+					$fleetVesselLocations[] = $locations;
+					$fleetVessel->locations = $locations->toArray();
 				}
 			}
 
@@ -102,8 +104,6 @@ class GamesController extends Controller
 		}
 
 		$users = User::getUsers($userId);
-
-//		dd($fleetVesselLocations);
 
 		return view('pages.games.editGame', compact('loggedIn', 'game', 'users', 'fleet', 'fleetVesselLocations', 'fleetId', 'errors', 'msgs'));
 	}

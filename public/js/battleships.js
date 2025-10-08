@@ -25,7 +25,7 @@ function ajaxChangeLanguage(languageCode)
  * @param url
  * @param data
  */
-function ajaxCall(url, data) {
+function ajaxCall(url, data, callBackFunction) {
 
     $.ajax({
         type: 'post',
@@ -37,8 +37,13 @@ function ajaxCall(url, data) {
         processData: false
     }).success(function (response) {
         // Successful update
-
-        console.log('Receiving: ' + response);
+        let responseData = JSON.parse(response);
+        if ('OK' == responseData.result) {
+            // NB We must process the async return data in a callback
+            callBackFunction(responseData.returnedData);
+            return true;
+        }
+        alert('Unexpected result from submission, please check the console log');
 
     }).fail(function (jqXHR, textStatus, errorThrown) {
 
@@ -51,7 +56,6 @@ function ajaxCall(url, data) {
         return false;
     });
 
-    return true;
 }
 
 /**
