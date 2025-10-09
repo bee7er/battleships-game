@@ -391,10 +391,9 @@ use App\Game;
          */
         function availableCells(row, col, fleetVessel)
         {
-            console.log('In Available cells------');
             // Generic removal of all cells flagged as available
             $('.cell').removeClass('bs-pos-cell-available');
-            // Exit if the vessel is plotted
+            // Exit if the vessel is already plotted
             if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
                 return;
             }
@@ -402,14 +401,14 @@ use App\Game;
             let tryRow = row - (fleetVessel.length - 1);
             let tryCol = col - (fleetVessel.length - 1);
 
-            let itr = 1;        // Maybe 0
+            let itr = 1;        // Maybe 0, or (2 x length - 1)
             if (fleetVessel.length == 2) itr = 3;
             if (fleetVessel.length == 3) itr = 5;
 
             for (i=0; i<itr; i++) {
                 for (j=0; j<itr; j++) {
                     //console.log('Pos i=' + i + ', j=' + j);
-                    let elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j));
+                    let elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)); //.html(i + '_' + j);
                     if ($(elem).hasClass('bs-pos-cell-plotted') || $(elem).hasClass('bs-pos-cell-started')) {
                         // Ignore this location
                     } else {
@@ -418,6 +417,100 @@ use App\Game;
                 }
             }
 
+            // For length three we need to examine whether three in a row will fit
+            if (fleetVessel.length == 3) {
+                // To complicated for processing here
+                lengthThreeAvailableCells(row, col, fleetVessel);
+            }
+        }
+
+
+        /**
+         * Highlight available cells when dealing with length three
+         */
+        function lengthThreeAvailableCells(row, col, fleetVessel)
+        {
+            let tryRow = row - 2;
+            let tryCol = col - 2;
+            let itr = 5;
+
+            // Remove those entries that can never be used because 3 in a row must be diagonally or in a line
+            let elem = null;
+            for (i=0; i<itr; i++) {
+                for (j=0; j<itr; j++) {
+                    if ((0 == i && (1 == j || 3 == j))
+                        || (1 == i && (0 == j || 4 == j))
+                        || (3 == i && (0 == j || 4 == j))
+                        || (4 == i && (1 == j || 3 == j))
+                    ) {
+                        // Remove the available class, if present
+                        elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j));
+                        if ($(elem).hasClass('bs-pos-cell-available')) {
+                            // Remove all classes
+                            setElemStatusClass(elem, '');
+                        }
+                    }
+                }
+            }
+            // Create an array of all elems with the available class, these are those that might be possible
+            // Add started cells for this vessel
+            let hasAvailable = [];
+            for (i=0; i<itr; i++) {
+                for (j=0; j<itr; j++) {
+                    elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j));
+                    if ($(elem).hasClass('bs-pos-cell-available')) {
+                        hasAvailable[hasAvailable.length] = {
+                            elem: elem,
+                            row: i,
+                            col: j
+                        };
+                    } else if ($(elem).hasClass('bs-pos-cell-started')) {
+                        hasAvailable[hasAvailable.length] = {
+                            elem: elem,
+                            row: i,
+                            col: j
+                        };
+                    }
+                }
+            }
+
+            // For each offset cell it can only be used if the intervening cells are available
+            for (i=0; i<hasAvailable.length; i++) {
+                let avail = hasAvailable[i];
+                if ((0 == avail.row && 0 == avail.col) && !hasAvailableElem(hasAvailable, 1, 1)
+                        || (0 == avail.row && 2 == avail.col) && !hasAvailableElem(hasAvailable, 1, 2)
+                        || (0 == avail.row && 4 == avail.col) && !hasAvailableElem(hasAvailable, 1, 3)
+                        || (1 == avail.row && 1 == avail.col) && (!hasAvailableElem(hasAvailable, 0, 0) || !hasAvailableElem(hasAvailable, 3, 3))
+                        || (1 == avail.row && 2 == avail.col) && (!hasAvailableElem(hasAvailable, 0, 2) || !hasAvailableElem(hasAvailable, 3, 2))
+                        || (1 == avail.row && 3 == avail.col) && (!hasAvailableElem(hasAvailable, 0, 4) || !hasAvailableElem(hasAvailable, 3, 1))
+                        || (2 == avail.row && 0 == avail.col) && !hasAvailableElem(hasAvailable, 2, 1)
+                        || (2 == avail.row && 1 == avail.col) && (!hasAvailableElem(hasAvailable, 2, 0) || !hasAvailableElem(hasAvailable, 2, 3))
+                        || (3 == avail.row && 1 == avail.col) && (!hasAvailableElem(hasAvailable, 4, 0) || !hasAvailableElem(hasAvailable, 1, 3))
+                        || (3 == avail.row && 2 == avail.col) && (!hasAvailableElem(hasAvailable, 1, 2) || !hasAvailableElem(hasAvailable, 4, 2))
+                        || (3 == avail.row && 3 == avail.col) && (!hasAvailableElem(hasAvailable, 1, 1) || !hasAvailableElem(hasAvailable, 4, 4))
+                        || (4 == avail.row && 0 == avail.col) && !hasAvailableElem(hasAvailable, 3, 1)
+                        || (4 == avail.row && 2 == avail.col) && !hasAvailableElem(hasAvailable, 3, 2)
+                        || (4 == avail.row && 4 == avail.col) && !hasAvailableElem(hasAvailable, 3, 3)
+                ) {
+                    // The cell cannot be used as there isn't enough room
+                    setElemStatusClass(avail.elem, '');
+                }
+            }
+
+        }
+
+        /**
+         * Try to find the requested available elem
+         */
+        function hasAvailableElem(hasAvailable, row, col)
+        {
+            for (i=0; i<hasAvailable.length; i++) {
+                let avail = hasAvailable[i];
+                if (row == avail.row && col == avail.col) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /**
