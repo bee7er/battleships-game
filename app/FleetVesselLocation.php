@@ -41,10 +41,6 @@ class FleetVesselLocation extends Model
             ->orderBy("fleet_vessel_locations.row")
             ->orderBy("fleet_vessel_locations.col");
 
-//        $fvl = $fleetVesselLocations->get();
-//        if (count($fvl) > 0) {
-//            dd($fleetVesselLocations->get());
-//        }
         return $fleetVesselLocations->get();
     }
 
@@ -75,6 +71,37 @@ class FleetVesselLocation extends Model
             $fleetVessel->status = FleetVessel::FLEET_VESSEL_PLOTTED;
         } else {
             $fleetVessel->status = FleetVessel::FLEET_VESSEL_STARTED;
+        }
+        $fleetVessel->save();
+
+        return $fleetVessel->status;
+    }
+
+    /**
+     * Removes the location of the fleet vessel
+     *
+     */
+    public static function deleteLocation($fleetVesselId, $row, $col)
+    {
+        $locations = self::getFleetVesselLocations($fleetVesselId);
+        $locationCount = count($locations);
+        if (isset($locations) && 0 < count($locations)) {
+            foreach ($locations as $location) {
+                if ($row == $location->row && $col == $location->col) {
+                    $location->delete();
+                    $locationCount -= 1;
+                }
+            }
+        }
+
+        // Set the status of the fleet vessel
+        $fleetVessel = FleetVessel::getFleetVessel($fleetVesselId);
+        if (0 == $locationCount) {
+            $fleetVessel->status = FleetVessel::FLEET_VESSEL_AVAILABLE;
+        } elseif ($locationCount < $fleetVessel->length) {
+            $fleetVessel->status = FleetVessel::FLEET_VESSEL_STARTED;
+        } else {
+            $fleetVessel->status = FleetVessel::FLEET_VESSEL_PLOTTED;
         }
         $fleetVessel->save();
 

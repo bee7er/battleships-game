@@ -87,16 +87,12 @@ class GamesController extends Controller
 		try {
 			$game = Game::getGame($gameId);
 			$fleet = Fleet::getFleetDetails($gameId, $userId);
-			$fleetVesselLocations = [];
 			if (isset($fleet) && count($fleet) > 0) {
+				// Just get fleet id from the first fleet vessel entry
 				$fleetId = $fleet[0]->id;
-
-				foreach($fleet as &$fleetVessel) {
-					$locations = FleetVesselLocation::getFleetVesselLocations($fleetVessel->fleet_vessel_id);
-					$fleetVesselLocations[] = $locations;
-					$fleetVessel->locations = $locations->toArray();
-				}
 			}
+			Log::notice('878787878787878');
+			Log::notice($fleet);
 
 		} catch(Exception $e) {
 			Log::notice("Error getting game: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
@@ -105,6 +101,6 @@ class GamesController extends Controller
 
 		$users = User::getUsers($userId);
 
-		return view('pages.games.editGame', compact('loggedIn', 'game', 'users', 'fleet', 'fleetVesselLocations', 'fleetId', 'errors', 'msgs'));
+		return view('pages.games.editGame', compact('loggedIn', 'game', 'users', 'fleet', 'fleetId', 'errors', 'msgs'));
 	}
 }

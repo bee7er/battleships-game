@@ -111,7 +111,7 @@ use App\Game;
                     <tr class="">
                         <td class="cell">
                             <input type="radio" id="radio_id_{{$fleetVessel->fleet_vessel_id}}"
-                                   name="vessel" value="{{$fleetVessel->fleet_vessel_id}}" />
+                                   name="vessel" value="{{$fleetVessel->fleet_vessel_id}}" onclick="onClickSelectVessel(this);" />
                         </td>
                         <td class="cell" id="name_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->vessel_name}}</td>
                         <td class="cell" id="status_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->status}}</td>
@@ -229,6 +229,37 @@ use App\Game;
 
             let fleetVesselId = selected.val();
             fleetVessel = findFleetVessel(fleetVesselId);
+
+            if ($(elem).hasClass('bs-pos-cell-started')) {
+                fleetVesselByRowCol = findFleetVesselByRowCol(row, col);
+                if (fleetVessel.fleetVesselId != fleetVesselByRowCol.fleetVesselId) {
+                    showNotification('This location is occupied by another vessel');
+                    return false;
+                }
+                // We set up the subject row/col to conform with the set function
+                fleetVessel.subjectRow = 0;
+                fleetVessel.subjectCol = 0;
+                // Ok, release this plotted cell
+                let location = {
+                    fleetVessel: fleetVessel,
+                    row: row,
+                    col: col
+                };
+                ajaxCall('removeVesselLocation', JSON.stringify(location), updateFleetVessel);
+                // Clear the cell and availability
+                setElemStatusClass(elem, '');
+                $(elem).html('O');
+                // Generic removal of all cells flagged as available
+                $('.cell').removeClass('bs-pos-cell-available');
+                showNotification('Location has been cleared');
+                return false;
+            } else if (0 == fleetVessel.locations.length || $(elem).hasClass('bs-pos-cell-available')) {
+                // Ok, we can start the plotting, or this cell can be plotted
+            } else {
+                showNotification('Please click on an available (pink) location');
+                return false;
+            }
+            // Add this location to the current vessel
             fleetVessel.locations[fleetVessel.locations.length] = {
                 id: 0,
                 fleet_vessel_id: fleetVesselId,
@@ -236,27 +267,56 @@ use App\Game;
                 col: col,
                 vessel_name: fleetVessel.vessel_name
             };
+            fleetVessel.subjectRow = row;
+            fleetVessel.subjectCol = col;
 
             // Post the new location to the server and await the return in the callback
             ajaxCall('setVesselLocation', JSON.stringify(fleetVessel), updateFleetVessel);
 
-            // Plot available cells around the clicked cell, if any
-            availableCells(row, col, fleetVessel.length);
-
             return false;
+        }
+
+        /**
+         * Allocates a cell to a vessel
+         */
+        function onClickSelectVessel(elem)
+        {
+            // Generic removal of all cells flagged as available
+            $('.cell').removeClass('bs-pos-cell-available');
+            // Get vessel id from the clicked element
+            let elemIdData = elem.id.split('_');
+            let fleetVesselId = parseInt(elemIdData[2]);
+
+            fleetVessel = findFleetVessel(fleetVesselId);
+            if ('{{FleetVessel::FLEET_VESSEL_STARTED}}' == fleetVessel.status) {
+                // Show available cells corresponding with the first row/col
+                availableCells(fleetVessel.locations[0].row, fleetVessel.locations[0].col, fleetVessel);
+            }
         }
 
         /**
          * Handle the asynchronous Ajax call
          * @param returnedFleetVessel: is the returned data for this callback
          */
-        function updateFleetVessel(returnedFleetVessel)
+        function updateFleetVessel(returnedFleetVessel, row, col)
         {
-            fleetVessel = findFleetVessel(returnedFleetVessel['fleetVesselId']);
-
             // Update the fleet vessel as a result of the new location
-            fleetVessel.status = returnedFleetVessel['status'];
-            fleetVessel.locations = returnedFleetVessel['locations'];
+            let fleetVessel = null;
+            for (let i=0; i<fleetVessels.length; i++) {
+                if (fleetVessels[i].fleetVesselId == returnedFleetVessel.fleetVesselId) {
+                    fleetVessels[i].status = returnedFleetVessel.status;
+                    fleetVessels[i].locations = returnedFleetVessel.locations;
+
+                    fleetVessel = fleetVessels[i];
+                }
+            }
+
+            if (0 !== row && 0 != col) {
+                // NB This function must be called here else we encounter a timing issue
+                // between the Ajax call and the testing of the status of the returned fleet vessel
+                // Plot available cells around the clicked cell, if any.
+                availableCells(row, col, fleetVessel);
+            }
 
             // Set the attributes of the clicked cell, by replotting all fleet locations
             plotFleetLocations();
@@ -274,6 +334,22 @@ use App\Game;
                 }
             }
             alert('Error: Could not find fleet vessel for id ' + fleetVesselId);
+        }
+
+        /**
+         * Find the fleet vessel details by row/col location
+         */
+        function findFleetVesselByRowCol(row, col)
+        {
+            for (let i=0; i<fleetVessels.length; i++) {
+                let fleetVessel = fleetVessels[i];
+                for (let j=0; j<fleetVessel.locations.length; j++) {
+                    if (fleetVessel.locations[j].row == row && fleetVessel.locations[j].col == col) {
+                        return fleetVessel;
+                    }
+                }
+            }
+            alert('Error: Could not find fleet vessel for row ' + row + ' and col' + col);
         }
 
         /**
@@ -295,7 +371,7 @@ use App\Game;
                         $('#radio_id_' + location.fleet_vessel_id).prop("disabled", true);
                     }
                     let tableCell = $('#cell_' + location.row + '_' + location.col);
-                    tableCell.addClass(cssClass);
+                    setElemStatusClass(tableCell, cssClass);
                     tableCell.html(location.vessel_name.toUpperCase().charAt(0));
                 }
                 // NB If the selected vessel from above is now plotted then deselect it
@@ -313,22 +389,46 @@ use App\Game;
         /**
          * Highlight available cells
          */
-        function availableCells(row, col, vesselLength)
+        function availableCells(row, col, fleetVessel)
         {
-            let tryRow = row - (vesselLength - 1);
-            let tryCol = col - (vesselLength - 1);
+            console.log('In Available cells------');
+            // Generic removal of all cells flagged as available
+            $('.cell').removeClass('bs-pos-cell-available');
+            // Exit if the vessel is plotted
+            if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
+                return;
+            }
+
+            let tryRow = row - (fleetVessel.length - 1);
+            let tryCol = col - (fleetVessel.length - 1);
 
             let itr = 1;        // Maybe 0
-            if (vesselLength == 2) itr = 3;
-            if (vesselLength == 3) itr = 5;
+            if (fleetVessel.length == 2) itr = 3;
+            if (fleetVessel.length == 3) itr = 5;
 
             for (i=0; i<itr; i++) {
                 for (j=0; j<itr; j++) {
                     //console.log('Pos i=' + i + ', j=' + j);
-                    $('#cell_' + (tryRow + i) + '_' + (tryCol + j)).addClass('bs-pos-cell-available');
+                    let elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j));
+                    if ($(elem).hasClass('bs-pos-cell-plotted') || $(elem).hasClass('bs-pos-cell-started')) {
+                        // Ignore this location
+                    } else {
+                        setElemStatusClass($('#cell_' + (tryRow + i) + '_' + (tryCol + j)), 'bs-pos-cell-available');
+                    }
                 }
             }
 
+        }
+
+        /**
+         * Set the element to one status class
+         */
+        function setElemStatusClass(elem, newClass)
+        {
+            $(elem).removeClass('bs-pos-cell-available');
+            $(elem).removeClass('bs-pos-cell-started');
+            $(elem).removeClass('bs-pos-cell-plotted');
+            $(elem).addClass(newClass);
         }
 
         /**

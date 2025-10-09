@@ -15,6 +15,7 @@ class VerifyCsrfToken extends BaseVerifier
      */
     protected $except = [
         '/setVesselLocation',
+        '/removeVesselLocation',
     ];
 
     public function handle($request, Closure $next)

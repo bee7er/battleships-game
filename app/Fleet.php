@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
@@ -23,6 +24,30 @@ class Fleet extends Model
      * @var array
      */
     protected $fillable = ['name'];
+
+    /**
+     * Retrieve fleet object for fleet id
+     */
+    public static function getFleetById($fleetId)
+    {
+        $builder = self::select(
+            array(
+                'fleets.id',
+                'fleets.name as fleet_name',
+                'fleets.user_id',
+                'fleets.game_id'
+            )
+        );
+
+        $fleet = $builder
+            ->where("fleets.id", "=", $fleetId);
+
+        if (!isset($fleet) || $fleet->count() <= 0) {
+            throw new Exception("Could not find fleet with fleet id '$fleetId'");
+        }
+
+        return $fleet->get()[0];
+    }
 
     /**
      * Retrieve fleet object for a user/game combination
@@ -78,14 +103,24 @@ class Fleet extends Model
             ->orderBy("vessels.points", "DESC")
             ->orderBy("vessels.name");
 
-        $fleet = $builder
+        $builder
             ->where("fleets.user_id", "=", $userId)
             ->where("fleets.game_id", "=", $gameId);
+
+        $fleet = $builder->get();
 
         if (!isset($fleet) || $fleet->count() <= 0) {
             throw new Exception("Could not find fleet with game id '$gameId' and user id '$userId'");
         }
 
-        return $fleet->get();
+        if (isset($fleet) && count($fleet) > 0) {
+            foreach($fleet as &$fleetVessel) {
+                $locations = FleetVesselLocation::getFleetVesselLocations($fleetVessel->fleet_vessel_id);
+                $fleetVesselLocations[] = $locations;
+                $fleetVessel->locations = $locations->toArray();
+            }
+        }
+
+        return $fleet;
     }
 }

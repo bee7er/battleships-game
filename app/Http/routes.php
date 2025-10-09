@@ -23,3 +23,4 @@ Route::get('/profile', 'HomeController@profile');
 Route::get('/games', 'GamesController@index');
 Route::post('/editGame', 'GamesController@editGame');
 Route::post('/setVesselLocation', 'VesselsController@setVesselLocation');
+Route::post('/removeVesselLocation', 'VesselsController@removeVesselLocation');

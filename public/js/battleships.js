@@ -40,7 +40,11 @@ function ajaxCall(url, data, callBackFunction) {
         let responseData = JSON.parse(response);
         if ('OK' == responseData.result) {
             // NB We must process the async return data in a callback
-            callBackFunction(responseData.returnedData);
+            callBackFunction(
+                responseData.returnedData,
+                responseData.returnedData.subjectRow,
+                responseData.returnedData.subjectCol
+            );
             return true;
         }
         alert('Unexpected result from submission, please check the console log');
