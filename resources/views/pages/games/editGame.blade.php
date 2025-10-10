@@ -168,7 +168,7 @@ use App\Game;
         </form>
         <div class="field">&nbsp;</div>
     </div>
-
+    <br /><br /><br />
 @endsection
 
 @section('page-scripts')
@@ -176,8 +176,7 @@ use App\Game;
         var fleetVessels = [];
         var fleetVessel = {};
         var fleetVesselLocations = [];
-        var max_col = 10;
-        var max_row = 10;
+        var gridSize = 10;
 
         // Load all the existing data for the fleet
         @foreach ($fleet as $fleetVessel)
@@ -236,9 +235,19 @@ use App\Game;
                     showNotification('This location is occupied by another vessel');
                     return false;
                 }
-                // We set up the subject row/col to conform with the set function
                 fleetVessel.subjectRow = 0;
                 fleetVessel.subjectCol = 0;
+                // If there is a second allocated elem then we want to reposition to that on return
+                if (2 == fleetVessel.locations.length) {
+                    for (let i=0; i<fleetVessel.locations.length; i++) {
+                        let location = fleetVessel.locations[i];
+                        if (location.row != row || location.col != col) {
+                            fleetVessel.subjectRow = location.row;
+                            fleetVessel.subjectCol = location.col;
+                            break;
+                        }
+                    }
+                }
                 // Ok, release this plotted cell
                 let location = {
                     fleetVessel: fleetVessel,
@@ -311,7 +320,7 @@ use App\Game;
                 }
             }
 
-            if (0 !== row && 0 != col) {
+            if (0 != row && 0 != col) {
                 // NB This function must be called here else we encounter a timing issue
                 // between the Ajax call and the testing of the status of the returned fleet vessel
                 // Plot available cells around the clicked cell, if any.
@@ -398,50 +407,157 @@ use App\Game;
                 return;
             }
 
-            let tryRow = row - (fleetVessel.length - 1);
-            let tryCol = col - (fleetVessel.length - 1);
+            let numberOfAvailableCells = 0;
+            // For length three we need to examine whether three in a row will fit
+            if (fleetVessel.length == 3 && 2 == fleetVessel.locations.length) {
+                // Too complicated for processing here
+                numberOfAvailableCells = lengthThreeTwoAllocated(row, col, fleetVessel);
 
-            let itr = 1;        // Maybe 0, or (2 x length - 1)
-            if (fleetVessel.length == 2) itr = 3;
-            if (fleetVessel.length == 3) itr = 5;
+            } else {
 
-            for (i=0; i<itr; i++) {
-                for (j=0; j<itr; j++) {
-                    //console.log('Pos i=' + i + ', j=' + j);
-                    let elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)); //.html(i + '_' + j);
-                    if ($(elem).hasClass('bs-pos-cell-plotted') || $(elem).hasClass('bs-pos-cell-started')) {
-                        // Ignore this location
-                    } else {
-                        setElemStatusClass($('#cell_' + (tryRow + i) + '_' + (tryCol + j)), 'bs-pos-cell-available');
+                let tryRow = row - (fleetVessel.length - 1);
+                let tryCol = col - (fleetVessel.length - 1);
+
+                let itr = 1;        // Maybe 0, or (2 x length - 1)
+                if (fleetVessel.length == 2) itr = 3;
+                if (fleetVessel.length == 3) itr = 5;
+
+                for (i = 0; i < itr; i++) {
+                    if ((tryRow + i) <= 0 || (tryRow + i) > gridSize) continue;
+
+                    for (j = 0; j < itr; j++) {
+                        if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
+
+                        let elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)); //.html('' + i + j);
+                        if ($(elem).hasClass('bs-pos-cell-plotted') || $(elem).hasClass('bs-pos-cell-started')) {
+                            // Ignore this location
+                        } else {
+                            setElemStatusClass($('#cell_' + (tryRow + i) + '_' + (tryCol + j)), 'bs-pos-cell-available');
+                            if (1 == i && 1 == j) {
+                                // Do not count the primary cell, it is always at 1,1
+                            } else {
+                                numberOfAvailableCells += 1;
+                            }
+                        }
                     }
                 }
-            }
 
-            // For length three we need to examine whether three in a row will fit
-            if (fleetVessel.length == 3) {
-                // To complicated for processing here
-                lengthThreeAvailableCells(row, col, fleetVessel);
+                // For length three with only one allocated we need to examine whether three in a row will fit
+                if (fleetVessel.length == 3 && 1 == fleetVessel.locations.length) {
+                    numberOfAvailableCells = lengthThreeOneAllocated(row, col, fleetVessel);
+                }
+            }
+            // Check that there is somewhere to go
+            if (numberOfAvailableCells < (fleetVessel.length - fleetVessel.locations.length)) {
+                showNotification('There is not enough room for that vessel in that position. Please move it elsewhere.');
             }
         }
 
 
         /**
-         * Highlight available cells when dealing with length three
+         * Highlight available cells when dealing with length three, when two have already been allocated
          */
-        function lengthThreeAvailableCells(row, col, fleetVessel)
+        function lengthThreeTwoAllocated(row, col, fleetVessel)
         {
             let tryRow = row - 2;
             let tryCol = col - 2;
-            let itr = 5;
+            let itr = 5;        // A 5 x 5 set of cells which could possibly available
+            let numberOfAvailableCells = 0;
+
+            // There can only be 1 or 2 cells already started, as 3 would mean the vessel has been plotted
+            // This drastically reduces the cells that are available
+            // Create an array of all elems with the started class, narrow down those available even more
+            let hasStarted = [];
+            let availableElems = [];
+            for (i = 0; i < itr; i++) {
+                if ((tryRow + i) <= 0 || (tryRow + i) > gridSize) continue;
+
+                for (j = 0; j < itr; j++) {
+                    if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
+
+                    elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j));     //.html('' + i + j);
+                    let elemObj = {
+                        elem: elem,
+                        row: i,
+                        col: j,
+                        idx: ('' + i + j)       // Speeds things up below
+                    };
+                    if ($(elem).hasClass('bs-pos-cell-started')) {
+                        hasStarted[hasStarted.length] = elemObj;
+                    } else {
+                        if ($(elemObj).hasClass('bs-pos-cell-plotted') || $(elemObj).hasClass('bs-pos-cell-started')) {
+                            // Ignore this location
+                        } else {
+                            // This location is possibly available
+                            availableElems[availableElems.length] = elemObj;
+                        }
+                    }
+                }
+            }
+            // For each offset cell it can only be used if a required cell is available to complete the set of three
+            for (let i = 0; i < hasStarted.length; i++) {
+                let started = hasStarted[i];
+                let n = 0;
+
+                if ('00' == started.idx) { n=setAvailableElem(availableElems, '11'); }
+                if ('02' == started.idx) { n=setAvailableElem(availableElems, '12'); }
+                if ('04' == started.idx) { n=setAvailableElem(availableElems, '13'); }
+                if ('11' == started.idx) { n=setAvailableElem(availableElems, '00'); n=setAvailableElem(availableElems, '33'); }
+                if ('12' == started.idx) { n=setAvailableElem(availableElems, '02'); n=setAvailableElem(availableElems, '32'); }
+                if ('13' == started.idx) { n=setAvailableElem(availableElems, '04'); n=setAvailableElem(availableElems, '31'); }
+                if ('20' == started.idx) { n=setAvailableElem(availableElems, '21'); }
+                if ('21' == started.idx) { n=setAvailableElem(availableElems, '20'); n=setAvailableElem(availableElems, '23'); }
+                if ('23' == started.idx) { n=setAvailableElem(availableElems, '21'); n=setAvailableElem(availableElems, '24'); }
+                if ('31' == started.idx) { n=setAvailableElem(availableElems, '40'); n=setAvailableElem(availableElems, '13'); }
+                if ('32' == started.idx) { n=setAvailableElem(availableElems, '12'); n=setAvailableElem(availableElems, '42'); }
+                if ('33' == started.idx) { n=setAvailableElem(availableElems, '11'); n=setAvailableElem(availableElems, '44'); }
+                if ('40' == started.idx) { n=setAvailableElem(availableElems, '31'); }
+                if ('42' == started.idx) { n=setAvailableElem(availableElems, '32'); }
+                if ('44' == started.idx) { n=setAvailableElem(availableElems, '33'); }
+
+                numberOfAvailableCells += n;
+            }
+
+            return numberOfAvailableCells;
+        }
+
+        /**
+         * Set the element to be available if not blocked by already being allocated
+         */
+        function setAvailableElem(availableElems, idx)
+        {
+            for (let j=0; j<availableElems.length; j++) {
+                let elemObj = availableElems[j];
+                if (idx == elemObj.idx) {
+                    $(elemObj.elem).addClass('bs-pos-cell-available');
+                    return 1;
+                }
+            }
+            return 0;
+        }
+
+        /**
+         * Highlight available cells when dealing with length three, when only one is currently allocated
+         */
+        function lengthThreeOneAllocated(row, col, fleetVessel)
+        {
+            let tryRow = row - 2;
+            let tryCol = col - 2;
+            let itr = 5;        // A 5 x 5 set of cells which could possibly be available
+            let numberOfAvailableCells = 0;
 
             // Remove those entries that can never be used because 3 in a row must be diagonally or in a line
             let elem = null;
-            for (i=0; i<itr; i++) {
-                for (j=0; j<itr; j++) {
+            for (i = 0; i < itr; i++) {
+                if ((tryRow + i) <= 0 || (tryRow + i) > gridSize) continue;
+
+                for (j = 0; j < itr; j++) {
+                    if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
+
                     if ((0 == i && (1 == j || 3 == j))
-                        || (1 == i && (0 == j || 4 == j))
-                        || (3 == i && (0 == j || 4 == j))
-                        || (4 == i && (1 == j || 3 == j))
+                            || (1 == i && (0 == j || 4 == j))
+                            || (3 == i && (0 == j || 4 == j))
+                            || (4 == i && (1 == j || 3 == j))
                     ) {
                         // Remove the available class, if present
                         elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j));
@@ -453,60 +569,67 @@ use App\Game;
                 }
             }
             // Create an array of all elems with the available class, these are those that might be possible
-            // Add started cells for this vessel
             let hasAvailable = [];
-            for (i=0; i<itr; i++) {
-                for (j=0; j<itr; j++) {
+            for (i = 0; i < itr; i++) {
+                if ((tryRow + i) <= 0 || (tryRow + i) > gridSize) continue;
+
+                for (j = 0; j < itr; j++) {
+                    if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
+
                     elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j));
                     if ($(elem).hasClass('bs-pos-cell-available')) {
                         hasAvailable[hasAvailable.length] = {
                             elem: elem,
                             row: i,
-                            col: j
+                            col: j,
+                            idx: ('' + i + j)       // Speeds things up below
                         };
-                    } else if ($(elem).hasClass('bs-pos-cell-started')) {
-                        hasAvailable[hasAvailable.length] = {
-                            elem: elem,
-                            row: i,
-                            col: j
-                        };
+                        if (2 == i && 2 == j) {
+                            // Do not count the primary cell, it is always at 2,2
+                        } else {
+                            numberOfAvailableCells += 1;
+                        }
                     }
                 }
             }
 
-            // For each offset cell it can only be used if the intervening cells are available
-            for (i=0; i<hasAvailable.length; i++) {
+            // For each offset cell it can only be used if a required cell is available to complete the set of three
+            for (let i = 0; i < hasAvailable.length; i++) {
                 let avail = hasAvailable[i];
-                if ((0 == avail.row && 0 == avail.col) && !hasAvailableElem(hasAvailable, 1, 1)
-                        || (0 == avail.row && 2 == avail.col) && !hasAvailableElem(hasAvailable, 1, 2)
-                        || (0 == avail.row && 4 == avail.col) && !hasAvailableElem(hasAvailable, 1, 3)
-                        || (1 == avail.row && 1 == avail.col) && (!hasAvailableElem(hasAvailable, 0, 0) || !hasAvailableElem(hasAvailable, 3, 3))
-                        || (1 == avail.row && 2 == avail.col) && (!hasAvailableElem(hasAvailable, 0, 2) || !hasAvailableElem(hasAvailable, 3, 2))
-                        || (1 == avail.row && 3 == avail.col) && (!hasAvailableElem(hasAvailable, 0, 4) || !hasAvailableElem(hasAvailable, 3, 1))
-                        || (2 == avail.row && 0 == avail.col) && !hasAvailableElem(hasAvailable, 2, 1)
-                        || (2 == avail.row && 1 == avail.col) && (!hasAvailableElem(hasAvailable, 2, 0) || !hasAvailableElem(hasAvailable, 2, 3))
-                        || (3 == avail.row && 1 == avail.col) && (!hasAvailableElem(hasAvailable, 4, 0) || !hasAvailableElem(hasAvailable, 1, 3))
-                        || (3 == avail.row && 2 == avail.col) && (!hasAvailableElem(hasAvailable, 1, 2) || !hasAvailableElem(hasAvailable, 4, 2))
-                        || (3 == avail.row && 3 == avail.col) && (!hasAvailableElem(hasAvailable, 1, 1) || !hasAvailableElem(hasAvailable, 4, 4))
-                        || (4 == avail.row && 0 == avail.col) && !hasAvailableElem(hasAvailable, 3, 1)
-                        || (4 == avail.row && 2 == avail.col) && !hasAvailableElem(hasAvailable, 3, 2)
-                        || (4 == avail.row && 4 == avail.col) && !hasAvailableElem(hasAvailable, 3, 3)
+                if (
+                        '00' == avail.idx && !hasAvailableElem(hasAvailable, '11')
+                        || '02' == avail.idx && !hasAvailableElem(hasAvailable, '12')
+                        || '04' == avail.idx && !hasAvailableElem(hasAvailable, '13')
+                        || '11' == avail.idx && (!hasAvailableElem(hasAvailable, '00') && !hasAvailableElem(hasAvailable, '33'))
+                        || '12' == avail.idx && (!hasAvailableElem(hasAvailable, '02') && !hasAvailableElem(hasAvailable, '32'))
+                        || '13' == avail.idx && (!hasAvailableElem(hasAvailable, '04') && !hasAvailableElem(hasAvailable, '31'))
+                        || '20' == avail.idx && !hasAvailableElem(hasAvailable, '21')
+                        || '21' == avail.idx && (!hasAvailableElem(hasAvailable, '20') && !hasAvailableElem(hasAvailable, '23'))
+                        || '24' == avail.idx && !hasAvailableElem(hasAvailable, '23')
+                        || '31' == avail.idx && (!hasAvailableElem(hasAvailable, '40') && !hasAvailableElem(hasAvailable, '13'))
+                        || '32' == avail.idx && (!hasAvailableElem(hasAvailable, '12') && !hasAvailableElem(hasAvailable, '42'))
+                        || '33' == avail.idx && (!hasAvailableElem(hasAvailable, '11') && !hasAvailableElem(hasAvailable, '44'))
+                        || '40' == avail.idx && !hasAvailableElem(hasAvailable, '31')
+                        || '42' == avail.idx && !hasAvailableElem(hasAvailable, '32')
+                        || '44' == avail.idx && !hasAvailableElem(hasAvailable, '33')
                 ) {
-                    // The cell cannot be used as there isn't enough room
+                    // The cell cannot be used as a required cell isn't available
                     setElemStatusClass(avail.elem, '');
+                    numberOfAvailableCells -= 1;
                 }
             }
 
+            return numberOfAvailableCells;
         }
 
         /**
-         * Try to find the requested available elem
+         * Try to find the requested elem
          */
-        function hasAvailableElem(hasAvailable, row, col)
+        function hasAvailableElem(elemAry, idx)
         {
-            for (i=0; i<hasAvailable.length; i++) {
-                let avail = hasAvailable[i];
-                if (row == avail.row && col == avail.col) {
+            for (let j=0; j<elemAry.length; j++) {
+                let elem = elemAry[j];
+                if (idx == elem.idx) {
                     return true;
                 }
             }
