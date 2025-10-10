@@ -21,6 +21,7 @@ class User extends Model implements AuthenticatableContract,
 
     const USER_BRIAN = 'brian';
     const USER_STEVE = 'steve';
+    const USER_DAVE = 'dave';
 
     /**
      * The database table used by the model.

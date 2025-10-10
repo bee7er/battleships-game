@@ -64,18 +64,18 @@ class GamesController extends Controller
 	}
 
 	/**
-	 * Edit the seleected game.
+	 * Edit the selected game.
 	 *
 	 * @param Request $request
 	 * @return Response
 	 */
 	public function editGame(Request $request)
 	{
-		$loggedIn = true;
 		if (!$this->auth->check()) {
 			return redirect()->intended('error');
 		}
 
+		$loggedIn = true;
 		$userId = $this->auth->user()->id;
 		$gameId = $request->get('gameId');
 		$fleetId = 0;
@@ -91,8 +91,6 @@ class GamesController extends Controller
 				// Just get fleet id from the first fleet vessel entry
 				$fleetId = $fleet[0]->id;
 			}
-			Log::notice('878787878787878');
-			Log::notice($fleet);
 
 		} catch(Exception $e) {
 			Log::notice("Error getting game: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
@@ -102,5 +100,22 @@ class GamesController extends Controller
 		$users = User::getUsers($userId);
 
 		return view('pages.games.editGame', compact('loggedIn', 'game', 'users', 'fleet', 'fleetId', 'errors', 'msgs'));
+	}
+
+	/**
+	 * Update the selected game.
+	 *
+	 * @param Request $request
+	 * @return Response
+	 */
+	public function updateGame(Request $request)
+	{
+		if (!$this->auth->check()) {
+			return redirect()->intended('error');
+		}
+
+		$formData = $request->all();
+
+		dd($formData);
 	}
 }

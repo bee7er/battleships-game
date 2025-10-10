@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bulma Form with Listbox</title>
+    <!-- Bulma CSS CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <style>
+        /* Small helpers to make the demo look nicer */
+        body { padding: 2rem; background: #f5f7fa; }
+        .card { max-width: 760px; margin: 0 auto; }
+        .listbox-help { font-size: 0.9rem; color: #4a4a4a; }
+    </style>
+</head>
+<body>
+<section class="section">
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title">Example Form — Bulma + Listbox</p>
+        </header>
+        <div class="card-content">
+            <form id="exampleForm">
+
+                <!-- Name -->
+                <div class="field">
+                    <label class="label">Full name</label>
+                    <div class="control">
+                        <input class="input" type="text" name="fullName" placeholder="e.g. Jane Doe" required>
+                    </div>
+                    <p class="help">Enter your real name.</p>
+                </div>
+
+                <!-- Email -->
+                <div class="field">
+                    <label class="label">Email</label>
+                    <div class="control has-icons-left">
+                        <input class="input" type="email" name="email" placeholder="name@example.com" required>
+              <span class="icon is-left">
+                <i class="fas fa-envelope" aria-hidden="true"></i>
+              </span>
+                    </div>
+                    <p class="help">We'll never share your email.</p>
+                </div>
+
+                <!-- Password -->
+                <div class="field">
+                    <label class="label">Password</label>
+                    <div class="control">
+                        <input class="input" type="password" name="password" placeholder="Choose a strong password" required>
+                    </div>
+                </div>
+
+                <!-- Listbox (select with size attribute) -->
+                <div class="field">
+                    <label class="label">Preferred locations (choose one or more)</label>
+                    <div class="control">
+                        <!-- Bulma wraps the select element in a .select container. For a listbox, use the native select with size and multiple attributes. -->
+                        <div class="select is-fullwidth">
+                            <select name="locations" id="locationsListbox" size="6" multiple aria-label="Preferred locations listbox">
+                                <option value="ny">New York</option>
+                                <option value="sf">San Francisco</option>
+                                <option value="ldn">London</option>
+                                <option value="ber">Berlin</option>
+                                <option value="tok">Tokyo</option>
+                                <option value="syd">Sydney</option>
+                                <option value="tor">Toronto</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="help listbox-help">Hold Ctrl (or Cmd on Mac) to select multiple options. Use the up/down keys to navigate for keyboard users.</p>
+                </div>
+
+                <!-- Single select (regular dropdown) -->
+                <div class="field">
+                    <label class="label">Contact preference</label>
+                    <div class="control">
+                        <div class="select">
+                            <select name="contactPref">
+                                <option value="email">Email</option>
+                                <option value="phone">Phone</option>
+                                <option value="none">No contact</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Radio -->
+                <div class="field">
+                    <label class="label">Newsletter</label>
+                    <div class="control">
+                        <label class="radio">
+                            <input type="radio" name="newsletter" value="yes" checked>
+                            Yes
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="newsletter" value="no">
+                            No
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Checkbox -->
+                <div class="field">
+                    <div class="control">
+                        <label class="checkbox">
+                            <input type="checkbox" name="terms" required>
+                            I agree to the <a href="#">terms and conditions</a>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Textarea -->
+                <div class="field">
+                    <label class="label">Notes</label>
+                    <div class="control">
+                        <textarea class="textarea" name="notes" placeholder="Anything we should know?"></textarea>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button type="submit" class="button is-primary">Submit</button>
+                    </div>
+                    <div class="control">
+                        <button type="reset" class="button is-light">Reset</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Minimal JS to show selected values when submitting (demo purposes) -->
+<script>
+    document.getElementById('exampleForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const form = e.target;
+
+        // Gather multiple selections from the listbox
+        const listbox = document.getElementById('locationsListbox');
+        const selected = Array.from(listbox.options)
+                        .filter(opt => opt.selected)
+        .map(opt => opt.text);
+
+        const data = {
+            fullName: form.fullName.value,
+            email: form.email.value,
+            locations: selected,
+            contactPref: form.contactPref.value,
+            newsletter: form.newsletter.value,
+            notes: form.notes.value,
+        };
+
+        // For demo: show the collected payload
+        alert('Form submitted (demo)\n' + JSON.stringify(data, null, 2));
+    });
+</script>
+
+<!-- Font Awesome for the email icon (optional) -->
+<script defer src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+</body>
+</html>

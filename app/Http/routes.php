@@ -21,6 +21,10 @@ Route::get('/error', 'HomeController@error');
 Route::get('/about', 'HomeController@about');
 Route::get('/profile', 'HomeController@profile');
 Route::get('/games', 'GamesController@index');
+Route::post('/editGame', 'GamesController@editGame');
 Route::get('/editGame', 'GamesController@editGame');
+Route::post('/updateGame', 'GamesController@updateGame');
+
+/* API functions */
 Route::post('/setVesselLocation', 'VesselsController@setVesselLocation');
 Route::post('/removeVesselLocation', 'VesselsController@removeVesselLocation');

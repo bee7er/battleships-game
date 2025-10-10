@@ -45,7 +45,12 @@ body {
 
 .bs-form-table {
     text-align: left;
-    width: 60%;
+    width: 100%;
+}
+
+.bs-listbox {
+    text-align: left;
+    min-width: 200px;
 }
 
 .bs-section-title {
