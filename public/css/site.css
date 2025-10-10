@@ -43,6 +43,21 @@ body {
     font-weight: bold;
 }
 
+.bs-form-table {
+    text-align: left;
+    width: 60%;
+}
+
+.bs-section-title {
+    color: #000 !important;
+    font-weight: bold;
+}
+
+.bs-section-help {
+    color: #00f !important;
+    font-weight: normal;
+}
+
 .bs-msgs {
     color: #0000c4 !important;
     font-weight: bold;

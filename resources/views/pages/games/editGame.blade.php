@@ -15,16 +15,26 @@ use App\Game;
             @include('common.msgs')
             @include('common.errors')
 
-            <div class="panel-block">
-                <p class="control">
-                    Protagonist: {{ucfirst($game->protagonist_name)}}
-                </p>
-            </div>
-            <div class="panel-block">
-                <p class="control">
-                    Opponent: {{ucfirst($game->opponent_name)}}
-                </p>
-            </div>
+            <table class="table is-bordered is-striped bs-form-table">
+                <tbody>
+                    <tr class="">
+                        <td class="cell bs-section-title">
+                            Protagonist:
+                        </td>
+                        <td class="cell">
+                            {{ucfirst($game->protagonist_name)}}
+                        </td>
+                    </tr>
+                    <tr class="">
+                        <td class="cell bs-section-title">
+                            Opponent:
+                        </td>
+                        <td class="cell">
+                            {{ucfirst($game->opponent_name)}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
             <div class="panel-block">
                 <form id="gameForm" action="/editGame" method="POST" class="form-horizontal">
                     {{ csrf_field() }}
@@ -65,14 +75,14 @@ use App\Game;
             <input type="hidden" name="fleetId" id="fleetId" value="{{$fleetId}}" />
 
             <div class="field">
-                <label class="label">Game Name</label>
+                <label class="label bs-section-title">Game Name</label>
                 <div class="control">
                     <input class="input" type="text" placeholder="Game name" name="name" id="name" value="{{$game->game_name}}">
                 </div>
             </div>
             <div class="field">
-                <div class="bs-status">
-                    Current game status: {{ucfirst($game->status)}}
+                <div class="bs-section-title">
+                    Current game status: <span class="bs-status">{{ucfirst($game->status)}}</span>
                 </div>
             </div>
 
@@ -90,9 +100,9 @@ use App\Game;
             @endif
 
             <div class="field">
-                <div class="">
-                    Fleet Vessels:
-                </div>
+                <div class="bs-section-title">Fleet Vessels: </div>
+                <div class="bs-section-help">Select each vessel and plot its positions on the grid.</div>
+                <div class="bs-section-help">Each vessel has a length corresponding with the number of positions which must be plotted.</div>
             </div>
 
             <table class="table is-bordered is-striped bs-plot-table">
@@ -125,8 +135,8 @@ use App\Game;
             </table>
 
             <div class="field">
-                <div class="">
-                    Vessel Locations:<span id="notification" class="bs-notification">&nbsp;</span>
+                <div class="bs-section-title">
+                    Vessel Locations Grid:<span id="notification" class="bs-notification">&nbsp;</span>
                 </div>
 
             </div>

@@ -13,7 +13,7 @@ use App\Game;
 
         <div class="bs-add-link is-pulled-right" title="Add a new game"><a href="">Add Game</a></div>
 
-        <form id="gamesForm" action="/editGame" method="POST" class="form-horizontal">
+        <form id="gamesForm" action="/editGame" method="GET" class="form-horizontal">
             <input type="hidden" name="gameId" id="gameId" value="" />
 
             <table class="table is-fullwidth is-bordered is-striped">
