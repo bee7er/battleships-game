@@ -9,17 +9,6 @@ function gotoUrl(formId, url) {
 }
 
 /**
- * Ajax change the current language - here for example only
- */
-function ajaxChangeLanguage(languageCode)
-{
-    let url = "/changeLanguage";
-    ajaxCall(url,
-        JSON.stringify({'languageCode': languageCode})
-    );
-}
-
-/**
  * Post request to server side
  *
  * @param url

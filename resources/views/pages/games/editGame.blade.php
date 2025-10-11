@@ -267,7 +267,8 @@ use App\Game;
                 let location = {
                     fleetVessel: fleetVessel,
                     row: row,
-                    col: col
+                    col: col,
+                    user_token: getCookie('user_token')
                 };
                 ajaxCall('removeVesselLocation', JSON.stringify(location), updateFleetVessel);
                 // Clear the cell and availability
@@ -297,6 +298,7 @@ use App\Game;
             fleetVessel.opponentId = {{$game->opponent_id}};
             fleetVessel.subjectRow = row;
             fleetVessel.subjectCol = col;
+            fleetVessel.user_token = getCookie('user_token');
 
             // Post the new location to the server and await the return in the callback
             ajaxCall('setVesselLocation', JSON.stringify(fleetVessel), updateFleetVessel);

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
+use Exception;
 use Illuminate\Auth\Guard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -43,6 +45,8 @@ class HomeController extends Controller
 		if ($this->auth->check()) {
 			$loggedIn = true;
 			$user = $this->auth->user();
+			// We place the user token in the response so it can be obtained
+			// by the client and stored in a cookie
 			$userToken = $user->user_token;
 		}
 

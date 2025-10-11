@@ -44,39 +44,30 @@ class VesselsController extends Controller
 		$fleetVessel = Input::all();
 
 		try {
-			//$user = User::where('email', $request->get(self::VESSEL_ID))->first();
-//			if ($user) {
-			if (true) {
+			// User token must be provided and valid for all API calls
+			User::checkUserToken($request->get(User::USER_TOKEN));
 
-				//$user->checkUserToken($request->get(User::USERTOKEN));
+			// Update the fleet vessel status, returned below
+			$fleetVessel['status'] =
+				FleetVesselLocation::addNewLocation($fleetVessel['fleetVesselId'], $fleetVessel['locations']);
 
-				// Update the fleet vessel status, returned below
-				$fleetVessel['status'] =
-					FleetVesselLocation::addNewLocation($fleetVessel['fleetVesselId'], $fleetVessel['locations']);
-
-				if (FleetVessel::FLEET_VESSEL_PLOTTED == $fleetVessel['status']) {
-					// Are they all plotted?  If so, we set the game to waiting or ready.
-					$protagonistReady = FleetVessel::isFleetReady($fleetVessel['fleetId']);
-					if ($protagonistReady) {
-						$opponentReady = false;
-						// Find the opponent's fleet
-						$opponentFleet = Fleet::getFleet($fleetVessel['gameId'], $fleetVessel['opponentId']);
-						if (isset($opponentFleet) && count($opponentFleet) > 0) {
-							$opponentReady = FleetVessel::isFleetReady($opponentFleet->id);
-						}
-						$game = Game::getGame($fleetVessel['gameId']);
-						if ($opponentReady) $game->status = Game::STATUS_READY;
-						else $game->status = Game::STATUS_WAITING;
-						$game->save();
+			if (FleetVessel::FLEET_VESSEL_PLOTTED == $fleetVessel['status']) {
+				// Are they all plotted?  If so, we set the game to waiting or ready.
+				$protagonistReady = FleetVessel::isFleetReady($fleetVessel['fleetId']);
+				if ($protagonistReady) {
+					$opponentReady = false;
+					// Find the opponent's fleet
+					$opponentFleet = Fleet::getFleet($fleetVessel['gameId'], $fleetVessel['opponentId']);
+					if (isset($opponentFleet) && count($opponentFleet) > 0) {
+						$opponentReady = FleetVessel::isFleetReady($opponentFleet->id);
 					}
+					$game = Game::getGame($fleetVessel['gameId']);
+					if ($opponentReady) $game->status = Game::STATUS_READY;
+					else $game->status = Game::STATUS_WAITING;
+					$game->save();
 				}
-				$result = 'OK';
-
-			} else {
-				$message = "Could not find user with email: " . $request->get(self::VESSEL_ID);
-				Log::info('Error: ' . $message);
-				$result = 'Error';
 			}
+			$result = 'OK';
 
 		} catch(\Exception $exception) {
 			$result = 'Error';
@@ -107,36 +98,28 @@ class VesselsController extends Controller
 		$fleetVessel = null;
 
 		try {
-			//$user = User::where('email', $request->get(self::VESSEL_ID))->first();
-//			if ($user) {
-			if (true) {
-				//$user->checkUserToken($request->get(User::USERTOKEN));
+			// User token must be provided and valid for all API calls
+			User::checkUserToken($request->get(User::USER_TOKEN));
 
-				// We update the fleet vessel, returned below
-				$fleetVessel = $location['fleetVessel'];
-				$fleetVessel['status'] = FleetVesselLocation::deleteLocation($fleetVessel['fleetVesselId'], $location['row'], $location['col']);
-				$fleetVessel['locations'] = [];
-				// Replace the remaining locations, if any
-				$locations = FleetVesselLocation::getFleetVesselLocations($fleetVessel['fleetVesselId']);
-				if (isset($locations) && 0 < count($locations)) {
-					foreach ($locations as $existingLocation) {
-						$fleetVessel['locations'][] = [
-							'id' => $existingLocation->id,
-							'fleet_vessel_id' => $existingLocation->fleet_vessel_id,
-							'row' => $existingLocation->row,
-							'col' => $existingLocation->col,
-							'vessel_name' => $existingLocation->vessel_name,
-						];
-					}
+			// We update the fleet vessel, returned below
+			$fleetVessel = $location['fleetVessel'];
+			$fleetVessel['status'] = FleetVesselLocation::deleteLocation($fleetVessel['fleetVesselId'], $location['row'], $location['col']);
+			$fleetVessel['locations'] = [];
+			// Replace the remaining locations, if any
+			$locations = FleetVesselLocation::getFleetVesselLocations($fleetVessel['fleetVesselId']);
+			if (isset($locations) && 0 < count($locations)) {
+				foreach ($locations as $existingLocation) {
+					$fleetVessel['locations'][] = [
+						'id' => $existingLocation->id,
+						'fleet_vessel_id' => $existingLocation->fleet_vessel_id,
+						'row' => $existingLocation->row,
+						'col' => $existingLocation->col,
+						'vessel_name' => $existingLocation->vessel_name,
+					];
 				}
-
-				$result = 'OK';
-
-			} else {
-				$message = "Could not find user with email: " . $request->get(self::VESSEL_ID);
-				Log::info('Error: ' . $message);
-				$result = 'Error';
 			}
+
+			$result = 'OK';
 
 		} catch(\Exception $exception) {
 			$result = 'Error';

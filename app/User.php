@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class User extends Model implements AuthenticatableContract,
@@ -16,6 +17,8 @@ class User extends Model implements AuthenticatableContract,
                                     CanResetPasswordContract
 {
     use Authenticatable, Authorizable, CanResetPassword;
+
+    const USER_TOKEN = 'user_token';
 
     const USER_BRIAN = 'brian';
     const USER_STEVE = 'steve';
@@ -87,12 +90,14 @@ class User extends Model implements AuthenticatableContract,
      *
      * @param $userToken
      */
-    public function checkUserToken($userToken)
+    public static function checkUserToken($userToken)
     {
         if (!isset($userToken)) {
             throw new \Exception('API authentication not provided');
         }
-        if ($userToken !== $this->user_token) {
+        $builder = self::where("users.user_token", "=", $userToken);
+        $users = $builder->get();
+        if (!isset($users) || count($users) == 0) {
             throw new \Exception('API authentication is invalid');
         }
     }
