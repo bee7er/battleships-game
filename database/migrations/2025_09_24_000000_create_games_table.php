@@ -20,6 +20,7 @@ class CreateGamesTable extends Migration
             $table->string('name')->unique();
             $table->enum('status', [
                     Game::STATUS_EDIT,
+                    Game::STATUS_WAITING,
                     Game::STATUS_READY,
                     Game::STATUS_ACTIVE,
                     Game::STATUS_WINNER,

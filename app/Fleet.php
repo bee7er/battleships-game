@@ -65,17 +65,12 @@ class Fleet extends Model
 
         $fleet = $builder
             ->where("fleets.game_id", "=", $gameId)
-            ->where("fleets.user_id", "=", $userId);
+            ->where("fleets.user_id", "=", $userId)->get();
 
-        if (!isset($fleet) || $fleet->count() <= 0) {
-            throw new Exception("Could not find fleet with game id '$gameId' and user id '$userId'");
+        if (isset($fleet) && count($fleet) > 0) {
+            return $fleet[0];
         }
-
-        if ($fleet->count() > 1) {
-            throw new Exception("More than one fleet with game id '$gameId' and user id '$userId'");
-        }
-
-        return $fleet->get()[0];
+        return null;
     }
     
     /**

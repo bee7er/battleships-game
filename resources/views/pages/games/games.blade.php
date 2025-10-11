@@ -54,7 +54,9 @@ use App\Game;
                         <td>{{$game->started_at}}</td>
                         <td>{{$game->ended_at}}</td>
                         <td>
-                            @if ($game->status == Game::STATUS_EDIT || $game->status == Game::STATUS_READY)
+                            @if ($game->status == Game::STATUS_EDIT
+                             || $game->status == Game::STATUS_WAITING
+                             || $game->status == Game::STATUS_READY)
                                 <div title="Edit the game"><a href="javascript: gotoEdit({{$game->id}})">Edit</a></div>
                             @endif
                             <div title="Delete the game"><a href="">Delete</a></div>

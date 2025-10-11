@@ -85,7 +85,7 @@ class GamesController extends Controller
 
 		$game = null;
 		try {
-			$game = Game::getGame($gameId);
+			$game = Game::getGameDetails($gameId);
 			$fleet = Fleet::getFleetDetails($gameId, $userId);
 			if (isset($fleet) && count($fleet) > 0) {
 				// Just get fleet id from the first fleet vessel entry
@@ -114,8 +114,23 @@ class GamesController extends Controller
 			return redirect()->intended('error');
 		}
 
-		$formData = $request->all();
+		//dd($request->all());
 
-		dd($formData);
+		$gameId = $request->get('gameId');
+		$game = null;
+		try {
+			$game = Game::getGame($gameId);
+			$user = User::findOrFail($request->get('opponentId'));
+
+			Log::notice("new name: $request->get('gameName')");
+			$game->name = $request->get('gameName');
+			$game->opponent_id = $user->id;
+			$game->save();
+
+		} catch(Exception $e) {
+			Log::notice("Error updating game: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
+		}
+
+		return redirect()->intended('/games');
 	}
 }

@@ -10,12 +10,13 @@ class Game extends Model
     const GAME_FIRST_NAVAL_BATTLE = '1st naval battle';
 
     const STATUS_EDIT = 'edit';
+    const STATUS_WAITING = 'waiting';
     const STATUS_READY = 'ready';
     const STATUS_ACTIVE = 'active';
     const STATUS_WINNER = 'winner';
     const STATUS_LOSER = 'loser';
 
-    const STATUS_ARRAY = [self::STATUS_EDIT, self::STATUS_READY, self::STATUS_ACTIVE, self::STATUS_WINNER, self::STATUS_LOSER];
+    const STATUS_ARRAY = [self::STATUS_EDIT, self::STATUS_WAITING, self::STATUS_READY, self::STATUS_ACTIVE, self::STATUS_WINNER, self::STATUS_LOSER];
 
     /**
      * The database table used by the model.
@@ -30,6 +31,19 @@ class Game extends Model
      * @var array
      */
     protected $fillable = ['name', 'status', 'protagonist_id', 'opponent_id', 'started_at', 'ended_at'];
+
+    /**
+     * Retrieve a game
+     */
+    public static function getGame($id=null)
+    {
+        if (null == $id) {
+            // Add mode
+            return new Game();
+        }
+
+        return self::findOrFail($id);
+    }
 
     /**
      * Retrieve all games for the given user
@@ -58,15 +72,10 @@ class Game extends Model
     }
 
     /**
-     * Retrieve a game from the db table
+     * Retrieve a game and its joined entities
      */
-    public static function getGame($id=null)
+    public static function getGameDetails($id=null)
     {
-        if (null == $id) {
-            // Add mode
-            return new Game();
-        }
-
         $builder = self::select(
             array(
                 'games.id',

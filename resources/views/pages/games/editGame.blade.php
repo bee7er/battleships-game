@@ -20,7 +20,6 @@ use App\Game;
 
                 <input type="hidden" name="gameId" id="gameId" value="{{$game->id}}" />
                 <input type="hidden" name="fleetId" id="fleetId" value="{{$fleetId}}" />
-                <input type="hidden" name="opponentUserId" id="opponentUserId" value="user_{{$game->opponent_id}}" />
 
                 <table class="table is-bordered is-striped bs-form-table">
                     <tbody>
@@ -30,6 +29,14 @@ use App\Game;
                             </td>
                             <td class="cell bs-status">
                                 {{ucfirst($game->status)}}
+                            </td>
+                        </tr>
+                        <tr class="">
+                            <td class="cell bs-section-title">
+                                Name:
+                            </td>
+                            <td class="cell">
+                                <input type="text" id="gameName" name="gameName" value="{{ucfirst($game->game_name)}}" />
                             </td>
                         </tr>
                         <tr class="">
@@ -53,11 +60,11 @@ use App\Game;
                                 Choose Opponent
                             </td>
                             <td class="cell">
-                                <select name="opponent" id="opponent" aria-label="Game opponent" class="bs-listbox">
+                                <select name="opponentId" id="opponentId" aria-label="Game opponent" class="bs-listbox">
+                                    <option value="" class="">Select a new opponent</option>
                                     @if (isset($users) && $users->count() > 0)
                                         @foreach($users as $user)
-                                            <option value="{{$user->id}}"
-                                                    class="@if ($user->id == $game->opponent_id) 'is-active' @endif">{{$user->name}}</option>
+                                                <option value="{{$user->id}}" @if ($user->id == $game->opponent_id) {{'selected'}}@endif>{{ucfirst($user->name)}}</option>
                                         @endforeach
                                     @endif
                                 </select>
@@ -89,91 +96,98 @@ use App\Game;
             </form>
 
         </article>
-
         <div class="field">
-            <div class="bs-section-title">Fleet Vessels: </div>
             <div class="bs-section-help">Select each vessel and plot its positions on the grid.</div>
             <div class="bs-section-help">Each vessel has a length corresponding with the number of positions which must be plotted.</div>
+            <div class="">Messages: <span id="notification" class="bs-notification">&nbsp;</span></div>
         </div>
 
-        <table class="table is-bordered is-striped bs-plot-table">
-            <tbody>
+        <div class="columns">
 
-            <tr class="">
-                <th class="cell">Select</th>
-                <th class="cell">Name</th>
-                <th class="cell">Status</th>
-                <th class="cell">Length</th>
-                <th class="cell">Points</th>
-                <th class="cell">Id</th>
-            </tr>
+            <div class="column">
 
-            @foreach ($fleet as $fleetVessel)
-                <tr class="">
-                    <td class="cell">
-                        <input type="radio" id="radio_id_{{$fleetVessel->fleet_vessel_id}}"
-                               name="vessel" value="{{$fleetVessel->fleet_vessel_id}}" onclick="onClickSelectVessel(this);" />
-                    </td>
-                    <td class="cell" id="name_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->vessel_name}}</td>
-                    <td class="cell" id="status_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->status}}</td>
-                    <td class="cell" id="length_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->length}}</td>
-                    <td class="cell" id="points_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->points}}</td>
-                    <td class="cell" id="points_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->fleet_vessel_id}}</td>
-                </tr>
-            @endforeach
+                <table class="table is-bordered is-striped bs-plot-table">
+                    <tbody>
+                    <tr class="">
+                        <th class="bs-section-title" colspan="99">Fleet Vessels:</th>
+                    </tr>
 
-            </tbody>
-        </table>
+                    <tr class="">
+                        <th class="cell">Select</th>
+                        <th class="cell">Name</th>
+                        <th class="cell">Status</th>
+                        <th class="cell">Length</th>
+                        <th class="cell">Points</th>
+                        <th class="cell">Id</th>
+                    </tr>
 
-        <div class="field">
-            <div class="bs-section-title">
-                Vessel Locations Grid:<span id="notification" class="bs-notification">&nbsp;</span>
+                    @foreach ($fleet as $fleetVessel)
+                        <tr class="">
+                            <td class="cell">
+                                <input type="radio" id="radio_id_{{$fleetVessel->fleet_vessel_id}}"
+                                       name="vessel" value="{{$fleetVessel->fleet_vessel_id}}" onclick="onClickSelectVessel(this);" />
+                            </td>
+                            <td class="cell" id="name_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->vessel_name}}</td>
+                            <td class="cell" id="status_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->status}}</td>
+                            <td class="cell" id="length_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->length}}</td>
+                            <td class="cell" id="points_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->points}}</td>
+                            <td class="cell" id="points_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->fleet_vessel_id}}</td>
+                        </tr>
+                    @endforeach
+
+                    </tbody>
+                </table>
             </div>
 
-        </div>
+            <div class="column">
 
-        <table class="table is-bordered is-striped bs-plot-table">
-            <tbody>
+                <table class="table is-bordered is-striped bs-plot-table">
+                    <tbody>
+                    <tr class="">
+                        <th class="bs-section-title" colspan="99">Vessel Locations Grid:</th>
+                    </tr>
 
-            @for ($row=0; $row<=10; $row++)
-                <tr class="" id="row{{$row}}">
+                    @for ($row=0; $row<=10; $row++)
+                        <tr class="" id="row{{$row}}">
 
-                    @for ($col=0; $col<=10; $col++)
+                            @for ($col=0; $col<=10; $col++)
 
-                        @if ($row == 0)
-                            @if ($col > 0)
-                                <td class="cell has-text-centered bs-plot-cell-header">{{$col}}</td>
-                            @else
-                                <td class="cell">&nbsp;</td>
-                            @endif
-                        @else
-                            @if ($col == 0)
-                                @if ($row > 0)
-                                    <td class="cell has-text-centered bs-plot-cell-header">{{$row}}</td>
+                                @if ($row == 0)
+                                    @if ($col > 0)
+                                        <td class="cell has-text-centered bs-plot-cell-header">{{$col}}</td>
+                                    @else
+                                        <td class="cell">&nbsp;</td>
+                                    @endif
                                 @else
-                                    <td class="cell">&nbsp;</td>
+                                    @if ($col == 0)
+                                        @if ($row > 0)
+                                            <td class="cell has-text-centered bs-plot-cell-header">{{$row}}</td>
+                                        @else
+                                            <td class="cell">&nbsp;</td>
+                                        @endif
+                                    @else
+                                        <td class="cell has-text-centered bs-pos-cell-blank"
+                                            id="cell_{{$row}}_{{$col}}" onclick="onClickAllocateCell(this);">O</td>
+                                    @endif
                                 @endif
-                            @else
-                                <td class="cell has-text-centered bs-pos-cell-blank"
-                                    id="cell_{{$row}}_{{$col}}" onclick="onClickAllocateCell(this);">O</td>
-                            @endif
-                        @endif
 
+                            @endfor
+                        </tr>
                     @endfor
-                </tr>
-            @endfor
 
-            </tbody>
-        </table>
+                    </tbody>
+                </table>
 
-        <div class="field">&nbsp;</div>
-        <div class="field">&nbsp;</div>
+                <div class="field">&nbsp;</div>
+                <div class="field">&nbsp;</div>
+            </div>
+        </div>
     </div>
 
 @endsection
 
 @section('page-scripts')
-    <script type="text/javascript">
+    <script type="text/javascript">;
         var fleetVessels = [];
         var fleetVessel = {};
         var fleetVesselLocations = [];
@@ -277,6 +291,10 @@ use App\Game;
                 col: col,
                 vessel_name: fleetVessel.vessel_name
             };
+            // Add game, fleet and opponent ids for some checking server side
+            fleetVessel.gameId = {{$game->id}};
+            fleetVessel.fleetId = {{$fleetId}};
+            fleetVessel.opponentId = {{$game->opponent_id}};
             fleetVessel.subjectRow = row;
             fleetVessel.subjectCol = col;
 
@@ -656,29 +674,6 @@ use App\Game;
         {
             $('#notification').html(message).show();
             $('#notification').delay(3000).fadeOut();
-        }
-
-
-        /**
-         * Sets the selected opponent user id
-         */
-        function setSelectedOpponent(userId)
-        {
-            console.log('opp=' + $('#opponentUserId').val());
-
-            let usr = '#' + $('#opponentUserId').val();
-            let usr2 = '#' + userId;
-
-            console.log('usr=' + usr);
-            console.log('usr2=' + usr2);
-
-            $(usr).removeClass('is-active');
-            $(usr2).addClass('is-active');
-
-            $('#opponentUserId').val(userId);
-
-
-            console.log('opp=' + $('#opponentUserId').val());
         }
 
         $(document).ready( function()

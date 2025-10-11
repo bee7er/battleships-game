@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Game;
 use App\Fleet;
 use App\FleetVessel;
 use App\FleetVesselLocation;
@@ -53,6 +54,22 @@ class VesselsController extends Controller
 				$fleetVessel['status'] =
 					FleetVesselLocation::addNewLocation($fleetVessel['fleetVesselId'], $fleetVessel['locations']);
 
+				if (FleetVessel::FLEET_VESSEL_PLOTTED == $fleetVessel['status']) {
+					// Are they all plotted?  If so, we set the game to waiting or ready.
+					$protagonistReady = FleetVessel::isFleetReady($fleetVessel['fleetId']);
+					if ($protagonistReady) {
+						$opponentReady = false;
+						// Find the opponent's fleet
+						$opponentFleet = Fleet::getFleet($fleetVessel['gameId'], $fleetVessel['opponentId']);
+						if (isset($opponentFleet) && count($opponentFleet) > 0) {
+							$opponentReady = FleetVessel::isFleetReady($opponentFleet->id);
+						}
+						$game = Game::getGame($fleetVessel['gameId']);
+						if ($opponentReady) $game->status = Game::STATUS_READY;
+						else $game->status = Game::STATUS_WAITING;
+						$game->save();
+					}
+				}
 				$result = 'OK';
 
 			} else {
@@ -64,7 +81,7 @@ class VesselsController extends Controller
 		} catch(\Exception $exception) {
 			$result = 'Error';
 			$message = $exception->getMessage();
-			Log::info('Error in setVesselLocation(): ' . $message);
+			Log::info('Error in setVesselLocation(): ' . $message . ', line: ' . $exception->getLine());
 		}
 
 		$returnData = [
