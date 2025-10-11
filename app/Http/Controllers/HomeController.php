@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\Message;
 use Exception;
 use Illuminate\Auth\Guard;
 use Illuminate\Http\Request;
@@ -42,16 +43,20 @@ class HomeController extends Controller
 	{
 		$loggedIn = false;
 		$userToken = '';
+		$errors = [];
+		$msgs = [];
+
 		if ($this->auth->check()) {
 			$loggedIn = true;
 			$user = $this->auth->user();
 			// We place the user token in the response so it can be obtained
 			// by the client and stored in a cookie
 			$userToken = $user->user_token;
+
+			$msgs = Message::getMessages($user->id)->toArray();
 		}
 
-		$errors = [];
-		$msgs = [];
+
 
 		return view('pages.home', compact('loggedIn', 'userToken', 'errors', 'msgs'));
 	}

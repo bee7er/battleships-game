@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         $this->call(FleetsTableSeeder::class);
         $this->call(FleetVesselsTableSeeder::class);
         $this->call(FleetVesselLocationsTableSeeder::class);
+        $this->call(MessagesTableSeeder::class);
 
         Model::reguard();
     }
