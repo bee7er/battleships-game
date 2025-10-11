@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -85,7 +86,6 @@ class AuthController extends Controller
         $msgs = [];
 
         if (Auth::attempt(['email' => $request->get('email'), 'password' => $request->get('password')])) {
-
             // Authentication passed...
             return redirect()->intended('home');
         }

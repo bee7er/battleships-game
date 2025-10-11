@@ -7,6 +7,7 @@
         <div class="notification">
             @include('common.msgs')
             @include('common.errors')
+            <input type="hidden" id="userToken" value="{{$userToken}}" />
 
             <section class="hero">
                 <div class="hero-head">
@@ -23,6 +24,9 @@
 
 @section('page-scripts')
     <script type="text/javascript">
-
+        $(document).ready( function()
+        {
+            setCookie('user_token', $('#userToken').val(), 1);
+        });
     </script>
 @endsection

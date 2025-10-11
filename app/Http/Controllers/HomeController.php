@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Auth\Guard;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class HomeController
@@ -38,14 +39,17 @@ class HomeController extends Controller
 	public function index(Request $request)
 	{
 		$loggedIn = false;
+		$userToken = '';
 		if ($this->auth->check()) {
 			$loggedIn = true;
+			$user = $this->auth->user();
+			$userToken = $user->user_token;
 		}
 
 		$errors = [];
 		$msgs = [];
 
-		return view('pages.home', compact('loggedIn', 'errors', 'msgs'));
+		return view('pages.home', compact('loggedIn', 'userToken', 'errors', 'msgs'));
 	}
 
 	/**

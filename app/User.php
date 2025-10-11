@@ -17,8 +17,6 @@ class User extends Model implements AuthenticatableContract,
 {
     use Authenticatable, Authorizable, CanResetPassword;
 
-    const USERTOKEN = "userToken";
-
     const USER_BRIAN = 'brian';
     const USER_STEVE = 'steve';
     const USER_DAVE = 'dave';
@@ -35,7 +33,7 @@ class User extends Model implements AuthenticatableContract,
      *
      * @var array
      */
-    protected $fillable = ['name', 'email', 'password'];
+    protected $fillable = ['name', 'email', 'password', 'user_token'];
 
     /**
      * The attributes excluded from the model's JSON form.

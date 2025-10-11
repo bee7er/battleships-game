@@ -28,10 +28,10 @@
 
 <script type="text/javascript">
     // Delete the cookie for testing purposes
-    //    document.cookie = "cookieWarningAccepted=; Max-Age=0; path=/;";
-    //    document.cookie = "cookieLoadAll=; Max-Age=0; path=/;";
-    //    document.cookie = "loadAll=; Max-Age=0; path=/;";
-    //console.log(document.cookie);
+//    document.cookie = "cookieWarningAccepted=; Max-Age=0; path=/;";
+//    document.cookie = "cookieLoadAll=; Max-Age=0; path=/;";
+//    document.cookie = "user_token=; Max-Age=0; path=/;";
+
     // Function to set a cookie
     function setCookie(name, value, days) {
         const d = new Date();
@@ -50,6 +50,18 @@
             if (c.indexOf(nameEQ) == 0) return true; // Cookie found
         }
         return false; // Cookie not found
+    }
+
+    function getCookie(name) {
+        let nameEQ = name + "=";
+        let ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            let c = ca[i];
+            console.log(c);
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
     }
 
 </script>
