@@ -24,6 +24,16 @@ class Message extends Model
     protected $fillable = ['message_text', 'status', 'sending_user_id', 'receiving_user_id', 'read_at'];
 
     /**
+     * Find and return the identified message
+     */
+    public static function getMessage($messageId)
+    {
+        $message = self::where("messages.id", "=", $messageId);
+
+        return $message->get()[0];
+    }
+
+    /**
      * Retrieve all messages for the given user
      */
     public static function getMessages($receivingUserId)
@@ -45,7 +55,8 @@ class Message extends Model
             ->orderBy("messages.created_at", "DESC");
 
         $messages = $builder
-            ->where("messages.receiving_user_id", "=", $receivingUserId);
+            ->where("messages.receiving_user_id", "=", $receivingUserId)
+            ->where("messages.status", "=", self::STATUS_OPEN);
 
         return $messages->get();
     }

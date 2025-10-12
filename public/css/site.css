@@ -68,6 +68,13 @@ body {
     font-weight: bold;
 }
 
+
+.bs-msgs-link {
+    color: #0000c4 !important;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
 .bs-add-link {
     color: #0000c4 !important;
     font-weight: bold;

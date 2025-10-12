@@ -13,6 +13,7 @@ function gotoUrl(formId, url) {
  *
  * @param url
  * @param data
+ * @param callBackFunction
  */
 function ajaxCall(url, data, callBackFunction) {
 
@@ -28,12 +29,11 @@ function ajaxCall(url, data, callBackFunction) {
         // Successful update
         let responseData = JSON.parse(response);
         if ('OK' == responseData.result) {
-            // NB We must process the async return data in a callback
-            callBackFunction(
-                responseData.returnedData,
-                responseData.returnedData.subjectRow,
-                responseData.returnedData.subjectCol
-            );
+            if (null != callBackFunction) {
+                // NB We must process any async returned data in a callback
+                callBackFunction(responseData.returnedData);
+            }
+
             return true;
         }
         alert('Unexpected result from submission, please check the console log');

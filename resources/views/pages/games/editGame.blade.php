@@ -27,7 +27,7 @@ use App\Game;
                             <td class="cell bs-section-title">
                                 Game status:
                             </td>
-                            <td class="cell bs-status">
+                            <td class="cell bs-status" id="gameStatus">
                                 {{ucfirst($game->status)}}
                             </td>
                         </tr>
@@ -270,6 +270,8 @@ use App\Game;
                     col: col,
                     user_token: getCookie('user_token')
                 };
+
+                // ========================================================================
                 ajaxCall('removeVesselLocation', JSON.stringify(location), updateFleetVessel);
                 // Clear the cell and availability
                 setElemStatusClass(elem, '');
@@ -300,6 +302,7 @@ use App\Game;
             fleetVessel.subjectCol = col;
             fleetVessel.user_token = getCookie('user_token');
 
+            // ========================================================================
             // Post the new location to the server and await the return in the callback
             ajaxCall('setVesselLocation', JSON.stringify(fleetVessel), updateFleetVessel);
 
@@ -322,34 +325,6 @@ use App\Game;
                 // Show available cells corresponding with the first row/col
                 availableCells(fleetVessel.locations[0].row, fleetVessel.locations[0].col, fleetVessel);
             }
-        }
-
-        /**
-         * Handle the asynchronous Ajax call
-         * @param returnedFleetVessel: is the returned data for this callback
-         */
-        function updateFleetVessel(returnedFleetVessel, row, col)
-        {
-            // Update the fleet vessel as a result of the new location
-            let fleetVessel = null;
-            for (let i=0; i<fleetVessels.length; i++) {
-                if (fleetVessels[i].fleetVesselId == returnedFleetVessel.fleetVesselId) {
-                    fleetVessels[i].status = returnedFleetVessel.status;
-                    fleetVessels[i].locations = returnedFleetVessel.locations;
-
-                    fleetVessel = fleetVessels[i];
-                }
-            }
-
-            if (0 != row && 0 != col) {
-                // NB This function must be called here else we encounter a timing issue
-                // between the Ajax call and the testing of the status of the returned fleet vessel
-                // Plot available cells around the clicked cell, if any.
-                availableCells(row, col, fleetVessel);
-            }
-
-            // Set the attributes of the clicked cell, by replotting all fleet locations
-            plotFleetLocations();
         }
 
         /**
@@ -429,9 +404,9 @@ use App\Game;
             }
 
             let numberOfAvailableCells = 0;
-            // For length three we need to examine whether three in a row will fit
-            if (fleetVessel.length == 3 && 2 == fleetVessel.locations.length) {
-                // Too complicated for processing here
+            // For length three we need to examine whether three in a row will fit somewhere
+            if (3 == fleetVessel.length && 2 == fleetVessel.locations.length) {
+                // We need at least one available cell
                 numberOfAvailableCells = lengthThreeTwoAllocated(row, col, fleetVessel);
 
             } else {
@@ -449,7 +424,7 @@ use App\Game;
                     for (j = 0; j < itr; j++) {
                         if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
 
-                        let elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)); //.html('' + i + j);
+                        let elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)); //.html('' + i + j);    // To see offsets
                         if ($(elem).hasClass('bs-pos-cell-plotted') || $(elem).hasClass('bs-pos-cell-started')) {
                             // Ignore this location
                         } else {
@@ -470,7 +445,7 @@ use App\Game;
             }
             // Check that there is somewhere to go
             if (numberOfAvailableCells < (fleetVessel.length - fleetVessel.locations.length)) {
-                showNotification('There is not enough room for that vessel in that position. Please move it elsewhere.');
+                showNotification('There is not enough room or no cells available in that position. Please move it elsewhere.');
             }
         }
 
@@ -496,7 +471,7 @@ use App\Game;
                 for (j = 0; j < itr; j++) {
                     if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
 
-                    elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j));     //.html('' + i + j);
+                    elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)); //.html('' + i + j);    // To see offsets
                     let elemObj = {
                         elem: elem,
                         row: i,
@@ -506,7 +481,7 @@ use App\Game;
                     if ($(elem).hasClass('bs-pos-cell-started')) {
                         hasStarted[hasStarted.length] = elemObj;
                     } else {
-                        if ($(elemObj).hasClass('bs-pos-cell-plotted') || $(elemObj).hasClass('bs-pos-cell-started')) {
+                        if ($(elem).hasClass('bs-pos-cell-plotted') || $(elem).hasClass('bs-pos-cell-started')) {
                             // Ignore this location
                         } else {
                             // This location is possibly available
@@ -516,27 +491,31 @@ use App\Game;
                 }
             }
             // For each offset cell it can only be used if a required cell is available to complete the set of three
+            // The starting position is always 2,2, the following table can be read as:
+            //      if the other started cell is '00', then only '11' can be used, if it is available
             for (let i = 0; i < hasStarted.length; i++) {
                 let started = hasStarted[i];
-                let n = 0;
+                let n1 = 0;
+                let n2 = 0;
 
-                if ('00' == started.idx) { n=setAvailableElem(availableElems, '11'); }
-                if ('02' == started.idx) { n=setAvailableElem(availableElems, '12'); }
-                if ('04' == started.idx) { n=setAvailableElem(availableElems, '13'); }
-                if ('11' == started.idx) { n=setAvailableElem(availableElems, '00'); n=setAvailableElem(availableElems, '33'); }
-                if ('12' == started.idx) { n=setAvailableElem(availableElems, '02'); n=setAvailableElem(availableElems, '32'); }
-                if ('13' == started.idx) { n=setAvailableElem(availableElems, '04'); n=setAvailableElem(availableElems, '31'); }
-                if ('20' == started.idx) { n=setAvailableElem(availableElems, '21'); }
-                if ('21' == started.idx) { n=setAvailableElem(availableElems, '20'); n=setAvailableElem(availableElems, '23'); }
-                if ('23' == started.idx) { n=setAvailableElem(availableElems, '21'); n=setAvailableElem(availableElems, '24'); }
-                if ('31' == started.idx) { n=setAvailableElem(availableElems, '40'); n=setAvailableElem(availableElems, '13'); }
-                if ('32' == started.idx) { n=setAvailableElem(availableElems, '12'); n=setAvailableElem(availableElems, '42'); }
-                if ('33' == started.idx) { n=setAvailableElem(availableElems, '11'); n=setAvailableElem(availableElems, '44'); }
-                if ('40' == started.idx) { n=setAvailableElem(availableElems, '31'); }
-                if ('42' == started.idx) { n=setAvailableElem(availableElems, '32'); }
-                if ('44' == started.idx) { n=setAvailableElem(availableElems, '33'); }
+                if ('00' == started.idx) { n1=setAvailableElem(availableElems, '11'); }
+                if ('02' == started.idx) { n1=setAvailableElem(availableElems, '12'); }
+                if ('04' == started.idx) { n1=setAvailableElem(availableElems, '13'); }
+                if ('11' == started.idx) { n1=setAvailableElem(availableElems, '00'); n2=setAvailableElem(availableElems, '33'); }
+                if ('12' == started.idx) { n1=setAvailableElem(availableElems, '02'); n2=setAvailableElem(availableElems, '32'); }
+                if ('13' == started.idx) { n1=setAvailableElem(availableElems, '04'); n2=setAvailableElem(availableElems, '31'); }
+                if ('20' == started.idx) { n1=setAvailableElem(availableElems, '21'); }
+                if ('21' == started.idx) { n1=setAvailableElem(availableElems, '20'); n2=setAvailableElem(availableElems, '23'); }
+                if ('23' == started.idx) { n1=setAvailableElem(availableElems, '21'); n2=setAvailableElem(availableElems, '24'); }
+                if ('24' == started.idx) { n1=setAvailableElem(availableElems, '23'); }
+                if ('31' == started.idx) { n1=setAvailableElem(availableElems, '40'); n2=setAvailableElem(availableElems, '13'); }
+                if ('32' == started.idx) { n1=setAvailableElem(availableElems, '12'); n2=setAvailableElem(availableElems, '42'); }
+                if ('33' == started.idx) { n1=setAvailableElem(availableElems, '11'); n2=setAvailableElem(availableElems, '44'); }
+                if ('40' == started.idx) { n1=setAvailableElem(availableElems, '31'); }
+                if ('42' == started.idx) { n1=setAvailableElem(availableElems, '32'); }
+                if ('44' == started.idx) { n1=setAvailableElem(availableElems, '33'); }
 
-                numberOfAvailableCells += n;
+                numberOfAvailableCells += (n1 + n2);
             }
 
             return numberOfAvailableCells;
@@ -667,6 +646,51 @@ use App\Game;
             $(elem).removeClass('bs-pos-cell-started');
             $(elem).removeClass('bs-pos-cell-plotted');
             $(elem).addClass(newClass);
+        }
+
+        /**
+         * Callback function to handle the asynchronous Ajax call
+         */
+        function setGameStatus(returnedGameStatus)
+        {
+            $('#gameStatus').html(returnedGameStatus);
+        }
+
+        /**
+         * Callback function to handle the asynchronous Ajax call
+         * @param returnedFleetVessel: is the returned data for this callback
+         */
+        function updateFleetVessel(returnedFleetVessel)
+        {
+            let row = returnedFleetVessel.subjectRow;
+            let col = returnedFleetVessel.subjectCol;
+            // Update the fleet vessel as a result of the new location
+            let fleetVessel = null;
+            for (let i=0; i<fleetVessels.length; i++) {
+                if (fleetVessels[i].fleetVesselId == returnedFleetVessel.fleetVesselId) {
+                    fleetVessels[i].status = returnedFleetVessel.status;
+                    fleetVessels[i].locations = returnedFleetVessel.locations;
+
+                    fleetVessel = fleetVessels[i];
+                }
+            }
+
+            if (0 != row && 0 != col) {
+                // NB This function must be called here else we encounter a timing issue
+                // between the Ajax call and the testing of the status of the returned fleet vessel
+                // Plot available cells around the clicked cell, if any.
+                availableCells(row, col, fleetVessel);
+            }
+
+            // Set the attributes of the clicked cell, by replotting all fleet locations
+            plotFleetLocations();
+
+            // Check the status of the game, as it may have changed
+            let statusCheck = {
+                gameId: {{$game->id}},
+                user_token: getCookie('user_token')
+            };
+            ajaxCall('getGameStatus', JSON.stringify(statusCheck), setGameStatus);
         }
 
         /**

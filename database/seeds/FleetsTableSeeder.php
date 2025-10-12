@@ -15,18 +15,26 @@ class FleetsTableSeeder extends Seeder {
         $brian = User::where('name', User::USER_BRIAN)->firstOrFail();
         $steve = User::where('name', User::USER_STEVE)->firstOrFail();
         $game = Game::where('name', Game::GAME_FIRST_NAVAL_BATTLE)->firstOrFail();
+        $game2 = Game::where('name', Game::GAME_SECOND_NAVAL_BATTLE)->firstOrFail();
+        $game3 = Game::where('name', Game::GAME_THIRD_NAVAL_BATTLE)->firstOrFail();
 
-        $fleetTemplate = new Fleet();
-        $fleetTemplate->name = Fleet::FLEET_DREADNOUGHT;
-        $fleetTemplate->user_id = $brian->id;
-        $fleetTemplate->game_id = $game->id;
-        $fleetTemplate->save();
+        $fleet = new Fleet();
+        $fleet->name = Fleet::FLEET_DREADNOUGHT;
+        $fleet->user_id = $brian->id;
+        $fleet->game_id = $game->id;
+        $fleet->save();
 
-        $fleetTemplate = new Fleet();
-        $fleetTemplate->name = Fleet::FLEET_VICTORY;
-        $fleetTemplate->user_id = $steve->id;
-        $fleetTemplate->game_id = $game->id;
-        $fleetTemplate->save();
+        $fleet = new Fleet();
+        $fleet->name = Fleet::FLEET_VICTORY;
+        $fleet->user_id = $steve->id;
+        $fleet->game_id = $game2->id;
+        $fleet->save();
+
+        $fleet = new Fleet();
+        $fleet->name = Fleet::FLEET_DEFAULT_NAME;
+        $fleet->user_id = $steve->id;
+        $fleet->game_id = $game3->id;
+        $fleet->save();
 
     }
 

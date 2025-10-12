@@ -15,6 +15,7 @@ class FleetVesselsTableSeeder extends Seeder {
 
         $dreadNought = Fleet::where('name', Fleet::FLEET_DREADNOUGHT)->firstOrFail();
         $victory = Fleet::where('name', Fleet::FLEET_VICTORY)->firstOrFail();
+        $default = Fleet::where('name', Fleet::FLEET_DEFAULT_NAME)->firstOrFail();
 
         $vessels = FleetTemplate::select(
             array(
@@ -32,6 +33,12 @@ class FleetVesselsTableSeeder extends Seeder {
 
             $fleetVessel = new FleetVessel();
             $fleetVessel->fleet_id = $victory->id;
+            $fleetVessel->vessel_id = $vessel->vessel_id;
+            $fleetVessel->status = FleetVessel::FLEET_VESSEL_AVAILABLE;
+            $fleetVessel->save();
+
+            $fleetVessel = new FleetVessel();
+            $fleetVessel->fleet_id = $default->id;
             $fleetVessel->vessel_id = $vessel->vessel_id;
             $fleetVessel->status = FleetVessel::FLEET_VESSEL_AVAILABLE;
             $fleetVessel->save();

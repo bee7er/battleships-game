@@ -16,6 +16,8 @@ class VerifyCsrfToken extends BaseVerifier
     protected $except = [
         '/setVesselLocation',
         '/removeVesselLocation',
+        '/getGameStatus',
+        '/markAsRead',
     ];
 
     public function handle($request, Closure $next)

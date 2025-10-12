@@ -8,8 +8,10 @@ use Illuminate\Http\Request;
 
 class Fleet extends Model
 {
+    const FLEET_DEFAULT_NAME = 'my favourite fleet';
     const FLEET_DREADNOUGHT = 'dreadnought';
     const FLEET_VICTORY = 'victory';
+    const FLEET_ENDEAVOUR = 'endeavour';
 
     /**
      * The database table used by the model.

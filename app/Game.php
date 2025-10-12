@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Game extends Model
 {
     const GAME_FIRST_NAVAL_BATTLE = '1st naval battle';
+    const GAME_SECOND_NAVAL_BATTLE = '2nd naval battle';
+    const GAME_THIRD_NAVAL_BATTLE = '3rd naval battle';
 
     const STATUS_EDIT = 'edit';
     const STATUS_WAITING = 'waiting';
@@ -46,7 +48,8 @@ class Game extends Model
     }
 
     /**
-     * Retrieve all games for the given user
+     * Retrieve all games for the given user, where they created the game and where they
+     * have been nominated as an opponent
      */
     public static function getGames($userId)
     {
@@ -55,18 +58,21 @@ class Game extends Model
                 'games.id',
                 'games.name',
                 'games.protagonist_id',
+                'protagonist.name as protagonist_name',
                 'games.opponent_id',
-                'users.name as opponent_name',
+                'opponent.name as opponent_name',
                 'games.status',
                 'games.started_at',
                 'games.ended_at',
             )
         )
-            ->join('users', 'users.id', '=', 'games.opponent_id')
+            ->join('users as opponent', 'opponent.id', '=', 'games.opponent_id')
+            ->join('users as protagonist', 'protagonist.id', '=', 'games.protagonist_id')
             ->orderBy("games.name");
 
         $games = $builder
-            ->where("games.protagonist_id", "=", $userId);
+            ->where("games.protagonist_id", "=", $userId)
+            ->orWhere("games.opponent_id", "=", $userId);
 
         return $games->get();
     }

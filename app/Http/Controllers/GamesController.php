@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\FleetTemplate;
+use App\FleetVessel;
 use App\FleetVesselLocation;
 use App\Game;
 use App\User;
@@ -58,9 +60,11 @@ class GamesController extends Controller
 		foreach($games as &$game) {
 			// Get the user's fleet for each game
 			$game->fleet = Fleet::getFleet($game->id, $userId);
+			// Check to see if the opponent's fleet exists
+			$game->opponent_fleet = Fleet::getFleet($game->id, $game->opponent_id);
 		}
 
-		return view('pages.games.games', compact('loggedIn', 'games', 'errors', 'msgs'));
+		return view('pages.games.games', compact('loggedIn', 'userId', 'games', 'errors', 'msgs'));
 	}
 
 	/**
@@ -93,7 +97,7 @@ class GamesController extends Controller
 			}
 
 		} catch(Exception $e) {
-			Log::notice("Error getting game: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
+			Log::notice("Error getting game for edit: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
 			$errors[] = $e->getMessage();
 		}
 
@@ -132,5 +136,45 @@ class GamesController extends Controller
 		}
 
 		return redirect()->intended('/games');
+	}
+
+	/**
+	 * Accept the selected game as an opponent.
+	 *
+	 * @param Request $request
+	 * @return Response
+	 */
+	public function acceptGame(Request $request)
+	{
+		if (!$this->auth->check()) {
+			return redirect()->intended('error');
+		}
+
+		$userId = $this->auth->user()->id;
+		$gameId = $request->get('gameId');
+
+		try {
+			$fleet = new Fleet();
+			$fleet->name = Fleet::FLEET_DEFAULT_NAME;
+			$fleet->user_id = $userId;
+			$fleet->game_id = $gameId;
+			$fleet->save();
+			// Create a fleet from the template set of vessels
+			$vessels = FleetTemplate::select(array('vessel_id',))->orderBy("id")->get();
+
+			// For each vessel in the template create a fleet vessel for each fleet
+			foreach ($vessels as $vessel) {
+				$fleetVessel = new FleetVessel();
+				$fleetVessel->fleet_id = $fleet->id;
+				$fleetVessel->vessel_id = $vessel->vessel_id;
+				$fleetVessel->status = FleetVessel::FLEET_VESSEL_AVAILABLE;
+				$fleetVessel->save();
+			}
+
+		} catch(Exception $e) {
+			Log::notice("Error accepting game: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
+		}
+
+		return redirect()->intended("/editGame?gameId=$gameId");
 	}
 }

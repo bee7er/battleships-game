@@ -21,8 +21,9 @@ use App\Game;
                 <tr>
                     <th>Id</th>
                     <th>Game Name</th>
-                    <th>Fleet Name</th>
+                    <th>Protagonist</th>
                     <th>Opponent</th>
+                    <th>Fleet Name</th>
                     <th>Status</th>
                     <th>Started at</th>
                     <th>Ended at</th>
@@ -33,8 +34,9 @@ use App\Game;
                 <tr>
                     <th>Id</th>
                     <th>Game Name</th>
-                    <th>Fleet Name</th>
+                    <th>Protagonist</th>
                     <th>Opponent</th>
+                    <th>Fleet Name</th>
                     <th>Status</th>
                     <th>Started at</th>
                     <th>Ended at</th>
@@ -48,20 +50,32 @@ use App\Game;
                     <tr>
                         <td>{{$game->id}}</td>
                         <td>{{$game->name}}</td>
-                        <td>{{$game->fleet->fleet_name}}</td>
+                        <td>{{$game->protagonist_name}}</td>
                         <td>{{$game->opponent_name}}</td>
+                        <td>{{isset($game->fleet) ? $game->fleet->fleet_name: 'not set yet'}}</td>
                         <td>{{$game->status}}</td>
                         <td>{{$game->started_at}}</td>
                         <td>{{$game->ended_at}}</td>
                         <td>
                             @if ($game->status == Game::STATUS_EDIT
-                             || $game->status == Game::STATUS_WAITING
-                             || $game->status == Game::STATUS_READY)
-                                <div title="Edit the game"><a href="javascript: gotoEdit({{$game->id}})">Edit</a></div>
+                             || $game->status == Game::STATUS_WAITING)
+                                @if ($game->protagonist_id == $userId)
+                                    <div title="Edit the game"><a href="javascript: gotoEdit({{$game->id}})">Edit</a></div>
+                                @else
+                                    @if (isset($game->opponent_fleet))
+                                        <div title="Edit the game"><a href="javascript: gotoEdit({{$game->id}})">Edit</a></div>
+                                    @else
+                                        <div title="Accept the game"><a href="javascript: gotoAccept({{$game->id}})">Accept</a></div>
+                                    @endif
+                                @endif
+                            @else
+                                @if ($game->status == Game::STATUS_READY)
+                                    <div title="Start the game"><a href="javascript: gotoEngage({{$game->id}})">Engage</a></div>
+                                @endif
                             @endif
                             <div title="Delete the game"><a href="">Delete</a></div>
                             @if ($game->status == Game::STATUS_WINNER || $game->status == Game::STATUS_LOSER)
-                                    <div title="Run simulation"><a href="">Run</a></div>
+                                    <div title="Run simulation"><a href="">Rerun</a></div>
                             @endif
                         </td>
                     </tr>
@@ -85,10 +99,23 @@ use App\Game;
         /**
          * Edit the requested game
          */
+        function gotoAccept(gameId) {
+            let f = $('#gamesForm');
+            let h = $('#gameId');
+            h.val(gameId);
+            f.attr('action', '/acceptGame');
+            f.submit();
+            return false;
+        }
+
+        /**
+         * Edit the requested game
+         */
         function gotoEdit(gameId) {
             let f = $('#gamesForm');
             let h = $('#gameId');
             h.val(gameId);
+            f.attr('action', '/editGame');
             f.submit();
             return false;
         }

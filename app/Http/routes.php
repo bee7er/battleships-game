@@ -23,8 +23,11 @@ Route::get('/profile', 'HomeController@profile');
 Route::get('/games', 'GamesController@index');
 Route::post('/editGame', 'GamesController@editGame');
 Route::get('/editGame', 'GamesController@editGame');
+Route::get('/acceptGame', 'GamesController@acceptGame');
 Route::post('/updateGame', 'GamesController@updateGame');
 
 /* API functions */
-Route::post('/setVesselLocation', 'VesselsController@setVesselLocation');
-Route::post('/removeVesselLocation', 'VesselsController@removeVesselLocation');
+Route::post('/setVesselLocation', 'API\BattleshipsApiController@setVesselLocation');
+Route::post('/removeVesselLocation', 'API\BattleshipsApiController@removeVesselLocation');
+Route::post('/getGameStatus', 'API\BattleshipsApiController@getGameStatus');
+Route::post('/markAsRead', 'API\BattleshipsApiController@markAsRead');
