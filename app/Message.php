@@ -2,12 +2,16 @@
 
 namespace App;
 
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model
 {
     const STATUS_OPEN = 'open';
     const STATUS_READ = 'read';
+
+    const MESSAGE_INVITE = "Hi %s, will you play '%s' with me? %s";
+    const MESSAGE_ACCEPT = "Hi %s, I will love playing '%s' with you? %s";
 
     /**
      * The database table used by the model.
@@ -26,9 +30,14 @@ class Message extends Model
     /**
      * Find and return the identified message
      */
-    public static function getMessage($messageId)
+    public static function getMessage($id=null)
     {
-        $message = self::where("messages.id", "=", $messageId);
+        if (null == $id) {
+            // Add mode
+            return new Message();
+        }
+
+        $message = self::where("messages.id", "=", $id);
 
         return $message->get()[0];
     }
@@ -59,6 +68,28 @@ class Message extends Model
             ->where("messages.status", "=", self::STATUS_OPEN);
 
         return $messages->get();
+    }
+
+    /**
+     * Add a new message
+     *
+     * @param $fromUserId
+     * @param $toUserId
+     * @param $gameId
+     * @param $message
+     */
+    public static function addMessage($fromUserId, $toUserId, $gameId, $message)
+    {
+        $fromUser = User::getUser($fromUserId);
+        $toUser = User::getUser($toUserId);
+        $game = Game::getGame($gameId);
+        $messageText = sprintf($message, $toUser->name, $game, $fromUser->name);
+        $message = Message::getMessage();
+        $message->message_text = $messageText;
+        $message->status = self::STATUS_OPEN;
+        $message->sending_user_id = $fromUserId;
+        $message->receiving_user_id = $toUserId;
+        $message->save();
     }
 
 }

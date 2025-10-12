@@ -46,6 +46,19 @@ class User extends Model implements AuthenticatableContract,
     protected $hidden = ['password', 'remember_token'];
 
     /**
+     * Retrieve a user
+     */
+    public static function getUser($id=null)
+    {
+        if (null == $id) {
+            // Add mode
+            return new User();
+        }
+
+        return self::findOrFail($id);
+    }
+
+    /**
      * Retrieve all users
      */
     public static function getUsers($exceptUserId=null)

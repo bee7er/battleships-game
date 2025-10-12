@@ -134,8 +134,12 @@ class BattleshipsApiController extends Controller
 						$opponentReady = FleetVessel::isFleetReady($opponentFleet->id);
 					}
 					$game = Game::getGame($fleetVessel['gameId']);
-					if ($opponentReady) $game->status = Game::STATUS_READY;
-					else $game->status = Game::STATUS_WAITING;
+					if ($opponentReady) {
+						$game->status = Game::STATUS_READY;
+					}
+					else {
+						$game->status = Game::STATUS_WAITING;
+					}
 					$game->save();
 				}
 			}
