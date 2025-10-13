@@ -21,6 +21,7 @@ Route::get('/error', 'HomeController@error');
 Route::get('/about', 'HomeController@about');
 Route::get('/profile', 'HomeController@profile');
 Route::get('/games', 'GamesController@index');
+Route::get('/addGame', 'GamesController@addGame');
 Route::post('/editGame', 'GamesController@editGame');
 Route::get('/editGame', 'GamesController@editGame');
 Route::get('/acceptGame', 'GamesController@acceptGame');

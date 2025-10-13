@@ -4,6 +4,7 @@ namespace App;
 
 use App\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Message extends Model
 {
@@ -12,6 +13,7 @@ class Message extends Model
 
     const MESSAGE_INVITE = "Hi %s, will you play '%s' with me? %s";
     const MESSAGE_ACCEPT = "Hi %s, I will love playing '%s' with you? %s";
+    const MESSAGE_READY = "Hi %s and %s, I'm happy to say that '%s' is ready to play. System";
 
     /**
      * The database table used by the model.
@@ -77,19 +79,37 @@ class Message extends Model
      * @param $toUserId
      * @param $gameId
      * @param $message
+     * @param string $msgDataIdx - used to override the order of message substitution data in the message
      */
-    public static function addMessage($fromUserId, $toUserId, $gameId, $message)
+    public static function addMessage($fromUserId, $toUserId, $gameId, $message, $msgDataIdx='012')
     {
-        $fromUser = User::getUser($fromUserId);
-        $toUser = User::getUser($toUserId);
-        $game = Game::getGame($gameId);
-        $messageText = sprintf($message, $toUser->name, $game, $fromUser->name);
+        $messageText = self::retrieveMessageText($fromUserId, $toUserId, $gameId, $message, $msgDataIdx);
         $message = Message::getMessage();
         $message->message_text = $messageText;
         $message->status = self::STATUS_OPEN;
         $message->sending_user_id = $fromUserId;
         $message->receiving_user_id = $toUserId;
         $message->save();
+    }
+
+    /**
+     * Retrieve message text given the appropriate parameters
+     *
+     * @param $fromUserId
+     * @param $toUserId
+     * @param $gameId
+     * @param $message
+     * @param string $msgDataIdx - used to override the order of message substitution data in the message
+     * @return string
+     */
+    public static function retrieveMessageText($fromUserId, $toUserId, $gameId, $message, $msgDataIdx='012')
+    {
+        $msgData[] = User::getUser($fromUserId)->name;
+        $msgData[] = Game::getGame($gameId)->name;
+        $msgData[] = User::getUser($toUserId)->name;
+        $messageText = sprintf($message, $msgData[$msgDataIdx[0]], $msgData[$msgDataIdx[1]], $msgData[$msgDataIdx[2]]);
+
+        return $messageText;
     }
 
 }

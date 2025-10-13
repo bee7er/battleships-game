@@ -57,15 +57,5 @@ class FleetVessel extends Model
 
         return $fleetVessel->get()[0];
     }
-    /**
-     * Check fleet vessels, are they all plotted
-     */
-    public static function isFleetReady($fleetId)
-    {
-        // Check if there are any fleet vessels which aren't in the plotted status
-        $results = self::where("fleet_vessels.fleet_id", "=", $fleetId)
-            ->where("fleet_vessels.status", "!=", self::FLEET_VESSEL_PLOTTED)->get();
 
-        return (count($results) <= 0);
-    }
 }

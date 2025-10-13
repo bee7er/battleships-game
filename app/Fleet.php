@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\FleetTemplate;
+use App\FleetVessel;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -26,6 +28,29 @@ class Fleet extends Model
      * @var array
      */
     protected $fillable = ['name'];
+
+    /**
+     * Creates a fleet from the fleet template for a game/user
+     */
+    public static function createFleet($gameId, $userId)
+    {
+        $fleet = new Fleet();
+        $fleet->name = Fleet::FLEET_DEFAULT_NAME;
+        $fleet->user_id = $userId;
+        $fleet->game_id = $gameId;
+        $fleet->save();
+        // Create a fleet from the template set of vessels
+        $vessels = FleetTemplate::select(array('vessel_id',))->orderBy("id")->get();
+
+        // For each vessel in the template create a fleet vessel for each fleet
+        foreach ($vessels as $vessel) {
+            $fleetVessel = new FleetVessel();
+            $fleetVessel->fleet_id = $fleet->id;
+            $fleetVessel->vessel_id = $vessel->vessel_id;
+            $fleetVessel->status = FleetVessel::FLEET_VESSEL_AVAILABLE;
+            $fleetVessel->save();
+        }
+    }
 
     /**
      * Retrieve fleet object for fleet id
@@ -120,4 +145,18 @@ class Fleet extends Model
 
         return $fleet;
     }
+
+    /**
+     * Checks the fleet vessels, if they are all plotted then this fleet is ready
+     */
+    public static function isFleetReady($gameId, $userId)
+    {
+        $fleet = self::getFleet($gameId, $userId);
+        // Check if there are any fleet vessels which aren't in the plotted status
+        $results = FleetVessel::where("fleet_vessels.fleet_id", "=", $fleet->id)
+            ->where("fleet_vessels.status", "!=", FleetVessel::FLEET_VESSEL_PLOTTED)->get();
+
+        return (count($results) <= 0);
+    }
+
 }

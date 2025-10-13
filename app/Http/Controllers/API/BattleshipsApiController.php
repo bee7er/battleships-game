@@ -125,23 +125,20 @@ class BattleshipsApiController extends Controller
 
 			if (FleetVessel::FLEET_VESSEL_PLOTTED == $fleetVessel['status']) {
 				// Are they all plotted?  If so, we set the game to waiting or ready.
-				$protagonistReady = FleetVessel::isFleetReady($fleetVessel['fleetId']);
-				if ($protagonistReady) {
-					$opponentReady = false;
-					// Find the opponent's fleet
-					$opponentFleet = Fleet::getFleet($fleetVessel['gameId'], $fleetVessel['opponentId']);
-					if (isset($opponentFleet)) {
-						$opponentReady = FleetVessel::isFleetReady($opponentFleet->id);
-					}
-					$game = Game::getGame($fleetVessel['gameId']);
-					if ($opponentReady) {
-						$game->status = Game::STATUS_READY;
-					}
-					else {
-						$game->status = Game::STATUS_WAITING;
-					}
-					$game->save();
+				// However, care must be taken because the current user could be either
+				// the protagonist or the opponent.
+				$game = Game::getGame($fleetVessel['gameId']);
+				$protagonistReady = Fleet::isFleetReady($game->id, $game->protagonist_id);
+				$opponentReady = Fleet::isFleetReady($game->id, $game->opponent_id);;
+				if ($protagonistReady && $opponentReady) {
+					$game->status = Game::STATUS_READY;	// Both are ready
+					// Message the protagonist and the opponent that the game is eady
+					Message::addMessage($game->opponent_id, $game->protagonist_id, $game->id, Message::MESSAGE_READY, '021');
+					Message::addMessage($game->protagonist_id, $game->opponent_id, $game->id, Message::MESSAGE_READY, '021');
+				} elseif ($protagonistReady || $opponentReady) {
+						$game->status = Game::STATUS_WAITING;	// One or other is ready
 				}
+				$game->save();
 			}
 			$result = 'OK';
 

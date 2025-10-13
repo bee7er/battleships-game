@@ -11,7 +11,7 @@ use App\Game;
         @include('common.msgs')
         @include('common.errors')
 
-        <div class="bs-add-link is-pulled-right" title="Add a new game"><a href="">Add Game</a></div>
+        <div class="bs-add-link is-pulled-right" title="Add a new game"><a href="javascript: gotoAddGame()">Add Game</a></div>
 
         <form id="gamesForm" action="/editGame" method="GET" class="form-horizontal">
             <input type="hidden" name="gameId" id="gameId" value="" />
@@ -73,7 +73,7 @@ use App\Game;
                                     <div title="Start the game"><a href="javascript: gotoEngage({{$game->id}})">Engage</a></div>
                                 @endif
                             @endif
-                            <div title="Delete the game"><a href="">Delete</a></div>
+                            <div title="Delete the game"><a href="javascript: gotoDelete({{$game->id}})">Delete</a></div>
                             @if ($game->status == Game::STATUS_WINNER || $game->status == Game::STATUS_LOSER)
                                     <div title="Run simulation"><a href="">Rerun</a></div>
                             @endif
@@ -97,7 +97,32 @@ use App\Game;
 @section('page-scripts')
     <script type="text/javascript">
         /**
-         * Edit the requested game
+         * Add a new game
+         */
+        function gotoAddGame() {
+            let f = $('#gamesForm');
+            f.attr('action', '/addGame');
+            f.submit();
+            return false;
+        }
+        /**
+         * Engage in the game battle
+         */
+        function gotoEngage(gameId) {
+            alert('Not coded yet');
+            return false;
+
+
+            let f = $('#gamesForm');
+            let h = $('#gameId');
+            h.val(gameId);
+            f.attr('action', '/engageGame');
+            f.submit();
+            return false;
+        }
+
+        /**
+         * Accept as an opponent to the requested game
          */
         function gotoAccept(gameId) {
             let f = $('#gamesForm');
@@ -116,6 +141,22 @@ use App\Game;
             let h = $('#gameId');
             h.val(gameId);
             f.attr('action', '/editGame');
+            f.submit();
+            return false;
+        }
+
+        /**
+         * Delete the game
+         */
+        function gotoDelete(gameId) {
+            alert('Not coded yet');
+            return false;
+
+
+            let f = $('#gamesForm');
+            let h = $('#gameId');
+            h.val(gameId);
+            f.attr('action', '/deleteGame');
             f.submit();
             return false;
         }
