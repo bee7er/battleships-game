@@ -57,29 +57,31 @@ use App\Game;
                         <td>{{$game->started_at}}</td>
                         <td>{{$game->ended_at}}</td>
                         <td>
-                            @if ($game->status == Game::STATUS_EDIT
-                             || $game->status == Game::STATUS_WAITING)
-                                @if ($game->protagonist_id == $userId)
-                                    <div title="Edit the game"><a href="javascript: gotoEdit({{$game->id}})">Edit</a></div>
-                                    <div title="Edit the game grid"><a href="javascript: gotoEditGrid({{$game->id}})">Edit Grid</a></div>
-                                @else
-                                    {{--Current user is an opponent in this game--}}
-                                    @if (isset($game->opponent_fleet))
+                            @if ($game->status != Game::STATUS_DELETED)
+                                @if ($game->status == Game::STATUS_EDIT
+                                 || $game->status == Game::STATUS_WAITING)
+                                    @if ($game->protagonist_id == $userId)
+                                        <div title="Edit the game"><a href="javascript: gotoEdit({{$game->id}})">Edit</a></div>
                                         <div title="Edit the game grid"><a href="javascript: gotoEditGrid({{$game->id}})">Edit Grid</a></div>
                                     @else
-                                        <div title="Accept the game"><a href="javascript: gotoAccept({{$game->id}})">Accept</a></div>
+                                        {{--Current user is an opponent in this game--}}
+                                        @if (isset($game->opponent_fleet))
+                                            <div title="Edit the game grid"><a href="javascript: gotoEditGrid({{$game->id}})">Edit Grid</a></div>
+                                        @else
+                                            <div title="Accept the game"><a href="javascript: gotoAccept({{$game->id}})">Accept</a></div>
+                                        @endif
+                                    @endif
+                                @else
+                                    @if ($game->status == Game::STATUS_READY)
+                                        <div title="Start the game"><a href="javascript: gotoEngage({{$game->id}})">Engage</a></div>
                                     @endif
                                 @endif
-                            @else
-                                @if ($game->status == Game::STATUS_READY)
-                                    <div title="Start the game"><a href="javascript: gotoEngage({{$game->id}})">Engage</a></div>
+                                @if ($game->protagonist_id == $userId)
+                                    <div title="Delete the game"><a href="javascript: gotoDelete('{{$game->id}}', '{{$game->name}}')">Delete</a></div>
                                 @endif
-                            @endif
-                            @if ($game->protagonist_id == $userId)
-                                <div title="Delete the game"><a href="javascript: gotoDelete({{$game->id}})">Delete</a></div>
-                            @endif
-                            @if ($game->status == Game::STATUS_WINNER || $game->status == Game::STATUS_LOSER)
-                                    <div title="Run simulation"><a href="">Rerun</a></div>
+                                @if ($game->status == Game::STATUS_COMPLETED)
+                                        <div title="Run simulation"><a href="">Rerun</a></div>
+                                @endif
                             @endif
                         </td>
                     </tr>
@@ -89,9 +91,14 @@ use App\Game;
                         <td class="bs-no-data" colspan="99">You have not yet created any games</td>
                     </tr>
                 @endif
-
                 </tbody>
             </table>
+            <div class="is-pulled-right mr-6 bs-show-deleted">
+                <label class="checkbox">
+                    <input type="checkbox" name="showDeletedGames" id="showDeletedGames" value="1" {{$showDeletedGames ? 'checked': ''}} onclick="gotoShowDeletedGames(this)" />
+                    Show deleted games
+                </label>
+            </div>
         </form>
 
     </div>
@@ -164,15 +171,27 @@ use App\Game;
         /**
          * Delete the game
          */
-        function gotoDelete(gameId) {
-            alert('Not coded yet');
+        function gotoDelete(gameId, gameName) {
+            if (confirm("Are you sure you want to delete '" + gameName + "'")) {
+                let f = $('#gamesForm');
+                let h = $('#gameId');
+                h.val(gameId);
+                f.attr('action', '/deleteGame');
+                f.submit();
+            }
             return false;
+        }
 
-
+        /**
+         * Reload games with showing deleted ones, or not
+         */
+        function gotoShowDeletedGames(elem) {
             let f = $('#gamesForm');
-            let h = $('#gameId');
-            h.val(gameId);
-            f.attr('action', '/deleteGame');
+            let checked = '0';
+            if ($(elem).is(':checked')) {
+                checked = '1';
+            }
+            f.attr('action', '/games?showDeletedGames=' + checked);
             f.submit();
             return false;
         }

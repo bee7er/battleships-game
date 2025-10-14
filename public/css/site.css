@@ -75,11 +75,15 @@ body {
     margin-left: 10px;
 }
 
-.bs-add-link {
+.bs-add-link, .bs-show-deleted {
     color: #0000c4 !important;
     font-weight: bold;
     font-size: 1.2em;
     margin: 0 10px 10px 0;
+}
+
+.bs-show-deleted {
+    font-size: 1.0em;
 }
 
 .bs-notification {

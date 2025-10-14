@@ -23,14 +23,15 @@ class CreateGamesTable extends Migration
                     Game::STATUS_WAITING,
                     Game::STATUS_READY,
                     Game::STATUS_ACTIVE,
-                    Game::STATUS_WINNER,
-                    Game::STATUS_LOSER
+                    Game::STATUS_COMPLETED,
+                    Game::STATUS_DELETED
                 ]
             );
             $table->unsignedInteger('protagonist_id');
             $table->unsignedInteger('opponent_id');
             $table->dateTime('started_at')->nullable();
             $table->dateTime('ended_at')->nullable();
+            $table->dateTime('deleted_at')->nullable();
             $table->timestamps();
         });
     }

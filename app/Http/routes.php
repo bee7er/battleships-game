@@ -27,6 +27,7 @@ Route::get('/editGrid', 'GamesController@editGrid');
 Route::get('/editGame', 'GamesController@editGame');
 Route::get('/acceptGame', 'GamesController@acceptGame');
 Route::post('/updateGame', 'GamesController@updateGame');
+Route::get('/deleteGame', 'GamesController@deleteGame');
 
 /* API functions */
 Route::post('/setVesselLocation', 'API\BattleshipsApiController@setVesselLocation');

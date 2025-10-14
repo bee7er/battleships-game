@@ -51,13 +51,16 @@ class GamesController extends Controller
 			return redirect()->intended('error');
 		}
 
+
 		$userId = $this->auth->user()->id;
 
 		$errors = [];
 		$msgs = [];
 
 		// Load the games for the current user
-		$games = Game::getGames($userId);
+		$showDeletedGames = ('1' == $request->get('showDeletedGames', '0'));
+		$games = Game::getGames($userId, $showDeletedGames);
+
 		foreach($games as &$game) {
 			// Get the user's fleet for each game
 			$game->fleet = Fleet::getFleet($game->id, $userId);
@@ -65,7 +68,7 @@ class GamesController extends Controller
 			$game->opponent_fleet = Fleet::getFleet($game->id, $game->opponent_id);
 		}
 
-		return view('pages.games.games', compact('loggedIn', 'userId', 'games', 'errors', 'msgs'));
+		return view('pages.games.games', compact('loggedIn', 'userId', 'games', 'showDeletedGames', 'errors', 'msgs'));
 	}
 
 	/**
@@ -189,6 +192,7 @@ class GamesController extends Controller
 		$userId = $this->auth->user()->id;
 		$gameId = $request->get('gameId');
 		$fleetId = 0;
+		$fleet = null;
 
 		$errors = [];
 		$msgs = [];
@@ -196,6 +200,10 @@ class GamesController extends Controller
 		$game = null;
 		try {
 			$game = Game::getGameDetails($gameId);
+			if (Game::STATUS_DELETED == $game->status) {
+				return redirect()->intended('/games');
+			}
+
 			$fleet = Fleet::getFleetDetails($gameId, $userId);
 			if (isset($fleet) && count($fleet) > 0) {
 				// Just get fleet id from the first fleet vessel entry
@@ -232,7 +240,7 @@ class GamesController extends Controller
 			Fleet::createFleet($gameId, $userId);
 
 			// Message the protagonist that the game is accepted
-			$game = Game::where('id', $gameId)->firstOrFail();
+			$game = Game::getGame($gameId);
 			Message::addMessage($game->opponent_id, $game->protagonist_id, $game->id, Message::MESSAGE_ACCEPT);
 
 		} catch(Exception $e) {
@@ -240,5 +248,28 @@ class GamesController extends Controller
 		}
 
 		return redirect()->intended("/editGrid?gameId=$gameId");
+	}
+
+	/**
+	 * Soft deletes the game
+	 *
+	 * @param Request $request
+	 * @return Response
+	 */
+	public function deleteGame(Request $request)
+	{
+		if (!$this->auth->check()) {
+			return redirect()->intended('error');
+		}
+
+		try {
+			$game = Game::getGame($request->get('gameId'));
+			$game->deleteGame();
+
+		} catch(\Exception $e) {
+			Log::notice("Error deleting game: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
+		}
+
+		return redirect()->intended('/games');
 	}
 }

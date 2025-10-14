@@ -23,6 +23,11 @@ use App\Game;
                 <table class="table is-bordered is-striped bs-form-table">
                     <tbody>
                         <tr class="">
+                            <td class="cell bs-section-title" colspan="2">
+                                <div class="cell bs-errors" id="customErrors"></div>
+                            </td>
+                        </tr>
+                        <tr class="">
                             <td class="cell bs-section-title">
                                 Game status:
                             </td>
@@ -102,19 +107,27 @@ use App\Game;
             let gameName = $('#gameName');
             let opponentId = $('#opponentId');
 
-            let errorMsg = false;
+            let errors = [];
+            let atLeastOne = false;
             if ('' == gameName.val()) {
-                alert('Please enter a name for this game');
+                errors[errors.length] = 'Please enter a name for this game';
+                atLeastOne = true;
                 gameName.focus();
-                errorMsg = true;
             }
 
             if ('' == opponentId.val()) {
-                alert('Please select an opponent for this game');
+                errors[errors.length] = 'Please select an opponent for this game';
+                atLeastOne = true;
                 opponentId.focus();
-                errorMsg = true;
             }
-            if (true == errorMsg) {
+            if (atLeastOne) {
+                let errMsgs = sep = "";
+                for (let i=0; i<errors.length; i++) {
+                    errMsgs += (sep + errors[i]);
+                    sep = '<br />';
+                }
+                $('#customErrors').html(errMsgs).show();
+                $('#customErrors').delay(3000).fadeOut();
                 return false;
             }
 

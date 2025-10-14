@@ -15,10 +15,10 @@ class Game extends Model
     const STATUS_WAITING = 'waiting';
     const STATUS_READY = 'ready';
     const STATUS_ACTIVE = 'active';
-    const STATUS_WINNER = 'winner';
-    const STATUS_LOSER = 'loser';
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_DELETED = 'deleted';
 
-    const STATUS_ARRAY = [self::STATUS_EDIT, self::STATUS_WAITING, self::STATUS_READY, self::STATUS_ACTIVE, self::STATUS_WINNER, self::STATUS_LOSER];
+    const STATUS_ARRAY = [self::STATUS_EDIT, self::STATUS_WAITING, self::STATUS_READY, self::STATUS_ACTIVE, self::STATUS_COMPLETED, self::STATUS_DELETED];
 
     /**
      * The database table used by the model.
@@ -32,7 +32,7 @@ class Game extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'status', 'protagonist_id', 'opponent_id', 'started_at', 'ended_at'];
+    protected $fillable = ['name', 'status', 'protagonist_id', 'opponent_id', 'started_at', 'ended_at', 'deleted_at'];
 
     /**
      * Retrieve a game
@@ -44,14 +44,34 @@ class Game extends Model
             return new Game();
         }
 
-        return self::findOrFail($id);
+        $builder = self::select(
+            array(
+                'games.id',
+                'games.name',
+                'games.protagonist_id',
+                'games.opponent_id',
+                'games.started_at',
+                'games.ended_at',
+                'games.deleted_at'
+            )
+        );
+
+        $game = $builder
+            ->where("games.id", "=", $id)
+            ->where('games.status', '!=', Game::STATUS_DELETED);
+
+        return $game->get()[0];
     }
 
     /**
      * Retrieve all games for the given user, where they created the game and where they
      * have been nominated as an opponent
+     *
+     * @param $userId
+     * @param $showDeletedGames - check whether they have been soft deleted
+     * @return mixed
      */
-    public static function getGames($userId)
+    public static function getGames($userId, $showDeletedGames)
     {
         $builder = self::select(
             array(
@@ -64,17 +84,25 @@ class Game extends Model
                 'games.status',
                 'games.started_at',
                 'games.ended_at',
+                'games.deleted_at',
             )
         )
             ->join('users as opponent', 'opponent.id', '=', 'games.opponent_id')
             ->join('users as protagonist', 'protagonist.id', '=', 'games.protagonist_id')
             ->orderBy("games.name");
 
-        $games = $builder
+        if (false == $showDeletedGames) {
+            $builder = $builder
+                ->where("games.status", "!=", Game::STATUS_DELETED);
+        }
+
+        $builder = $builder
             ->where("games.protagonist_id", "=", $userId)
             ->orWhere("games.opponent_id", "=", $userId);
 
-        return $games->get();
+        $games = $builder->get();
+
+        return $games;;
     }
 
     /**
@@ -93,6 +121,7 @@ class Game extends Model
                 'games.status',
                 'games.started_at',
                 'games.ended_at',
+                'games.deleted_at',
             )
         )
             ->join('users as users1', 'users1.id', '=', 'games.protagonist_id')
@@ -111,5 +140,16 @@ class Game extends Model
 
         return $game->get()[0];
     }
+
+    /**
+     * Delete a game
+     */
+    public function deleteGame()
+    {
+        $this->status = self::STATUS_DELETED;
+        $this->deleted_at = date("Y-m-d H:i:s");
+        $this->save();
+    }
+
 
 }
