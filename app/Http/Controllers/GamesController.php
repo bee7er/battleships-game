@@ -208,19 +208,13 @@ class GamesController extends Controller
 			}
 
 			$fleet = Fleet::getFleetDetails($gameId, $userId);
-			if (isset($fleet) && count($fleet) > 0) {
-				// Just get fleet id from the first fleet vessel entry
-				$fleetId = $fleet[0]->id;
-			}
 
 		} catch(Exception $e) {
 			Log::notice("Error getting game for edit: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
 			$errors[] = $e->getMessage();
 		}
 
-		$users = User::getUsers($userId);
-
-		return view('pages.games.editGrid', compact('loggedIn', 'game', 'users', 'fleet', 'fleetId', 'errors', 'msgs'));
+		return view('pages.games.editGrid', compact('loggedIn', 'game', 'fleet', 'errors', 'msgs'));
 	}
 
 	/**
@@ -266,7 +260,7 @@ class GamesController extends Controller
 		}
 
 		$loggedIn = true;
-		$userId = $this->auth->user()->id;
+		$myUser = $this->auth->user();
 		$gameId = $request->get('gameId');
 		$fleetId = 0;
 		$fleet = null;
@@ -274,7 +268,7 @@ class GamesController extends Controller
 		$errors = [];
 		$msgs = [];
 
-		$game = null;
+		$game = $theirUser = null;
 		try {
 			$game = Game::getGameDetails($gameId);
 			if (Game::STATUS_DELETED == $game->status) {
@@ -282,27 +276,35 @@ class GamesController extends Controller
 				return redirect()->intended('/games');
 			}
 
-			$fleet = Fleet::getFleetDetails($gameId, $userId);
-			if (isset($fleet) && count($fleet) > 0) {
-				// Just get fleet id from the first fleet vessel entry
-				$fleetId = $fleet[0]->id;
-			}
-
+			// We use the count of moves to determine whose go it is
 			$moveCount = 0 ;
-			$moves = Move::getMoves($gameId, $userId);
+			$moves = Move::getMoves($gameId);
 			if (isset($moves)) {
 				$moveCount = count($moves);
 			}
-			$protagonistGo = ($moveCount % 2 == 0) ? true: false;
+
+			// We must be careful to distinguish between the game owner and the opponent, because
+			// when we get to the play grid it can be either.  We will call it 'myFleet' and 'theirFleet'
+			$myFleet = Fleet::getFleetDetails($gameId, $myUser->id);
+
+			$currentUserIsProtagonist = ($myUser->id == $game->protagonist_id) ? true: false;
+			if ($currentUserIsProtagonist) {
+				$theirUser = User::getUser($game->opponent_id);
+				$theirFleet = Fleet::getFleetDetails($gameId, $game->opponent_id);
+				$myGo = ($moveCount % 2 == 0) ? true: false;
+			} else {
+				$theirUser = User::getUser($game->protagonist_id);
+				$theirFleet = Fleet::getFleetDetails($gameId, $game->protagonist_id);
+				$myGo = ($moveCount % 2 == 0) ? false: true;
+			}
+
 
 		} catch(Exception $e) {
 			Log::notice("Error getting game for edit: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
 			$errors[] = $e->getMessage();
 		}
 
-		$users = User::getUsers($userId);
-
-		return view('pages.games.playGrid', compact('loggedIn', 'game', 'users', 'fleet', 'fleetId', 'protagonistGo', 'errors', 'msgs'));
+		return view('pages.games.playGrid', compact('loggedIn', 'game', 'currentUserIsProtagonist', 'myFleet', 'theirFleet', 'myUser', 'theirUser', 'myGo', 'errors', 'msgs'));
 	}
 
 	/**

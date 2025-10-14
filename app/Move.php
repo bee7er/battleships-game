@@ -55,7 +55,7 @@ class Move extends Model
      * @param $userId
      * @return mixed
      */
-    public static function getMoves($gameId, $userId)
+    public static function getMoves($gameId, $userId=null)
     {
         $builder = self::select(
             array(
@@ -71,9 +71,11 @@ class Move extends Model
             ->join('users', 'users.id', '=', 'moves.player_id')
             ->orderBy("moves.seq");
 
-        $builder = $builder
-            ->where("moves.game_id", "=", $gameId)
-            ->where("moves.player_id", "=", $userId);
+        $builder = $builder->where("moves.game_id", "=", $gameId);
+        // That gets total moves, but may need moves from a given user
+        if (null != $userId) {
+            $builder = $builder->where("moves.player_id", "=", $userId);
+        }
 
         $moves = $builder->get();
 

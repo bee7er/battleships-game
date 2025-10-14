@@ -121,4 +121,12 @@ body {
     background-color: #0000c4 !important;
     color: #fff !important;
 }
+.bs-pos-cell-shot {
+    background-color: #fc0 !important;
+    color: #fff !important;
+}
+.bs-pos-cell-hit {
+    background-color: #f00 !important;
+    color: #fff !important;
+}
 

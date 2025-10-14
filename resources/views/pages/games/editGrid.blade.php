@@ -1,6 +1,8 @@
 <?php
 use App\FleetVessel;
 use App\Game;
+
+$fleetId = 0;
 ?>
 
 @extends('layouts.app')
@@ -19,7 +21,6 @@ use App\Game;
                 {{ csrf_field() }}
 
                 <input type="hidden" name="gameId" id="gameId" value="{{$game->id}}" />
-                <input type="hidden" name="fleetId" id="fleetId" value="{{$fleetId}}" />
 
                 <table class="table is-bordered is-striped bs-form-table">
                     <tbody>
@@ -86,6 +87,7 @@ use App\Game;
                     </tr>
 
                     @foreach ($fleet as $fleetVessel)
+                        <?php $fleetId = $fleetVessel->id; ?>
                         <tr class="" onclick="selectRow('{{$fleetVessel->fleet_vessel_id}}')">
                             <td class="cell">
                                 <input type="radio" id="radio_id_{{$fleetVessel->fleet_vessel_id}}"
@@ -152,6 +154,9 @@ use App\Game;
 
 @section('page-scripts')
     <script type="text/javascript">
+        var gameId = {{$game->id}};
+        var fleetId = {{$fleetId}};
+        var opponentId = {{$game->opponent_id}}
         var fleetVessels = [];
         var fleetVessel = {};
         var fleetVesselLocations = [];
@@ -229,6 +234,7 @@ use App\Game;
                 }
                 // Ok, release this plotted cell
                 let location = {
+                    gameId: gameId,
                     fleetVessel: fleetVessel,
                     row: row,
                     col: col,
@@ -259,9 +265,9 @@ use App\Game;
                 vessel_name: fleetVessel.vessel_name
             };
             // Add game, fleet and opponent ids for some checking server side
-            fleetVessel.gameId = {{$game->id}};
-            fleetVessel.fleetId = {{$fleetId}};
-            fleetVessel.opponentId = {{$game->opponent_id}};
+            fleetVessel.gameId = gameId;
+            fleetVessel.fleetId = fleetId;
+            fleetVessel.opponentId = opponentId;
             fleetVessel.subjectRow = row;
             fleetVessel.subjectCol = col;
             fleetVessel.user_token = getCookie('user_token');
@@ -659,7 +665,7 @@ use App\Game;
 
             // Check the status of the game, as it may have changed
             let statusCheck = {
-                gameId: {{$game->id}},
+                gameId: returnedFleetVessel.gameId,
                 user_token: getCookie('user_token')
             };
             ajaxCall('getGameStatus', JSON.stringify(statusCheck), setGameStatus);

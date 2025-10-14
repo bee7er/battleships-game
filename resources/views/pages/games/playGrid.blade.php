@@ -38,16 +38,16 @@ use App\Game;
                         </tr>
                         <tr class="">
                             <td class="cell bs-section-title">
-                                Protagonist:
+                                You:
                             </td>
-                            <td class="cell @if ($protagonistGo) {{'bs-status'}} @endif">
-                                {{ucfirst($game->protagonist_name)}} @if ($protagonistGo) {{'<< Your go!'}} @endif
+                            <td class="cell @if ($myGo) {{'bs-status'}} @endif">
+                                {{ucfirst($myUser->name)}} @if ($myGo) {{'<< Your go!'}} @endif
                             </td>
                             <td class="cell bs-section-title">
-                                Opponent:
+                                Them:
                             </td>
-                            <td class="cell @if ($protagonistGo) {{'bs-status'}} @endif">
-                                {{ucfirst($game->opponent_name)}}  @if (!$protagonistGo) {{'<< Your go!'}} @endif
+                            <td class="cell @if (!$myGo) {{'bs-status'}} @endif">
+                                {{ucfirst($theirUser->name)}}  @if (!$myGo) {{'<< Their go!'}} @endif
                             </td>
                         </tr>
                     </tbody>
@@ -63,14 +63,14 @@ use App\Game;
 
             <div class="column">
 
-                <table class="table is-bordered is-striped bs-plot-table">
+                <table class="table is-bordered is-striped">
                     <tbody>
                     <tr class="">
-                        <th class="bs-section-title" colspan="99">Vessel Locations Grid:</th>
+                        <th class="bs-section-title" colspan="99">My Fleet Vessel Locations:</th>
                     </tr>
 
                     @for ($row=0; $row<=10; $row++)
-                        <tr class="" id="row{{$row}}">
+                        <tr class="" id="myRow{{$row}}">
 
                             @for ($col=0; $col<=10; $col++)
 
@@ -89,7 +89,7 @@ use App\Game;
                                         @endif
                                     @else
                                         <td class="cell has-text-centered bs-pos-cell-blank"
-                                            id="cell_{{$row}}_{{$col}}" onclick="onClickAllocateCell(this);">O</td>
+                                            id="myCell_{{$row}}_{{$col}}">O</td>
                                     @endif
                                 @endif
 
@@ -99,9 +99,56 @@ use App\Game;
 
                     </tbody>
                 </table>
+            </div>
 
-                <div class="field">&nbsp;</div>
-                <div class="field">&nbsp;</div>
+            <div class="column">
+
+                <table class="table is-bordered" style="margin-top:50%;">
+                    <tbody>
+                    <tr class=""><td class="bs-pos-cell-shot">Location has been bombed but missed the fleet</td></tr>
+                    <tr class=""><td class="bs-pos-cell-hit">Location has been bombed and hit a target</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="column">
+
+                <table class="table is-bordered is-striped">
+                    <tbody>
+                    <tr class="">
+                        <th class="bs-section-title" colspan="99">Their Fleet Vessel Locations:</th>
+                    </tr>
+
+                    @for ($row=0; $row<=10; $row++)
+                        <tr class="" id="theirRow{{$row}}">
+
+                            @for ($col=0; $col<=10; $col++)
+
+                                @if ($row == 0)
+                                    @if ($col > 0)
+                                        <td class="cell has-text-centered bs-plot-cell-header">{{$col}}</td>
+                                    @else
+                                        <td class="cell">&nbsp;</td>
+                                    @endif
+                                @else
+                                    @if ($col == 0)
+                                        @if ($row > 0)
+                                            <td class="cell has-text-centered bs-plot-cell-header">{{$row}}</td>
+                                        @else
+                                            <td class="cell">&nbsp;</td>
+                                        @endif
+                                    @else
+                                        <td class="cell has-text-centered bs-pos-cell-blank"
+                                            id="theirCell_{{$row}}_{{$col}}" onclick="onClickShootCell(this);">O</td>
+                                    @endif
+                                @endif
+
+                            @endfor
+                        </tr>
+                    @endfor
+
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -110,24 +157,24 @@ use App\Game;
 
 @section('page-scripts')
     <script type="text/javascript">
-        var fleetVessels = [];
-        var fleetVessel = {};
+        var myFleetVessels = [];
+        var theirFleetVessels = [];
         var fleetVesselLocations = [];
         var gridSize = 10;
 
         // Load all the existing data for the fleet
-        @foreach ($fleet as $fleetVessel)
+        @foreach ($myFleet as $fleetVessel)
 
             fleetVesselLocations = [];
 
             @foreach ($fleetVessel->locations as $fleetVesselLocation)
-                fleetVesselLocations[fleetVesselLocations.length] = {
-                    id: {{$fleetVesselLocation['id']}},
-                    fleet_vessel_id: {{$fleetVesselLocation['fleet_vessel_id']}},
-                    row: {{$fleetVesselLocation['row']}},
-                    col: {{$fleetVesselLocation['col']}},
-                    vessel_name: '{{$fleetVesselLocation['vessel_name']}}',
-                };
+                    fleetVesselLocations[fleetVesselLocations.length] = {
+                        id: {{$fleetVesselLocation['id']}},
+                        fleet_vessel_id: {{$fleetVesselLocation['fleet_vessel_id']}},
+                        row: {{$fleetVesselLocation['row']}},
+                        col: {{$fleetVesselLocation['col']}},
+                        vessel_name: '{{$fleetVesselLocation['vessel_name']}}',
+                    };
             @endforeach
 
             fleetVessel = {
@@ -139,22 +186,43 @@ use App\Game;
                 locations: fleetVesselLocations
             };
 
-            fleetVessels[fleetVessels.length] = fleetVessel;
+            myFleetVessels[myFleetVessels.length] = fleetVessel;
+        @endforeach
+
+        // Load all the existing data for the fleet
+        @foreach ($theirFleet as $fleetVessel)
+
+            fleetVesselLocations = [];
+
+            @foreach ($fleetVessel->locations as $fleetVesselLocation)
+                    fleetVesselLocations[fleetVesselLocations.length] = {
+                        id: {{$fleetVesselLocation['id']}},
+                        fleet_vessel_id: {{$fleetVesselLocation['fleet_vessel_id']}},
+                        row: {{$fleetVesselLocation['row']}},
+                        col: {{$fleetVesselLocation['col']}},
+                        vessel_name: '{{$fleetVesselLocation['vessel_name']}}',
+                    };
+            @endforeach
+
+            fleetVessel = {
+                fleetVesselId: {{$fleetVessel->fleet_vessel_id}},
+                vessel_name: '{{$fleetVessel->vessel_name}}',
+                status: '{{$fleetVessel['status']}}',
+                length: {{$fleetVessel->length}},
+                points: {{$fleetVessel->points}},
+                locations: fleetVesselLocations
+            };
+
+            theirFleetVessels[theirFleetVessels.length] = fleetVessel;
         @endforeach
 
         /**
-         * Allocates a cell to a vessel
+         * Shoots a missile at cell to try to bomb a vessel
          */
-        function onClickAllocateCell(elem)
+        function onClickShootCell(elem)
         {
-            let selected = $("input[type='radio'][name='vessel']:checked");
-            if (selected.length <= 0) {
-                showNotification('Please select a vessel to allocate to this position');
-                return false;
-            }
-
-            if ($(elem).hasClass('bs-pos-cell-plotted')) {
-                showNotification('The location you clicked on has already been taken');
+            if ($(elem).hasClass('bs-pos-cell-shot') || $(elem).hasClass('bs-pos-cell-hit')) {
+                showNotification('You have already shot that location. Try again.');
                 return false;
             }
 
@@ -163,120 +231,31 @@ use App\Game;
             let row = parseInt(elemIdData[1]);
             let col = parseInt(elemIdData[2]);
 
-            let fleetVesselId = selected.val();
-            fleetVessel = findFleetVessel(fleetVesselId);
-
-            if ($(elem).hasClass('bs-pos-cell-started')) {
-                fleetVesselByRowCol = findFleetVesselByRowCol(row, col);
-                if (fleetVessel.fleetVesselId != fleetVesselByRowCol.fleetVesselId) {
-                    showNotification('This location is occupied by another vessel');
-                    return false;
-                }
-                fleetVessel.subjectRow = 0;
-                fleetVessel.subjectCol = 0;
-                // If there is a second allocated elem then we want to reposition to that on return
-                if (2 == fleetVessel.locations.length) {
-                    for (let i=0; i<fleetVessel.locations.length; i++) {
-                        let location = fleetVessel.locations[i];
-                        if (location.row != row || location.col != col) {
-                            fleetVessel.subjectRow = location.row;
-                            fleetVessel.subjectCol = location.col;
-                            break;
-                        }
-                    }
-                }
-                // Ok, release this plotted cell
-                let location = {
-                    fleetVessel: fleetVessel,
-                    row: row,
-                    col: col,
-                    user_token: getCookie('user_token')
-                };
-
-                // ========================================================================
-                ajaxCall('removeVesselLocation', JSON.stringify(location), updateFleetVessel);
-                // Clear the cell and availability
-                setElemStatusClass(elem, '');
-                $(elem).html('O');
-                // Generic removal of all cells flagged as available
-                $('.cell').removeClass('bs-pos-cell-available');
-                showNotification('Location has been cleared');
-                return false;
-            } else if (0 == fleetVessel.locations.length || $(elem).hasClass('bs-pos-cell-available')) {
-                // Ok, we can start the plotting, or this cell can be plotted
-            } else {
-                showNotification('Please click on an available (pink) location');
+            theirFleetVesselByRowCol = findTheirFleetVesselByRowCol(row, col);
+            if (null == theirFleetVesselByRowCol) {
+                showNotification('Sorry you missed');
+                $(elem).addClass('bs-pos-cell-shot')
                 return false;
             }
-            // Add this location to the current vessel
-            fleetVessel.locations[fleetVessel.locations.length] = {
-                id: 0,
-                fleet_vessel_id: fleetVesselId,
+            showNotification('Wahey! Good shot');
+            $(elem).addClass('bs-pos-cell-hit')
+
+            // Ok, release this plotted cell
+            let location = {
+                gameId: gameId,
+                fleetVessel: fleetVessel,
                 row: row,
                 col: col,
-                vessel_name: fleetVessel.vessel_name
+                user_token: getCookie('user_token')
             };
-            // Add game, fleet and opponent ids for some checking server side
-            fleetVessel.gameId = {{$game->id}};
-            fleetVessel.fleetId = {{$fleetId}};
-            fleetVessel.opponentId = {{$game->opponent_id}};
-            fleetVessel.subjectRow = row;
-            fleetVessel.subjectCol = col;
-            fleetVessel.user_token = getCookie('user_token');
-
-            // ========================================================================
-            // Post the new location to the server and await the return in the callback
-            ajaxCall('setVesselLocation', JSON.stringify(fleetVessel), updateFleetVessel);
 
             return false;
-        }
 
-        /**
-         * Allocates a cell to a vessel
-         */
-        function onClickSelectVessel(elem)
-        {
-            // Generic removal of all cells flagged as available
-            $('.cell').removeClass('bs-pos-cell-available');
-            // Get vessel id from the clicked element
-            let elemIdData = elem.id.split('_');
-            let fleetVesselId = parseInt(elemIdData[2]);
+            // ========================================================================
+            ajaxCall('removeVesselLocation', JSON.stringify(location), updateFleetVessel);
 
-            fleetVessel = findFleetVessel(fleetVesselId);
-            if ('{{FleetVessel::FLEET_VESSEL_STARTED}}' == fleetVessel.status) {
-                // Show available cells corresponding with the first row/col
-                availableCells(fleetVessel.locations[0].row, fleetVessel.locations[0].col, fleetVessel);
-            }
-        }
 
-        /**
-         * Find the fleet vessel details based on the fleet vessel id
-         */
-        function findFleetVessel(fleetVesselId)
-        {
-            for (let i=0; i<fleetVessels.length; i++) {
-                let fleetVessel = fleetVessels[i];
-                if (fleetVesselId == fleetVessel.fleetVesselId) {
-                    return fleetVessel;
-                }
-            }
-            alert('Error: Could not find fleet vessel for id ' + fleetVesselId);
-        }
-
-        /**
-         * Find the fleet vessel details by row/col location
-         */
-        function findFleetVesselByRowCol(row, col)
-        {
-            for (let i=0; i<fleetVessels.length; i++) {
-                let fleetVessel = fleetVessels[i];
-                for (let j=0; j<fleetVessel.locations.length; j++) {
-                    if (fleetVessel.locations[j].row == row && fleetVessel.locations[j].col == col) {
-                        return fleetVessel;
-                    }
-                }
-            }
-            alert('Error: Could not find fleet vessel for row ' + row + ' and col' + col);
+            return false;
         }
 
         /**
@@ -284,279 +263,88 @@ use App\Game;
          */
         function plotFleetLocations()
         {
-            for (let i=0; i<fleetVessels.length; i++) {
-                let fleetVessel = fleetVessels[i];
-                // Update the status, which may have changed
-                $('#status_' + fleetVessel.fleetVesselId).html(fleetVessel.status);
+            for (let i=0; i<myFleetVessels.length; i++) {
+                let fleetVessel = myFleetVessels[i];
                 // Plot each location
                 for (let j=0; j<fleetVessel.locations.length; j++) {
                     let location = fleetVessel.locations[j];
-                    let cssClass = 'bs-pos-cell-started';
-                    if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
-                        cssClass = 'bs-pos-cell-plotted';
-                        // Disable the corresponding radio button, as this vessel is fully plotted
-                        $('#radio_id_' + location.fleet_vessel_id).prop("disabled", true);
-                    }
-                    let tableCell = $('#cell_' + location.row + '_' + location.col);
+                    let cssClass = 'bs-pos-cell-plotted';
+                    let tableCell = $('#myCell_' + location.row + '_' + location.col);
                     setElemStatusClass(tableCell, cssClass);
                     tableCell.html(location.vessel_name.toUpperCase().charAt(0));
                 }
-                // NB If the selected vessel from above is now plotted then deselect it
-                let selected = $("input[type='radio'][name='vessel']:checked");
-                if (selected.length > 0) {
-                    let fleetVesselId = selected.val();
-                    fleetVessel = findFleetVessel(fleetVesselId);
-                    if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
-                        $("input[type='radio'][name='vessel']").prop('checked', false);
-                    }
+            }
+            for (let i=0; i<theirFleetVessels.length; i++) {
+                let fleetVessel = theirFleetVessels[i];
+                // Plot each location
+                for (let j=0; j<fleetVessel.locations.length; j++) {
+                    let location = fleetVessel.locations[j];
+                    let cssClass = 'bs-pos-cell-plotted';
+                    let tableCell = $('#theirCell_' + location.row + '_' + location.col);
+                    setElemStatusClass(tableCell, cssClass);
+                    tableCell.html(location.vessel_name.toUpperCase().charAt(0));
                 }
             }
         }
 
         /**
-         * Highlight available cells
+         * Find the fleet vessel details based on the fleet vessel id
          */
-        function availableCells(row, col, fleetVessel)
+        function findMyFleetVessel(fleetVesselId)
         {
-            // Generic removal of all cells flagged as available
-            $('.cell').removeClass('bs-pos-cell-available');
-            // Exit if the vessel is already plotted
-            if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
-                return;
-            }
-
-            let numberOfAvailableCells = 0;
-            // For length three we need to examine whether three in a row will fit somewhere
-            if (3 == fleetVessel.length && 2 == fleetVessel.locations.length) {
-                // We need at least one available cell
-                numberOfAvailableCells = lengthThreeTwoAllocated(row, col, fleetVessel);
-
-            } else {
-
-                let tryRow = row - (fleetVessel.length - 1);
-                let tryCol = col - (fleetVessel.length - 1);
-
-                let itr = 1;        // Maybe 0, or (2 x length - 1)
-                if (fleetVessel.length == 2) itr = 3;
-                if (fleetVessel.length == 3) itr = 5;
-
-                for (i = 0; i < itr; i++) {
-                    if ((tryRow + i) <= 0 || (tryRow + i) > gridSize) continue;
-
-                    for (j = 0; j < itr; j++) {
-                        if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
-
-                        let elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)); //.html('' + i + j);    // To see offsets
-                        if ($(elem).hasClass('bs-pos-cell-plotted') || $(elem).hasClass('bs-pos-cell-started')) {
-                            // Ignore this location
-                        } else {
-                            setElemStatusClass($('#cell_' + (tryRow + i) + '_' + (tryCol + j)), 'bs-pos-cell-available');
-                            if (1 == i && 1 == j) {
-                                // Do not count the primary cell, it is always at 1,1
-                            } else {
-                                numberOfAvailableCells += 1;
-                            }
-                        }
-                    }
-                }
-
-                // For length three with only one allocated we need to examine whether three in a row will fit
-                if (fleetVessel.length == 3 && 1 == fleetVessel.locations.length) {
-                    numberOfAvailableCells = lengthThreeOneAllocated(row, col, fleetVessel);
+            for (let i=0; i<myFleetVessels.length; i++) {
+                let fleetVessel = myFleetVessels[i];
+                if (fleetVesselId == fleetVessel.fleetVesselId) {
+                    return fleetVessel;
                 }
             }
-            // Check that there is somewhere to go
-            if (numberOfAvailableCells < (fleetVessel.length - fleetVessel.locations.length)) {
-                showNotification('There is not enough room or no cells available in that position. Please move it elsewhere.');
-            }
-        }
-
-
-        /**
-         * Highlight available cells when dealing with length three, when two have already been allocated
-         */
-        function lengthThreeTwoAllocated(row, col, fleetVessel)
-        {
-            let tryRow = row - 2;
-            let tryCol = col - 2;
-            let itr = 5;        // A 5 x 5 set of cells which could possibly available
-            let numberOfAvailableCells = 0;
-
-            // There can only be 1 or 2 cells already started, as 3 would mean the vessel has been plotted
-            // This drastically reduces the cells that are available
-            // Create an array of all elems with the started class, narrow down those available even more
-            let hasStarted = [];
-            let availableElems = [];
-            for (i = 0; i < itr; i++) {
-                if ((tryRow + i) <= 0 || (tryRow + i) > gridSize) continue;
-
-                for (j = 0; j < itr; j++) {
-                    if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
-
-                    elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)); //.html('' + i + j);    // To see offsets
-                    let elemObj = {
-                        elem: elem,
-                        row: i,
-                        col: j,
-                        idx: ('' + i + j)       // Speeds things up below
-                    };
-                    if ($(elem).hasClass('bs-pos-cell-started')) {
-                        hasStarted[hasStarted.length] = elemObj;
-                    } else {
-                        if ($(elem).hasClass('bs-pos-cell-plotted') || $(elem).hasClass('bs-pos-cell-started')) {
-                            // Ignore this location
-                        } else {
-                            // This location is possibly available
-                            availableElems[availableElems.length] = elemObj;
-                        }
-                    }
-                }
-            }
-            // For each offset cell it can only be used if a required cell is available to complete the set of three
-            // The starting position is always 2,2, the following table can be read as:
-            //      if the other started cell is '00', then only '11' can be used, if it is available
-            for (let i = 0; i < hasStarted.length; i++) {
-                let started = hasStarted[i];
-                let n1 = 0;
-                let n2 = 0;
-
-                if ('00' == started.idx) { n1=setAvailableElem(availableElems, '11'); }
-                if ('02' == started.idx) { n1=setAvailableElem(availableElems, '12'); }
-                if ('04' == started.idx) { n1=setAvailableElem(availableElems, '13'); }
-                if ('11' == started.idx) { n1=setAvailableElem(availableElems, '00'); n2=setAvailableElem(availableElems, '33'); }
-                if ('12' == started.idx) { n1=setAvailableElem(availableElems, '02'); n2=setAvailableElem(availableElems, '32'); }
-                if ('13' == started.idx) { n1=setAvailableElem(availableElems, '04'); n2=setAvailableElem(availableElems, '31'); }
-                if ('20' == started.idx) { n1=setAvailableElem(availableElems, '21'); }
-                if ('21' == started.idx) { n1=setAvailableElem(availableElems, '20'); n2=setAvailableElem(availableElems, '23'); }
-                if ('23' == started.idx) { n1=setAvailableElem(availableElems, '21'); n2=setAvailableElem(availableElems, '24'); }
-                if ('24' == started.idx) { n1=setAvailableElem(availableElems, '23'); }
-                if ('31' == started.idx) { n1=setAvailableElem(availableElems, '40'); n2=setAvailableElem(availableElems, '13'); }
-                if ('32' == started.idx) { n1=setAvailableElem(availableElems, '12'); n2=setAvailableElem(availableElems, '42'); }
-                if ('33' == started.idx) { n1=setAvailableElem(availableElems, '11'); n2=setAvailableElem(availableElems, '44'); }
-                if ('40' == started.idx) { n1=setAvailableElem(availableElems, '31'); }
-                if ('42' == started.idx) { n1=setAvailableElem(availableElems, '32'); }
-                if ('44' == started.idx) { n1=setAvailableElem(availableElems, '33'); }
-
-                numberOfAvailableCells += (n1 + n2);
-            }
-
-            return numberOfAvailableCells;
+            alert('Error: Could not find my fleet vessel for id ' + fleetVesselId);
         }
 
         /**
-         * Set the element to be available if not blocked by already being allocated
+         * Find the fleet vessel details based on the fleet vessel id
          */
-        function setAvailableElem(availableElems, idx)
+        function findTheirFleetVessel(fleetVesselId)
         {
-            for (let j=0; j<availableElems.length; j++) {
-                let elemObj = availableElems[j];
-                if (idx == elemObj.idx) {
-                    $(elemObj.elem).addClass('bs-pos-cell-available');
-                    return 1;
+            for (let i=0; i<theirFleetVessels.length; i++) {
+                let fleetVessel = theirFleetVessels[i];
+                if (fleetVesselId == fleetVessel.fleetVesselId) {
+                    return fleetVessel;
                 }
             }
-            return 0;
+            alert('Error: Could not find their fleet vessel for id ' + fleetVesselId);
         }
 
         /**
-         * Highlight available cells when dealing with length three, when only one is currently allocated
+         * Find the fleet vessel details by row/col location
          */
-        function lengthThreeOneAllocated(row, col, fleetVessel)
+        function findMyFleetVesselByRowCol(row, col)
         {
-            let tryRow = row - 2;
-            let tryCol = col - 2;
-            let itr = 5;        // A 5 x 5 set of cells which could possibly be available
-            let numberOfAvailableCells = 0;
-
-            // Remove those entries that can never be used because 3 in a row must be diagonally or in a line
-            let elem = null;
-            for (i = 0; i < itr; i++) {
-                if ((tryRow + i) <= 0 || (tryRow + i) > gridSize) continue;
-
-                for (j = 0; j < itr; j++) {
-                    if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
-
-                    if ((0 == i && (1 == j || 3 == j))
-                            || (1 == i && (0 == j || 4 == j))
-                            || (3 == i && (0 == j || 4 == j))
-                            || (4 == i && (1 == j || 3 == j))
-                    ) {
-                        // Remove the available class, if present
-                        elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j));
-                        if ($(elem).hasClass('bs-pos-cell-available')) {
-                            // Remove all classes
-                            setElemStatusClass(elem, '');
-                        }
+            for (let i=0; i<myFleetVessels.length; i++) {
+                let fleetVessel = myFleetVessels[i];
+                for (let j=0; j<fleetVessel.locations.length; j++) {
+                    if (fleetVessel.locations[j].row == row && fleetVessel.locations[j].col == col) {
+                        return fleetVessel;
                     }
                 }
             }
-            // Create an array of all elems with the available class, these are those that might be possible
-            let hasAvailable = [];
-            for (i = 0; i < itr; i++) {
-                if ((tryRow + i) <= 0 || (tryRow + i) > gridSize) continue;
-
-                for (j = 0; j < itr; j++) {
-                    if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
-
-                    elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j));
-                    if ($(elem).hasClass('bs-pos-cell-available')) {
-                        hasAvailable[hasAvailable.length] = {
-                            elem: elem,
-                            row: i,
-                            col: j,
-                            idx: ('' + i + j)       // Speeds things up below
-                        };
-                        if (2 == i && 2 == j) {
-                            // Do not count the primary cell, it is always at 2,2
-                        } else {
-                            numberOfAvailableCells += 1;
-                        }
-                    }
-                }
-            }
-
-            // For each offset cell it can only be used if a required cell is available to complete the set of three
-            for (let i = 0; i < hasAvailable.length; i++) {
-                let avail = hasAvailable[i];
-                if (
-                        '00' == avail.idx && !hasAvailableElem(hasAvailable, '11')
-                        || '02' == avail.idx && !hasAvailableElem(hasAvailable, '12')
-                        || '04' == avail.idx && !hasAvailableElem(hasAvailable, '13')
-                        || '11' == avail.idx && (!hasAvailableElem(hasAvailable, '00') && !hasAvailableElem(hasAvailable, '33'))
-                        || '12' == avail.idx && (!hasAvailableElem(hasAvailable, '02') && !hasAvailableElem(hasAvailable, '32'))
-                        || '13' == avail.idx && (!hasAvailableElem(hasAvailable, '04') && !hasAvailableElem(hasAvailable, '31'))
-                        || '20' == avail.idx && !hasAvailableElem(hasAvailable, '21')
-                        || '21' == avail.idx && (!hasAvailableElem(hasAvailable, '20') && !hasAvailableElem(hasAvailable, '23'))
-                        || '23' == avail.idx && (!hasAvailableElem(hasAvailable, '21') && !hasAvailableElem(hasAvailable, '24'))
-                        || '24' == avail.idx && !hasAvailableElem(hasAvailable, '23')
-                        || '31' == avail.idx && (!hasAvailableElem(hasAvailable, '40') && !hasAvailableElem(hasAvailable, '13'))
-                        || '32' == avail.idx && (!hasAvailableElem(hasAvailable, '12') && !hasAvailableElem(hasAvailable, '42'))
-                        || '33' == avail.idx && (!hasAvailableElem(hasAvailable, '11') && !hasAvailableElem(hasAvailable, '44'))
-                        || '40' == avail.idx && !hasAvailableElem(hasAvailable, '31')
-                        || '42' == avail.idx && !hasAvailableElem(hasAvailable, '32')
-                        || '44' == avail.idx && !hasAvailableElem(hasAvailable, '33')
-                ) {
-                    // The cell cannot be used as a required cell isn't available
-                    setElemStatusClass(avail.elem, '');
-                    numberOfAvailableCells -= 1;
-                }
-            }
-
-            return numberOfAvailableCells;
+            alert('Error: Could not find my fleet vessel for row ' + row + ' and col' + col);
         }
 
         /**
-         * Try to find the requested elem
+         * Find the fleet vessel details by row/col location
          */
-        function hasAvailableElem(elemAry, idx)
+        function findTheirFleetVesselByRowCol(row, col)
         {
-            for (let j=0; j<elemAry.length; j++) {
-                let elem = elemAry[j];
-                if (idx == elem.idx) {
-                    return true;
+            for (let i=0; i<theirFleetVessels.length; i++) {
+                let fleetVessel = theirFleetVessels[i];
+                for (let j=0; j<fleetVessel.locations.length; j++) {
+                    if (fleetVessel.locations[j].row == row && fleetVessel.locations[j].col == col) {
+                        return fleetVessel;
+                    }
                 }
             }
-            return false;
+            return null;
         }
 
         /**
@@ -576,51 +364,6 @@ use App\Game;
         function setGameStatus(returnedGameStatus)
         {
             $('#gameStatus').html(returnedGameStatus);
-        }
-
-        /**
-         * Clicking anywhere on a table row selects that radio button, for convenience
-         */
-        function selectRow(fleetVesselId)
-        {
-            $('#radio_id_' + fleetVesselId).prop('checked', true);
-        }
-
-        /**
-         * Callback function to handle the asynchronous Ajax call
-         * @param returnedFleetVessel: is the returned data for this callback
-         */
-        function updateFleetVessel(returnedFleetVessel)
-        {
-            let row = returnedFleetVessel.subjectRow;
-            let col = returnedFleetVessel.subjectCol;
-            // Update the fleet vessel as a result of the new location
-            let fleetVessel = null;
-            for (let i=0; i<fleetVessels.length; i++) {
-                if (fleetVessels[i].fleetVesselId == returnedFleetVessel.fleetVesselId) {
-                    fleetVessels[i].status = returnedFleetVessel.status;
-                    fleetVessels[i].locations = returnedFleetVessel.locations;
-
-                    fleetVessel = fleetVessels[i];
-                }
-            }
-
-            if (0 != row && 0 != col) {
-                // NB This function must be called here else we encounter a timing issue
-                // between the Ajax call and the testing of the status of the returned fleet vessel
-                // Plot available cells around the clicked cell, if any.
-                availableCells(row, col, fleetVessel);
-            }
-
-            // Set the attributes of the clicked cell, by replotting all fleet locations
-            plotFleetLocations();
-
-            // Check the status of the game, as it may have changed
-            let statusCheck = {
-                gameId: {{$game->id}},
-                user_token: getCookie('user_token')
-            };
-            ajaxCall('getGameStatus', JSON.stringify(statusCheck), setGameStatus);
         }
 
         /**
