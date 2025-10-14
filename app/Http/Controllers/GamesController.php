@@ -209,7 +209,7 @@ class GamesController extends Controller
 
 		$users = User::getUsers($userId);
 
-		return view('pages.games.editGame', compact('loggedIn', 'game', 'users', 'fleet', 'fleetId', 'errors', 'msgs'));
+		return view('pages.games.editGrid', compact('loggedIn', 'game', 'users', 'fleet', 'fleetId', 'errors', 'msgs'));
 	}
 
 	/**
@@ -239,6 +239,6 @@ class GamesController extends Controller
 			Log::notice("Error accepting game: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
 		}
 
-		return redirect()->intended("/editGame?gameId=$gameId");
+		return redirect()->intended("/editGrid?gameId=$gameId");
 	}
 }

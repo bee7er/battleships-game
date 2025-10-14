@@ -61,9 +61,11 @@ use App\Game;
                              || $game->status == Game::STATUS_WAITING)
                                 @if ($game->protagonist_id == $userId)
                                     <div title="Edit the game"><a href="javascript: gotoEdit({{$game->id}})">Edit</a></div>
+                                    <div title="Edit the game grid"><a href="javascript: gotoEditGrid({{$game->id}})">Edit Grid</a></div>
                                 @else
+                                    {{--Current user is an opponent in this game--}}
                                     @if (isset($game->opponent_fleet))
-                                        <div title="Edit the game"><a href="javascript: gotoEdit({{$game->id}})">Edit</a></div>
+                                        <div title="Edit the game grid"><a href="javascript: gotoEditGrid({{$game->id}})">Edit Grid</a></div>
                                     @else
                                         <div title="Accept the game"><a href="javascript: gotoAccept({{$game->id}})">Accept</a></div>
                                     @endif
@@ -73,7 +75,9 @@ use App\Game;
                                     <div title="Start the game"><a href="javascript: gotoEngage({{$game->id}})">Engage</a></div>
                                 @endif
                             @endif
-                            <div title="Delete the game"><a href="javascript: gotoDelete({{$game->id}})">Delete</a></div>
+                            @if ($game->protagonist_id == $userId)
+                                <div title="Delete the game"><a href="javascript: gotoDelete({{$game->id}})">Delete</a></div>
+                            @endif
                             @if ($game->status == Game::STATUS_WINNER || $game->status == Game::STATUS_LOSER)
                                     <div title="Run simulation"><a href="">Rerun</a></div>
                             @endif
@@ -141,6 +145,18 @@ use App\Game;
             let h = $('#gameId');
             h.val(gameId);
             f.attr('action', '/editGame');
+            f.submit();
+            return false;
+        }
+
+        /**
+         * Edit the requested game grid
+         */
+        function gotoEditGrid(gameId) {
+            let f = $('#gamesForm');
+            let h = $('#gameId');
+            h.val(gameId);
+            f.attr('action', '/editGrid');
             f.submit();
             return false;
         }

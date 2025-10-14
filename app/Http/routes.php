@@ -23,6 +23,7 @@ Route::get('/profile', 'HomeController@profile');
 Route::get('/games', 'GamesController@index');
 Route::get('/addGame', 'GamesController@addGame');
 Route::post('/editGame', 'GamesController@editGame');
+Route::get('/editGrid', 'GamesController@editGrid');
 Route::get('/editGame', 'GamesController@editGame');
 Route::get('/acceptGame', 'GamesController@acceptGame');
 Route::post('/updateGame', 'GamesController@updateGame');

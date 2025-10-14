@@ -11,7 +11,7 @@ use App\Game;
     <div class="container is-fluid">
 
         <article class="panel is-success">
-            <p class="panel-heading">Edit Game</p>
+            <p class="panel-heading">Edit Game Grid</p>
             @include('common.msgs')
             @include('common.errors')
 
@@ -36,7 +36,7 @@ use App\Game;
                                 Name:
                             </td>
                             <td class="cell">
-                                <input type="text" id="gameName" name="gameName" value="{{ucfirst($game->game_name)}}" />
+                                {{ucfirst($game->game_name)}}
                             </td>
                         </tr>
                         <tr class="">
@@ -53,42 +53,6 @@ use App\Game;
                             </td>
                             <td class="cell">
                                 {{ucfirst($game->opponent_name)}}
-                            </td>
-                        </tr>
-                        <tr class="">
-                            <td class="cell bs-section-title">
-                                Choose Opponent
-                            </td>
-                            <td class="cell">
-                                <select name="opponentId" id="opponentId" aria-label="Game opponent" class="bs-listbox">
-                                    <option value="" class="">Select a new opponent</option>
-                                    @if (isset($users) && $users->count() > 0)
-                                        @foreach($users as $user)
-                                                <option value="{{$user->id}}" @if ($user->id == $game->opponent_id) {{'selected'}}@endif>{{ucfirst($user->name)}}</option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                            </td>
-                        </tr>
-                        <tr class="">
-                            <td class="cell" colspan="2">
-                                <input class="button" type="submit" value="Submit input" />
-                            </td>
-                        </tr>
-                        <tr class="">
-                            <td class="cell" colspan="2">
-                                @if ($game->status == GAME::STATUS_ACTIVE || $game->status == GAME::STATUS_WINNER || $game->status == GAME::STATUS_LOSER)
-                                    <div class="field">
-                                        <div class="">
-                                            Started at: {{$game->started_at}}
-                                        </div>
-                                    </div>
-                                    <div class="field">
-                                        <div class="">
-                                            Ended at: {{$game->ended_at}}
-                                        </div>
-                                    </div>
-                                @endif
                             </td>
                         </tr>
                     </tbody>
@@ -122,7 +86,7 @@ use App\Game;
                     </tr>
 
                     @foreach ($fleet as $fleetVessel)
-                        <tr class="">
+                        <tr class="" onclick="selectRow('{{$fleetVessel->fleet_vessel_id}}')">
                             <td class="cell">
                                 <input type="radio" id="radio_id_{{$fleetVessel->fleet_vessel_id}}"
                                        name="vessel" value="{{$fleetVessel->fleet_vessel_id}}" onclick="onClickSelectVessel(this);" />
@@ -654,6 +618,14 @@ use App\Game;
         function setGameStatus(returnedGameStatus)
         {
             $('#gameStatus').html(returnedGameStatus);
+        }
+
+        /**
+         * Clicking anywhere on a table row selects that radio button, for convenience
+         */
+        function selectRow(fleetVesselId)
+        {
+            $('#radio_id_' + fleetVesselId).prop('checked', true);
         }
 
         /**

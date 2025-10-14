@@ -152,11 +152,33 @@ class Fleet extends Model
     public static function isFleetReady($gameId, $userId)
     {
         $fleet = self::getFleet($gameId, $userId);
-        // Check if there are any fleet vessels which aren't in the plotted status
-        $results = FleetVessel::where("fleet_vessels.fleet_id", "=", $fleet->id)
-            ->where("fleet_vessels.status", "!=", FleetVessel::FLEET_VESSEL_PLOTTED)->get();
+        if (isset($fleet)) {
+            // Check if there are any fleet vessels which aren't in the plotted status
+            $results = FleetVessel::where("fleet_vessels.fleet_id", "=", $fleet->id)
+                ->where("fleet_vessels.status", "!=", FleetVessel::FLEET_VESSEL_PLOTTED)->get();
 
-        return (count($results) <= 0);
+            return (count($results) <= 0);
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks the fleet vessels, if none are started or plotted then this fleet is not started
+     */
+    public static function isFleetNotStarted($gameId, $userId)
+    {
+        $fleet = self::getFleet($gameId, $userId);
+        if (isset($fleet)) {
+            // Check if there are any fleet vessels which are started or plotted status
+            $builder = FleetVessel::where("fleet_vessels.fleet_id", "=", $fleet->id);
+            $builder = $builder->where("fleet_vessels.status", "=", FleetVessel::FLEET_VESSEL_STARTED)
+                            ->orWhere("fleet_vessels.status", "=", FleetVessel::FLEET_VESSEL_PLOTTED);
+
+            return (count($builder->get()) <= 0);
+        }
+
+        return true;
     }
 
 }

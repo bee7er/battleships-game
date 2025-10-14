@@ -14,6 +14,7 @@ class Message extends Model
     const MESSAGE_INVITE = "Hi %s, will you play '%s' with me? %s";
     const MESSAGE_ACCEPT = "Hi %s, I will love playing '%s' with you? %s";
     const MESSAGE_READY = "Hi %s and %s, I'm happy to say that '%s' is ready to play. System";
+    const MESSAGE_WAITING = "Hi %s, %s is waiting for you to finish plotting your fleet in the '%s' game. System";
 
     /**
      * The database table used by the model.
@@ -81,7 +82,7 @@ class Message extends Model
      * @param $message
      * @param string $msgDataIdx - used to override the order of message substitution data in the message
      */
-    public static function addMessage($fromUserId, $toUserId, $gameId, $message, $msgDataIdx='012')
+    public static function addMessage($fromUserId, $toUserId, $gameId, $message, $msgDataIdx='120')
     {
         $messageText = self::retrieveMessageText($fromUserId, $toUserId, $gameId, $message, $msgDataIdx);
         $message = Message::getMessage();
@@ -102,11 +103,11 @@ class Message extends Model
      * @param string $msgDataIdx - used to override the order of message substitution data in the message
      * @return string
      */
-    public static function retrieveMessageText($fromUserId, $toUserId, $gameId, $message, $msgDataIdx='012')
+    public static function retrieveMessageText($fromUserId, $toUserId, $gameId, $message, $msgDataIdx='120')
     {
         $msgData[] = User::getUser($fromUserId)->name;
-        $msgData[] = Game::getGame($gameId)->name;
         $msgData[] = User::getUser($toUserId)->name;
+        $msgData[] = Game::getGame($gameId)->name;
         $messageText = sprintf($message, $msgData[$msgDataIdx[0]], $msgData[$msgDataIdx[1]], $msgData[$msgDataIdx[2]]);
 
         return $messageText;
