@@ -41,7 +41,7 @@ use App\Game;
                         </tr>
                         <tr class="">
                             <td class="cell bs-section-title">
-                                Name:
+                                Game name:
                             </td>
                             <td class="cell">
                                 <input type="text" id="gameName" name="gameName" value="@if (isset($game->id)){{ucfirst($game->name)}}@endif" />

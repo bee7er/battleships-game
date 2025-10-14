@@ -63,6 +63,7 @@ class Game extends Model
         if (isset($game) && count($game) > 0) {
             return $game[0];
         }
+        Log::notice("Could not find game for id '$id'");
 
         return null;
     }
@@ -106,7 +107,7 @@ class Game extends Model
 
         $games = $builder->get();
 
-        return $games;;
+        return $games;
     }
 
     /**

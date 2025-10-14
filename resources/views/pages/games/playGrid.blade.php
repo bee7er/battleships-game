@@ -11,19 +11,24 @@ use App\Game;
     <div class="container is-fluid">
 
         <article class="panel is-success">
-            <p class="panel-heading">Edit Game Grid</p>
+            <p class="panel-heading">Play Game</p>
             @include('common.msgs')
             @include('common.errors')
 
-            <form id="gameForm" action="/updateGame" method="POST" class="form-horizontal">
+            <form id="gameForm" action="" method="POST" class="form-horizontal">
                 {{ csrf_field() }}
 
                 <input type="hidden" name="gameId" id="gameId" value="{{$game->id}}" />
-                <input type="hidden" name="fleetId" id="fleetId" value="{{$fleetId}}" />
 
                 <table class="table is-bordered is-striped bs-form-table">
                     <tbody>
                         <tr class="">
+                            <td class="cell bs-section-title">
+                                Game name:
+                            </td>
+                            <td class="cell">
+                                {{ucfirst($game->game_name)}}
+                            </td>
                             <td class="cell bs-section-title">
                                 Game status:
                             </td>
@@ -33,26 +38,16 @@ use App\Game;
                         </tr>
                         <tr class="">
                             <td class="cell bs-section-title">
-                                Game name:
-                            </td>
-                            <td class="cell">
-                                {{ucfirst($game->game_name)}}
-                            </td>
-                        </tr>
-                        <tr class="">
-                            <td class="cell bs-section-title">
                                 Protagonist:
                             </td>
-                            <td class="cell">
-                                {{ucfirst($game->protagonist_name)}}
+                            <td class="cell @if ($protagonistGo) {{'bs-status'}} @endif">
+                                {{ucfirst($game->protagonist_name)}} @if ($protagonistGo) {{'<< Your go!'}} @endif
                             </td>
-                        </tr>
-                        <tr class="">
                             <td class="cell bs-section-title">
                                 Opponent:
                             </td>
-                            <td class="cell">
-                                {{ucfirst($game->opponent_name)}}
+                            <td class="cell @if ($protagonistGo) {{'bs-status'}} @endif">
+                                {{ucfirst($game->opponent_name)}}  @if (!$protagonistGo) {{'<< Your go!'}} @endif
                             </td>
                         </tr>
                     </tbody>
@@ -61,47 +56,10 @@ use App\Game;
 
         </article>
         <div class="field">
-            <div class="bs-section-help">Select each vessel and plot its positions on the grid.</div>
-            <div class="bs-section-help">Each vessel has a length corresponding with the number of positions which must be plotted.</div>
             <div class="">Messages: <span id="notification" class="bs-notification">&nbsp;</span></div>
         </div>
 
         <div class="columns">
-
-            <div class="column">
-
-                <table class="table is-bordered is-striped bs-plot-table">
-                    <tbody>
-                    <tr class="">
-                        <th class="bs-section-title" colspan="99">Fleet Vessels:</th>
-                    </tr>
-
-                    <tr class="">
-                        <th class="cell">Select</th>
-                        <th class="cell">Name</th>
-                        <th class="cell">Status</th>
-                        <th class="cell">Length</th>
-                        <th class="cell">Points</th>
-                        <th class="cell">Id</th>
-                    </tr>
-
-                    @foreach ($fleet as $fleetVessel)
-                        <tr class="" onclick="selectRow('{{$fleetVessel->fleet_vessel_id}}')">
-                            <td class="cell">
-                                <input type="radio" id="radio_id_{{$fleetVessel->fleet_vessel_id}}"
-                                       name="vessel" value="{{$fleetVessel->fleet_vessel_id}}" onclick="onClickSelectVessel(this);" />
-                            </td>
-                            <td class="cell" id="name_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->vessel_name}}</td>
-                            <td class="cell" id="status_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->status}}</td>
-                            <td class="cell" id="length_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->length}}</td>
-                            <td class="cell" id="points_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->points}}</td>
-                            <td class="cell" id="points_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->fleet_vessel_id}}</td>
-                        </tr>
-                    @endforeach
-
-                    </tbody>
-                </table>
-            </div>
 
             <div class="column">
 

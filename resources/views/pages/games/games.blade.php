@@ -120,14 +120,10 @@ use App\Game;
          * Engage in the game battle
          */
         function gotoEngage(gameId) {
-            alert('Not coded yet');
-            return false;
-
-
             let f = $('#gamesForm');
             let h = $('#gameId');
             h.val(gameId);
-            f.attr('action', '/engageGame');
+            f.attr('action', '/playGrid');
             f.submit();
             return false;
         }

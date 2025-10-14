@@ -7,6 +7,7 @@ use App\FleetVessel;
 use App\FleetVesselLocation;
 use App\Game;
 use App\Message;
+use App\Move;
 use App\User;
 use App\Fleet;
 use Exception;
@@ -176,6 +177,7 @@ class GamesController extends Controller
 
 		return redirect()->intended('/games');
 	}
+
 	/**
 	 * Edit the selected game.
 	 *
@@ -249,6 +251,58 @@ class GamesController extends Controller
 		}
 
 		return redirect()->intended("/editGrid?gameId=$gameId");
+	}
+
+	/**
+	 * Play the selected game.
+	 *
+	 * @param Request $request
+	 * @return Response
+	 */
+	public function playGrid(Request $request)
+	{
+		if (!$this->auth->check()) {
+			return redirect()->intended('error');
+		}
+
+		$loggedIn = true;
+		$userId = $this->auth->user()->id;
+		$gameId = $request->get('gameId');
+		$fleetId = 0;
+		$fleet = null;
+
+		$errors = [];
+		$msgs = [];
+
+		$game = null;
+		try {
+			$game = Game::getGameDetails($gameId);
+			if (Game::STATUS_DELETED == $game->status) {
+				// This check is required because an opponent player could have a deleted game showing
+				return redirect()->intended('/games');
+			}
+
+			$fleet = Fleet::getFleetDetails($gameId, $userId);
+			if (isset($fleet) && count($fleet) > 0) {
+				// Just get fleet id from the first fleet vessel entry
+				$fleetId = $fleet[0]->id;
+			}
+
+			$moveCount = 0 ;
+			$moves = Move::getMoves($gameId, $userId);
+			if (isset($moves)) {
+				$moveCount = count($moves);
+			}
+			$protagonistGo = ($moveCount % 2 == 0) ? true: false;
+
+		} catch(Exception $e) {
+			Log::notice("Error getting game for edit: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
+			$errors[] = $e->getMessage();
+		}
+
+		$users = User::getUsers($userId);
+
+		return view('pages.games.playGrid', compact('loggedIn', 'game', 'users', 'fleet', 'fleetId', 'protagonistGo', 'errors', 'msgs'));
 	}
 
 	/**
