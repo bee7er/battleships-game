@@ -48,6 +48,7 @@ class Game extends Model
             array(
                 'games.id',
                 'games.name',
+                'games.status',
                 'games.protagonist_id',
                 'games.opponent_id',
                 'games.started_at',
@@ -57,10 +58,13 @@ class Game extends Model
         );
 
         $game = $builder
-            ->where("games.id", "=", $id)
-            ->where('games.status', '!=', Game::STATUS_DELETED);
+            ->where("games.id", "=", $id)->get();
 
-        return $game->get()[0];
+        if (isset($game) && count($game) > 0) {
+            return $game[0];
+        }
+
+        return null;
     }
 
     /**

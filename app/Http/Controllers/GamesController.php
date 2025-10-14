@@ -201,6 +201,7 @@ class GamesController extends Controller
 		try {
 			$game = Game::getGameDetails($gameId);
 			if (Game::STATUS_DELETED == $game->status) {
+				// This check is required because an opponent player could have a deleted game showing
 				return redirect()->intended('/games');
 			}
 
