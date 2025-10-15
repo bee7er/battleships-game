@@ -16,7 +16,6 @@ class CreateMovesTable extends Migration
         Schema::create('moves', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id')->unsigned();
-            $table->unsignedInteger('seq');
             $table->unsignedInteger('game_id');
             $table->unsignedInteger('player_id');
             $table->unsignedInteger('row');

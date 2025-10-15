@@ -18,6 +18,8 @@ class VerifyCsrfToken extends BaseVerifier
         '/removeVesselLocation',
         '/getGameStatus',
         '/markAsRead',
+        '/getLatestOpponentMove',
+        '/shotVesselLocation',
     ];
 
     public function handle($request, Closure $next)

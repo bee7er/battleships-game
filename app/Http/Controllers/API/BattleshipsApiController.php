@@ -8,6 +8,7 @@ use App\Fleet;
 use App\FleetVessel;
 use App\FleetVesselLocation;
 use App\Message;
+use App\Move;
 use App\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -214,4 +215,86 @@ class BattleshipsApiController extends Controller
 
 		return $returnData;   // Gets converted to json
 	}
+
+	/**
+	 * Find and return the latest move for the specified user
+	 *
+	 * @param Request $request
+	 * @return Response
+	 */
+	public function getLatestOpponentMove(Request $request)
+	{
+		$message = "Data received OK";
+		$result = 'Error';
+		$returnedData = [];
+
+		try {
+			// User token must be provided and valid for all API calls
+			User::checkUserToken($request->get(User::USER_TOKEN));
+
+			// We grab the latest move.  If it was by them, we return the details for action client side.
+			$move = Move::getLatestMove($request->get('gameId'), $request->get('userId'));
+			//Log::info(print_r($request->all(), true));
+
+			$returnedData = ['move' => $move];
+			$result = 'OK';
+
+		} catch(\Exception $exception) {
+			$result = 'Error';
+			$message = $exception->getMessage();
+			Log::info('Error in getLatestOpponentMove(): ' . $message);
+		}
+
+		$returnData = [
+			"message" => $message,
+			"result" => $result,
+			"returnedData" => $returnedData
+		];
+
+		return $returnData;   // Gets converted to json
+	}
+
+	/**
+	 * Find and return the latest move for the specified user
+	 *
+	 * @param Request $request
+	 * @return Response
+	 */
+	public function shotVesselLocation(Request $request)
+	{
+		$message = "Data received OK";
+		$result = 'Error';
+		$returnedData = [];
+
+		try {
+			// User token must be provided and valid for all API calls
+			User::checkUserToken($request->get(User::USER_TOKEN));
+
+			// We save this latest move.
+			$move = new Move();
+			$move->game_id = $request->get('gameId');
+			$move->player_id = $request->get('userId');
+			$move->row = $request->get('row');
+			$move->col = $request->get('col');
+			$move->save();
+			//Log::info(print_r($request->all(), true));
+
+			$returnedData = ['move' => $move];
+			$result = 'OK';
+
+		} catch(\Exception $exception) {
+			$result = 'Error';
+			$message = $exception->getMessage();
+			Log::info('Error in getLatestOpponentMove(): ' . $message);
+		}
+
+		$returnData = [
+			"message" => $message,
+			"result" => $result,
+			"returnedData" => $returnedData
+		];
+
+		return $returnData;   // Gets converted to json
+	}
+
 }

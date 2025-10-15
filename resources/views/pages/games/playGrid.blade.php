@@ -146,20 +146,25 @@ use App\Game;
                             @endfor
                         </tr>
                     @endfor
-
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
+    <div class="">
+        <div style="text-align: center;padding:40px 0 10px 0;">&copy; {{ (new DateTime)->format('Y') }} Brian Etheridge</div>
+    </div>
 @endsection
 
 @section('page-scripts')
     <script type="text/javascript">
+        var gameId = {{$game->id}};
         var myFleetVessels = [];
         var theirFleetVessels = [];
         var fleetVesselLocations = [];
+        var myUserId = {{$myUser->id}};
+        var theirUserId = {{$theirUser->id}};
         var gridSize = 10;
 
         // Load all the existing data for the fleet
@@ -234,26 +239,22 @@ use App\Game;
             theirFleetVesselByRowCol = findTheirFleetVesselByRowCol(row, col);
             if (null == theirFleetVesselByRowCol) {
                 showNotification('Sorry you missed');
-                $(elem).addClass('bs-pos-cell-shot')
-                return false;
+                $(elem).addClass('bs-pos-cell-shot');
             }
             showNotification('Wahey! Good shot');
-            $(elem).addClass('bs-pos-cell-hit')
+            $(elem).addClass('bs-pos-cell-hit');
 
-            // Ok, release this plotted cell
+            // Ok, notify the server of this move
             let location = {
                 gameId: gameId,
-                fleetVessel: fleetVessel,
+                userId: myUserId,
                 row: row,
                 col: col,
                 user_token: getCookie('user_token')
             };
 
-            return false;
-
             // ========================================================================
-            ajaxCall('removeVesselLocation', JSON.stringify(location), updateFleetVessel);
-
+            ajaxCall('shotVesselLocation', JSON.stringify(location), updateTheirFleetLocations);
 
             return false;
         }
@@ -285,6 +286,24 @@ use App\Game;
                     tableCell.html(location.vessel_name.toUpperCase().charAt(0));
                 }
             }
+        }
+
+        /**
+         * Callback function receiving the latest move by the opponent
+         */
+        function updateMyFleetLocations(returnedMoveData)
+        {
+            console.log('updateMyFleetLocations');
+            console.log(returnedMoveData);
+        }
+
+        /**
+         * Callback function receiving the latest move by the opponent
+         */
+        function updateTheirFleetLocations(returnedMoveData)
+        {
+            console.log('updateTheirFleetLocations');
+            console.log(returnedMoveData);
         }
 
         /**
@@ -375,9 +394,32 @@ use App\Game;
             $('#notification').delay(3000).fadeOut();
         }
 
+        // Call across to the server to see if there have been any chanegs
+        let intervalId;
+        function startCheckingForMoves() {
+            intervalId = setInterval(checkForChanges, 2000);
+        }
+        function stopCheckingForCHanges() {
+            clearInterval(intervalId);
+            // release our intervalId from the variable
+            intervalId = null;
+        }
+        function checkForChanges() {
+            // Ok, release this plotted cell
+            let moveData = {
+                gameId: gameId,
+                userId: theirUserId,
+                user_token: getCookie('user_token')
+            };
+
+            ajaxCall('getLatestOpponentMove', JSON.stringify(moveData), updateMyFleetLocations)
+        }
+
         $(document).ready( function()
         {
             plotFleetLocations();
+
+            //startCheckingForMoves();
 
             return true;
         });

@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class Move extends Model
 {
@@ -19,7 +20,7 @@ class Move extends Model
      *
      * @var array
      */
-    protected $fillable = ['seq', 'game_id', 'player_id', 'row', 'col'];
+    protected $fillable = ['game_id', 'player_id', 'row', 'col'];
 
     /**
      * Retrieve a move
@@ -29,7 +30,6 @@ class Move extends Model
         $builder = self::select(
             array(
                 'moves.id',
-                'moves.seq',
                 'moves.game_id',
                 'moves.player_id',
                 'moves.row',
@@ -60,7 +60,6 @@ class Move extends Model
         $builder = self::select(
             array(
                 'moves.id',
-                'moves.seq',
                 'moves.game_id',
                 'moves.player_id',
                 'users.name as player_name',
@@ -69,7 +68,7 @@ class Move extends Model
             )
         )
             ->join('users', 'users.id', '=', 'moves.player_id')
-            ->orderBy("moves.seq");
+            ->orderBy("moves.id");
 
         $builder = $builder->where("moves.game_id", "=", $gameId);
         // That gets total moves, but may need moves from a given user
@@ -80,5 +79,36 @@ class Move extends Model
         $moves = $builder->get();
 
         return $moves;
+    }
+
+    /**
+     * Gets the latest move and returns it if was by the specified user
+     *
+     * @param $gameId
+     * @param $userId
+     * @return mixed
+     */
+    public static function getLatestMove($gameId, $userId)
+    {
+        $builder = self::select(
+            array(
+                'moves.id',
+                'moves.game_id',
+                'moves.player_id',
+                'moves.row',
+                'moves.col'
+            )
+        )
+            ->orderBy("moves.id", "DESC")
+            ->limit(1);
+
+        $builder = $builder->where("moves.game_id", "=", $gameId)
+            ->where("moves.player_id", "=", $userId);
+
+        $move = $builder->get();
+
+        Log::info(print_r($move, true));
+
+        return $move;
     }
 }
