@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class FleetVesselLocation extends Model
 {
+    const FLEET_VESSEL_LOCATION_NORMAL = 'normal';
+    const FLEET_VESSEL_LOCATION_HIT = 'hit';
+    const FLEET_VESSEL_LOCATION_DESTROYED = 'destroyed';
+
     /**
      * The database table used by the model.
      *
@@ -18,7 +22,7 @@ class FleetVesselLocation extends Model
      *
      * @var array
      */
-    protected $fillable = ['fleet_vessel_id', 'row', 'col'];
+    protected $fillable = ['fleet_vessel_id', 'row', 'col', 'status'];
 
     /**
      * Retrieve entire set of fleet vessel location
@@ -31,6 +35,7 @@ class FleetVesselLocation extends Model
                 'fleet_vessel_locations.fleet_vessel_id',
                 'fleet_vessel_locations.row',
                 'fleet_vessel_locations.col',
+                'fleet_vessel_locations.status as vessel_location_status',
                 'fleet_vessels.status as vessel_status',
                 'vessels.name as vessel_name',
             )
@@ -59,6 +64,7 @@ class FleetVesselLocation extends Model
                     $fleetVesselLocation->fleet_vessel_id = $fleetVesselId;
                     $fleetVesselLocation->row = $location['row'];
                     $fleetVesselLocation->col = $location['col'];
+                    $fleetVesselLocation->status = self::FLEET_VESSEL_LOCATION_NORMAL;
                     $fleetVesselLocation->save();
                     // Populate the returned location
                     $location['id'] = $fleetVesselLocation->id;

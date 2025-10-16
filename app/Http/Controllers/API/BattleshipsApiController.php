@@ -236,6 +236,12 @@ class BattleshipsApiController extends Controller
 			$move = Move::getLatestMove($request->get('gameId'), $request->get('userId'));
 			//Log::info(print_r($request->all(), true));
 
+			// Same processing as below, we find the effect on all vessel parts and return them all
+			// Client side we update each vessel location and rebuild the grid
+			// Is there an opponent vessel at this location
+			// Is this all parts of the vessel destroyed
+			// Return the locations of all parts so client can set all of them to destroyed
+
 			$returnedData = ['move' => $move];
 			$result = 'OK';
 
@@ -278,6 +284,10 @@ class BattleshipsApiController extends Controller
 			$move->col = $request->get('col');
 			$move->save();
 			//Log::info(print_r($request->all(), true));
+
+			// Is there an opponent vessel at this location
+			// Is this all parts of the vessel destroyed
+			// Return the locations of all parts so client can set all of them to destroyed
 
 			$returnedData = ['move' => $move];
 			$result = 'OK';

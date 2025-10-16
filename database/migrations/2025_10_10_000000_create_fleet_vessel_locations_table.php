@@ -1,9 +1,9 @@
 <?php
 
+use App\FleetVesselLocation;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
-use App\FleetVessel;
 
 class CreateFleetVesselLocationsTable extends Migration
 {
@@ -20,6 +20,11 @@ class CreateFleetVesselLocationsTable extends Migration
             $table->integer('fleet_vessel_id')->unsigned();
             $table->tinyInteger('row')->unsigned();
             $table->tinyInteger('col')->unsigned();
+            $table->enum('status', [
+                    FleetVesselLocation::FLEET_VESSEL_LOCATION_NORMAL,
+                    FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT,
+                    FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED]
+            );
             $table->timestamps();
         });
     }
