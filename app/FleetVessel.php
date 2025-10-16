@@ -57,4 +57,32 @@ class FleetVessel extends Model
         return $fleetVessel->get()[0];
     }
 
+    /**
+     * Retrieve entire set of fleet vessel location
+     */
+    public static function getFleetVesselLocationByRowCol($row, $col, $fleetId)
+    {
+        $builder = self::select(
+            array(
+                'fleet_vessels.fleet_id',
+                'fleet_vessel_locations.id as fleet_vessel_location_id',
+                'fleet_vessel_locations.fleet_vessel_id',
+                'fleet_vessel_locations.row',
+                'fleet_vessel_locations.col',
+                'fleet_vessel_locations.status as vessel_location_status',
+            )
+        )
+            ->join('fleet_vessel_locations', 'fleet_vessel_locations.fleet_vessel_id', '=', 'fleet_vessels.id')
+            ->where("fleet_vessels.fleet_id", "=", $fleetId)
+            ->where("fleet_vessel_locations.row", "=", $row)
+            ->where("fleet_vessel_locations.col", "=", $col);
+
+        $fleetVesselLocations = $builder->get();
+
+        if (isset($fleetVesselLocations) && count($fleetVesselLocations) > 0) {
+            return $fleetVesselLocations[0];
+        }
+
+        return null;
+    }
 }

@@ -25,6 +25,50 @@ class FleetVesselLocation extends Model
     protected $fillable = ['fleet_vessel_id', 'row', 'col', 'status'];
 
     /**
+     * Retrieve a specific fleet vessel location
+     */
+    public static function getFleetVesselLocationById($fleetVesselLocationId)
+    {
+        $builder = self::select(
+            array(
+                'fleet_vessel_locations.id',
+                'fleet_vessel_locations.fleet_vessel_id',
+                'fleet_vessel_locations.row',
+                'fleet_vessel_locations.col',
+                'fleet_vessel_locations.status'
+            )
+        );
+
+        $fleetVesselLocations = $builder
+            ->where("fleet_vessel_locations.id", "=", $fleetVesselLocationId);
+
+        if (!isset($fleetVesselLocations) || $fleetVesselLocations->count() <= 0) {
+            throw new Exception("Could not find fleet vessel location with fleet id '$fleetVesselLocationId'");
+        }
+
+        return $fleetVesselLocations->get()[0];
+    }
+
+    /**
+     * Retrieve entire set of fleet vessel location by fleet vessel id
+     */
+    public static function getFleetVesselLocationsByVesselId($fleetVesselId)
+    {
+        $builder = self::select(
+            array(
+                'fleet_vessel_locations.id',
+                'fleet_vessel_locations.fleet_vessel_id',
+                'fleet_vessel_locations.row',
+                'fleet_vessel_locations.col',
+                'fleet_vessel_locations.status',
+            )
+        )
+            ->where("fleet_vessel_locations.fleet_vessel_id", "=", $fleetVesselId);
+
+        return $builder->get();
+    }
+
+    /**
      * Retrieve entire set of fleet vessel location
      */
     public static function getFleetVesselLocations($fleetVesselId)

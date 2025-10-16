@@ -85,10 +85,9 @@ class Move extends Model
      * Gets the latest move and returns it if was by the specified user
      *
      * @param $gameId
-     * @param $userId
      * @return mixed
      */
-    public static function getLatestMove($gameId, $userId)
+    public static function getLatestMove($gameId)
     {
         $builder = self::select(
             array(
@@ -102,13 +101,12 @@ class Move extends Model
             ->orderBy("moves.id", "DESC")
             ->limit(1);
 
-        $builder = $builder->where("moves.game_id", "=", $gameId)
-            ->where("moves.player_id", "=", $userId);
+        $move = $builder->where("moves.game_id", "=", $gameId)->get();
 
-        $move = $builder->get();
+        if (isset($move) && count($move) > 0) {
+            return $move[0];
+        }
 
-        Log::info(print_r($move, true));
-
-        return $move;
+        return null;
     }
 }

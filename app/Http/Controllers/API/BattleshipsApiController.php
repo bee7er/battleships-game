@@ -227,22 +227,52 @@ class BattleshipsApiController extends Controller
 		$message = "Data received OK";
 		$result = 'Error';
 		$returnedData = [];
+		$affectedLocations = [];
 
 		try {
 			// User token must be provided and valid for all API calls
 			User::checkUserToken($request->get(User::USER_TOKEN));
 
-			// We grab the latest move.  If it was by them, we return the details for action client side.
-			$move = Move::getLatestMove($request->get('gameId'), $request->get('userId'));
-			//Log::info(print_r($request->all(), true));
+			// We grab the latest move.  If it was by them, we gauge the impact on my fleet.
+			$move = Move::getLatestMove($request->get('gameId'));
 
-			// Same processing as below, we find the effect on all vessel parts and return them all
-			// Client side we update each vessel location and rebuild the grid
-			// Is there an opponent vessel at this location
-			// Is this all parts of the vessel destroyed
-			// Return the locations of all parts so client can set all of them to destroyed
+			if (isset($move) && $move->player_id == $request->get('userId'))
+			{
+				$locationHit = FleetVessel::getFleetVesselLocationByRowCol($move->row, $move->col, $request->get('fleetId'));
+				if (isset($locationHit)) {
+					// The strike has hit a vessel at that location.  Save the fleet vessel to return to caller.
+					$affectedLocations[$locationHit->fleet_vessel_location_id] = FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT;
 
-			$returnedData = ['move' => $move];
+					$fleetVesselLocation = FleetVesselLocation::getFleetVesselLocationById($locationHit->fleet_vessel_location_id);
+					$fleetVesselLocation->status = FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT;
+					$fleetVesselLocation->save();
+					// Have all the vessel parts been hit
+					$fleetVesselLocations = FleetVesselLocation::getFleetVesselLocationsByVesselId($fleetVesselLocation->fleet_vessel_id);
+					$isDestroyed = true;
+					foreach ($fleetVesselLocations as $fvl) {
+						if ($fvl->status == FleetVesselLocation::FLEET_VESSEL_LOCATION_NORMAL) {
+							$isDestroyed = false;
+							break;
+						}
+					}
+					if (true == $isDestroyed) {
+						// Update the various parts to to destroyed
+						foreach ($fleetVesselLocations as $fvl) {
+							$fvl->status = FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED;
+							$fvl->save();
+							// Save all affected locations.  NB using the location id so is unique, and overwrites the hit entry
+							$affectedLocations[$fvl->id] = FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED;
+						}
+					}
+				}
+
+				$returnedData = [
+					'move' => $move,
+					'locationHit' => $locationHit,
+					'affectedLocations' => $affectedLocations
+				];
+			}
+
 			$result = 'OK';
 
 		} catch(\Exception $exception) {
@@ -261,12 +291,12 @@ class BattleshipsApiController extends Controller
 	}
 
 	/**
-	 * Find and return the latest move for the specified user
+	 * Strike a vessel location
 	 *
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function shotVesselLocation(Request $request)
+	public function strikeVesselLocation(Request $request)
 	{
 		$message = "Data received OK";
 		$result = 'Error';
@@ -285,9 +315,33 @@ class BattleshipsApiController extends Controller
 			$move->save();
 			//Log::info(print_r($request->all(), true));
 
-			// Is there an opponent vessel at this location
-			// Is this all parts of the vessel destroyed
-			// Return the locations of all parts so client can set all of them to destroyed
+			$locationHit = FleetVessel::getFleetVesselLocationByRowCol($move->row, $move->col, $request->get('fleetId'));
+			if (isset($locationHit)) {
+				// The strike has hit a vessel at that location.  Save the fleet vessel to return to caller.
+				$affectedLocations[$locationHit->fleet_vessel_location_id] = FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT;
+
+				$fleetVesselLocation = FleetVesselLocation::getFleetVesselLocationById($locationHit->fleet_vessel_location_id);
+				$fleetVesselLocation->status = FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT;
+				$fleetVesselLocation->save();
+				// Have all the vessel parts been hit
+				$fleetVesselLocations = FleetVesselLocation::getFleetVesselLocationsByVesselId($fleetVesselLocation->fleet_vessel_id);
+				$isDestroyed = true;
+				foreach ($fleetVesselLocations as $fvl) {
+					if ($fvl->status == FleetVesselLocation::FLEET_VESSEL_LOCATION_NORMAL) {
+						$isDestroyed = false;
+						break;
+					}
+				}
+				if (true == $isDestroyed) {
+					// Update the various parts to to destroyed
+					foreach ($fleetVesselLocations as $fvl) {
+						$fvl->status = FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED;
+						$fvl->save();
+						// Save all affected locations.  NB using the location id so is unique, and overwrites the hit entry
+						$affectedLocations[$fvl->id] = FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED;
+					}
+				}
+			}
 
 			$returnedData = ['move' => $move];
 			$result = 'OK';
