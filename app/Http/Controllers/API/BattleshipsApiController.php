@@ -233,6 +233,9 @@ class BattleshipsApiController extends Controller
 			// User token must be provided and valid for all API calls
 			User::checkUserToken($request->get(User::USER_TOKEN));
 
+//			Log::info('getLatestOpponentMove');
+//			Log::info(print_r($request->all(), true));
+
 			// We grab the latest move.  If it was by them, we gauge the impact on my fleet.
 			$move = Move::getLatestMove($request->get('gameId'));
 
@@ -313,9 +316,13 @@ class BattleshipsApiController extends Controller
 			$move->row = $request->get('row');
 			$move->col = $request->get('col');
 			$move->save();
-			//Log::info(print_r($request->all(), true));
+//			Log::info('strikeVesselLocation');
+//			Log::info(print_r($request->all(), true));
 
 			$locationHit = FleetVessel::getFleetVesselLocationByRowCol($move->row, $move->col, $request->get('fleetId'));
+
+//			Log::info($locationHit);
+
 			if (isset($locationHit)) {
 				// The strike has hit a vessel at that location.  Save the fleet vessel to return to caller.
 				$affectedLocations[$locationHit->fleet_vessel_location_id] = FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT;

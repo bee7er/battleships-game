@@ -108,6 +108,7 @@ use App\Game;
                     <tbody>
                     <tr class=""><td class="bs-pos-cell-strike">Location has been bombed but missed the fleet</td></tr>
                     <tr class=""><td class="bs-pos-cell-hit">Location has been bombed and hit a target</td></tr>
+                    <tr class=""><td class="bs-pos-cell-destroyed">Location has been destroyed</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -254,16 +255,16 @@ use App\Game;
             theirFleetVesselByRowCol = findTheirFleetVesselByRowCol(row, col);
             if (null == theirFleetVesselByRowCol) {
                 showNotification('Sorry you missed');
-                $(elem).addClass('bs-pos-cell-strike');
+            } else {
+                showNotification('Wahey! Good shot');
+                $(elem).addClass('bs-pos-cell-hit');
             }
-            showNotification('Wahey! Good shot');
-            $(elem).addClass('bs-pos-cell-hit');
 
-            // Ok, notify the server of this move
+            // Ok, notify the server of this move, me striking their fleet
             let location = {
                 gameId: gameId,
                 userId: myUserId,
-                fleetId: myFleetId,
+                fleetId: theirFleetId,
                 row: row,
                 col: col,
                 user_token: getCookie('user_token')
@@ -308,7 +309,6 @@ use App\Game;
          */
         function getCssClass(location)
         {
-            console.log(location);
             let cssClass = 'bs-pos-cell-plotted';
             if ('{{FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT}}' == location.status) {
                 cssClass = 'bs-pos-cell-hit';
@@ -316,7 +316,6 @@ use App\Game;
                 cssClass = 'bs-pos-cell-destroyed';
             }
 
-            console.log(location.status + ' = ' + cssClass);
             return cssClass;
         }
 
@@ -339,7 +338,7 @@ use App\Game;
          */
         function updateTheirFleetLocations(returnedMoveData)
         {
-            console.log('updateTheirFleetLocations');
+            console.log('updateTheirFleetLocations =========');
             console.log(returnedMoveData);
 
             // Now we poll the server for their response

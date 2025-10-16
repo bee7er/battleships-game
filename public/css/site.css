@@ -129,4 +129,8 @@ body {
     background-color: #f00 !important;
     color: #fff !important;
 }
+.bs-pos-cell-destroyed {
+    background-color: #000 !important;
+    color: #fff !important;
+}
 
