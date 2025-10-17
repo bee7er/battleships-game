@@ -71,7 +71,7 @@ class Move extends Model
             ->orderBy("moves.id");
 
         $builder = $builder->where("moves.game_id", "=", $gameId);
-        // That gets total moves, but may need moves from a given user
+        // That gets total moves, optionally get moves from a given user
         if (null != $userId) {
             $builder = $builder->where("moves.player_id", "=", $userId);
         }

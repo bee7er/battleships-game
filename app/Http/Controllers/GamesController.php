@@ -189,48 +189,7 @@ class GamesController extends Controller
 		if (!$this->auth->check()) {
 			return redirect()->intended('error');
 		}
-
-		//dd(Move::getLatestMove(2));
-		//$fleetVesselLocation = FleetVesselLocation::getFleetVesselLocationByRowCol(2, 9, 2);
-//		$fleetVesselLocation = FleetVessel::getFleetVesselLocationByRowCol(2, 9, 2);
-//		Log::info($fleetVesselLocation);
-
-//        $move = Move::getLatestMove(2);
-//		$locationHit = FleetVessel::getFleetVesselLocationByRowCol(4, 9, 2);
-//        //$locationHit = FleetVessel::getFleetVesselLocationByRowCol($move->row, $move->col, $request->get('fleetId'));
-//        if (isset($locationHit)) {
-//            // The strike has hit a vessel at that location.  Save the fleet vessel to return to caller.
-//            $affectedLocations[$locationHit->fleet_vessel_location_id] = FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT;
-//
-//            $fleetVesselLocation = FleetVesselLocation::getFleetVesselLocationById($locationHit->fleet_vessel_location_id);
-//            $fleetVesselLocation->status = FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT;
-//            $fleetVesselLocation->save();
-//            // Have all the vessel parts been hit
-//            $fleetVesselLocations = FleetVesselLocation::getFleetVesselLocationsByVesselId($fleetVesselLocation->fleet_vessel_id);
-//            $isDestroyed = true;
-//            foreach ($fleetVesselLocations as $fvl) {
-//                if ($fvl->status == FleetVesselLocation::FLEET_VESSEL_LOCATION_NORMAL) {
-//                    $isDestroyed = false;
-//                    break;
-//                }
-//            }
-//            if (true == $isDestroyed) {
-//                // Update the various parts to to destroyed
-//                foreach ($fleetVesselLocations as $fvl) {
-//                    $fvl->status = FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED;
-//                    $fvl->save();
-//                    // Save all affected locations.  NB using the location id so is unique, and overwrites the hit entry
-//                    $affectedLocations[$fvl->id] = FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED;
-//                }
-//            }
-//        }
-//        $returnedData = [
-//            'move' => $move->toArray(),
-//            'affectedLocations' => $affectedLocations
-//        ];
-//        Log::info($returnedData);
-
-
+        
 		$loggedIn = true;
 		$userId = $this->auth->user()->id;
 		$gameId = $request->get('gameId');
@@ -317,12 +276,12 @@ class GamesController extends Controller
 				return redirect()->intended('/games');
 			}
 
-			// We use the count of moves to determine whose go it is
-			$moveCount = 0 ;
-			$moves = Move::getMoves($gameId);
-			if (isset($moves)) {
-				$moveCount = count($moves);
-			}
+            // We use the total count of moves to determine whose go it is
+            $moveCount = 0 ;
+            $totalMoves = Move::getMoves($gameId);
+            if (isset($totalMoves)) {
+                $moveCount += count($totalMoves);
+            }
 
 			// We must be careful to distinguish between the game owner and the opponent, because
 			// when we get to the play grid it can be either.  We will call it 'myFleet' and 'theirFleet'
@@ -339,6 +298,9 @@ class GamesController extends Controller
 				$myGo = ($moveCount % 2 == 0) ? false: true;
 			}
 
+            $myMoves = Move::getMoves($gameId, $myUser->id);
+            $theirMoves = Move::getMoves($gameId, $theirUser->id);
+
             //dd($theirFleet);
 
 		} catch(Exception $e) {
@@ -346,7 +308,7 @@ class GamesController extends Controller
 			$errors[] = $e->getMessage();
 		}
 
-		return view('pages.games.playGrid', compact('loggedIn', 'game', 'currentUserIsProtagonist', 'myFleet', 'theirFleet', 'myUser', 'theirUser', 'myGo', 'errors', 'msgs'));
+		return view('pages.games.playGrid', compact('loggedIn', 'game', 'currentUserIsProtagonist', 'myFleet', 'theirFleet', 'myUser', 'theirUser', 'myGo', 'myMoves', 'theirMoves', 'errors', 'msgs'));
 	}
 
 	/**
