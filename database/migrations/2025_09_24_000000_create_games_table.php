@@ -22,7 +22,7 @@ class CreateGamesTable extends Migration
                     Game::STATUS_EDIT,
                     Game::STATUS_WAITING,
                     Game::STATUS_READY,
-                    Game::STATUS_ACTIVE,
+                    Game::STATUS_ENGAGED,
                     Game::STATUS_COMPLETED,
                     Game::STATUS_DELETED
                 ]

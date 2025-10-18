@@ -4,6 +4,7 @@ namespace App;
 
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Game extends Model
 {
@@ -14,11 +15,11 @@ class Game extends Model
     const STATUS_EDIT = 'edit';
     const STATUS_WAITING = 'waiting';
     const STATUS_READY = 'ready';
-    const STATUS_ACTIVE = 'active';
+    const STATUS_ENGAGED = 'engaged';
     const STATUS_COMPLETED = 'completed';
     const STATUS_DELETED = 'deleted';
 
-    const STATUS_ARRAY = [self::STATUS_EDIT, self::STATUS_WAITING, self::STATUS_READY, self::STATUS_ACTIVE, self::STATUS_COMPLETED, self::STATUS_DELETED];
+    const STATUS_ARRAY = [self::STATUS_EDIT, self::STATUS_WAITING, self::STATUS_READY, self::STATUS_ENGAGED, self::STATUS_COMPLETED, self::STATUS_DELETED];
 
     /**
      * The database table used by the model.
@@ -147,6 +148,40 @@ class Game extends Model
     }
 
     /**
+     * Check the satatus of the game
+     */
+    public static function checkGameStatus($gameId, $fleetId)
+    {
+        $gameStatus = self::STATUS_READY;
+        // If there are any moves, then it has started
+        $moves = Move::getMoves($gameId);
+        if (isset($moves) && count($moves) > 0) {
+            $gameStatus = self::STATUS_ENGAGED;
+        }
+        // Check the fleet vessel locations to see if all parts of all vessels have been destroyed
+        $fleetVesselLocations = FleetVessel::getAllFleetVesselLocations($fleetId);
+        $atLeastOneIntact = false;
+        if (isset($fleetVesselLocations) && count($fleetVesselLocations) > 0) {
+            foreach ($fleetVesselLocations as $location) {
+                if (FleetVesselLocation::FLEET_VESSEL_LOCATION_NORMAL == $location->vessel_location_status
+                    || FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT == $location->vessel_location_status) {
+                    // At least one part of one vessel remains intact
+                    $atLeastOneIntact = true;
+                    break;
+                }
+            }
+        }
+        if (!$atLeastOneIntact) {
+            // They are all destroyed
+            $gameStatus = self::STATUS_COMPLETED;
+        }
+
+        $game = self::getGame($gameId);
+        $game->status = $gameStatus;
+        $game->save();
+    }
+
+    /**
      * Delete a game
      */
     public function deleteGame()
@@ -155,6 +190,5 @@ class Game extends Model
         $this->deleted_at = date("Y-m-d H:i:s");
         $this->save();
     }
-
 
 }

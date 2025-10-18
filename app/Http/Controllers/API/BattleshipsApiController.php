@@ -104,7 +104,7 @@ class BattleshipsApiController extends Controller
 	}
 
 	/**
-	 * Save the locations of a vesssel
+	 * Save the locations of a vessel
 	 *
 	 * @param Request $request
 	 * @return Response
@@ -284,20 +284,26 @@ class BattleshipsApiController extends Controller
 			// User token must be provided and valid for all API calls
 			User::checkUserToken($request->get(User::USER_TOKEN));
 
+			$userId = $request->get('userId');
+			$gameId = $request->get('gameId');
+			$fleetId = $request->get('fleetId');
 			// We save this latest move.
 			$move = new Move();
-			$move->game_id = $request->get('gameId');
-			$move->player_id = $request->get('userId');
+			$move->game_id = $gameId;
+			$move->player_id = $userId;
 			$move->row = $request->get('row');
 			$move->col = $request->get('col');
 			$move->save();
 
-			$locationHit = FleetVessel::getFleetVesselLocationByRowCol($move->row, $move->col, $request->get('fleetId'));
+			$locationHit = FleetVessel::getFleetVesselLocationByRowCol($move->row, $move->col, $fleetId);
 
 			if (isset($locationHit)) {
 				// The strike has hit a vessel at that location.  Get all affected locations.
 				$affectedLocations = $this->getAffectedLocations($locationHit);
 			}
+
+			// Check if all fleet vessels have been destroyed
+			Game::checkGameStatus($gameId, $fleetId);
 
 			$returnedData = [
 				'move' => $move,

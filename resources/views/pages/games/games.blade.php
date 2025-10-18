@@ -72,7 +72,7 @@ use App\Game;
                                         @endif
                                     @endif
                                 @else
-                                    @if ($game->status == Game::STATUS_READY)
+                                    @if ($game->status == Game::STATUS_READY || $game->status == Game::STATUS_ENGAGED)
                                         <div title="Start the game"><a href="javascript: gotoEngage({{$game->id}})">Engage</a></div>
                                     @endif
                                 @endif
@@ -80,7 +80,7 @@ use App\Game;
                                     <div title="Delete the game"><a href="javascript: gotoDelete('{{$game->id}}', '{{$game->name}}')">Delete</a></div>
                                 @endif
                                 @if ($game->status == Game::STATUS_COMPLETED)
-                                        <div title="Run simulation"><a href="">Rerun</a></div>
+                                        <div title="Run simulation"><a href="javascript: gotoRerun('{{$game->id}}')">Rerun</a></div>
                                 @endif
                             @endif
                         </td>
@@ -175,6 +175,22 @@ use App\Game;
                 f.attr('action', '/deleteGame');
                 f.submit();
             }
+            return false;
+        }
+
+        /**
+         * Edit the requested game grid
+         */
+        function gotoRerun(gameId) {
+
+            alert('This facility is not yet implemented');
+            return false;
+
+            let f = $('#gamesForm');
+            let h = $('#gameId');
+            h.val(gameId);
+            f.attr('action', '/rerun');
+            f.submit();
             return false;
         }
 

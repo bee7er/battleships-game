@@ -189,7 +189,7 @@ class GamesController extends Controller
 		if (!$this->auth->check()) {
 			return redirect()->intended('error');
 		}
-        
+
 		$loggedIn = true;
 		$userId = $this->auth->user()->id;
 		$gameId = $request->get('gameId');
