@@ -107,9 +107,15 @@ $fleetId = 0;
 
 
             <div class="column has-text-centered is-one-quarter">
-                <button class="button" onclick="return goRandom();">Go Random</button>
-                <br /><br /><br />
-                <button class="button" onclick="return saveRandom();">Save Random</button>
+                <div>
+                    <button class="button bs-random_button" onclick="return goRandom();">Go Random</button>
+                </div>
+                <div>
+                    <button class="button bs-random_button" onclick="return cancelRandom();">Cancel Random</button>
+                </div>
+                <div>
+                    <button class="button bs-random_button" onclick="return saveRandom();">Save Random</button>
+                </div>
             </div>
 
 
@@ -169,6 +175,8 @@ $fleetId = 0;
         var fleetVessel = {};
         var fleetVesselLocations = [];
         var gridSize = 10;
+        var randomMode = false;
+        var fleetVesselsClone = null;
 
         // Load all the existing data for the fleet
         @foreach ($fleet as $fleetVessel)
@@ -202,6 +210,11 @@ $fleetId = 0;
          */
         function onClickAllocateCell(elem)
         {
+            if (true == randomMode) {
+                showNotification('Cancel random allocation of vessels to continue');
+                return false;
+            }
+
             let selected = $("input[type='radio'][name='vessel']:checked");
             if (selected.length <= 0) {
                 showNotification('Please select a vessel to allocate to this position');
@@ -343,15 +356,24 @@ $fleetId = 0;
          */
         function plotFleetLocations()
         {
+
+            console.log('============ using original');
+            console.log(fleetVessels);
+            console.log(fleetVessels.length);
+
+
             for (let i=0; i<fleetVessels.length; i++) {
+                console.log('============ 1');
                 let fleetVessel = fleetVessels[i];
                 // Update the status, which may have changed
                 $('#status_' + fleetVessel.fleetVesselId).html(fleetVessel.status);
                 // Plot each location
                 for (let j=0; j<fleetVessel.locations.length; j++) {
+                    console.log('============ 2');
                     let location = fleetVessel.locations[j];
                     let cssClass = 'bs-pos-cell-started';
                     if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
+                        console.log('============ 3');
                         cssClass = 'bs-pos-cell-plotted';
                         // Disable the corresponding radio button, as this vessel is fully plotted
                         $('#radio_id_' + location.fleet_vessel_id).prop("disabled", true);
@@ -359,6 +381,7 @@ $fleetId = 0;
                     let tableCell = $('#cell_' + location.row + '_' + location.col);
                     setElemStatusClass(tableCell, cssClass);
                     tableCell.html(location.vessel_name.toUpperCase().charAt(0));
+                    console.log('============ 4');
                 }
                 // NB If the selected vessel from above is now plotted then deselect it
                 let selected = $("input[type='radio'][name='vessel']:checked");
@@ -688,20 +711,23 @@ $fleetId = 0;
          */
         function goRandom()
         {
-            // Generic removal of all classes of all cells
-            let cells = $('.grid-cell');
-            cells.removeClass('bs-pos-cell-available');
-            cells.removeClass('bs-pos-cell-started');
-            cells.removeClass('bs-pos-cell-plotted');
-            cells.html('O');
+            randomMode = true;
+
+            let cells = clearGrid();
             cells.addClass('unoccupied');       // Sets all cells as being available
+
+            // Disable all the radio buttons
+            $(':radio').prop("disabled", true);
+            if (null == fleetVesselsClone) {
+                // Back up the fleet vessels so we can go back if the user cancels
+                fleetVesselsClone = jQuery.extend(true, [], fleetVessels);
+            }
 
             for (let i = 0; i < fleetVessels.length; i++) {
                 // For each vessel we allocate a cell for each part of it, its length
                 let fleetVessel = fleetVessels[i];
                 fleetVessel.status = '{{FleetVessel::FLEET_VESSEL_AVAILABLE}}';
                 fleetVessel.locations = [];
-
                 let location = selectCellAndBuildLocation('unoccupied', fleetVessel);
                 fleetVessel.locations[fleetVessel.locations.length] = location;
 
@@ -722,14 +748,6 @@ $fleetId = 0;
             let gridCell = $('.grid-cell');
             gridCell.removeClass('unoccupied');
             gridCell.removeClass('bs-pos-cell-available');
-
-            // Convert to plotted locations
-            // Set the fleet vessel to 'plotted'
-            // When user keys Save, convert to plotted and save to server
-//            $('.bs-pos-cell-started').addClass('bs-pos-cell-plotted');
-//            $('.bs-pos-cell-plotted').removeClass('bs-pos-cell-started');
-
-            // Reload the page, maybe
 
             let checkStartedCells = $('.bs-pos-cell-started' );
             if (12 != checkStartedCells.length) {
@@ -766,6 +784,55 @@ $fleetId = 0;
             };
 
             return location;
+        }
+
+        /**
+         * Cancel the random allocation of cells
+         */
+        function cancelRandom()
+        {
+            randomMode = false;
+            // Enable all the radio buttons
+            $(':radio').prop("disabled", false);
+            // Restore the original set of locations
+            clearGrid();
+            fleetVessels = fleetVesselsClone;
+            // Clear the back up collection
+            fleetVesselsClone = null;
+            // Replot the original set of locations, if any
+            plotFleetLocations();
+        }
+
+        /**
+         * Save the random allocation of cells
+         */
+        function saveRandom()
+        {
+            showNotification("Save not yet coded");
+            // Convert to plotted locations
+            // Set the fleet vessel to 'plotted'
+            // When user keys Save, convert to plotted and save to server
+//            $('.bs-pos-cell-started').addClass('bs-pos-cell-plotted');
+//            $('.bs-pos-cell-plotted').removeClass('bs-pos-cell-started');
+
+            // Reload the page, maybe
+
+            randomMode = false;
+        }
+
+        /**
+         * Clears the entire grid
+         */
+        function clearGrid()
+        {
+            // Generic removal of all classes of all cells
+            let cells = $('.grid-cell');
+            cells.removeClass('bs-pos-cell-available');
+            cells.removeClass('bs-pos-cell-started');
+            cells.removeClass('bs-pos-cell-plotted');
+            cells.html('O');
+
+            return cells;
         }
 
         /**

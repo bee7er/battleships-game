@@ -134,3 +134,6 @@ body {
     color: #fff !important;
 }
 
+.bs-random_button {
+    margin: 0 auto 10px auto;
+}
