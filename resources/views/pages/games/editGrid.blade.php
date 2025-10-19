@@ -105,6 +105,14 @@ $fleetId = 0;
                 </table>
             </div>
 
+
+            <div class="column has-text-centered is-one-quarter">
+                <button class="button" onclick="return goRandom();">Go Random</button>
+                <br /><br /><br />
+                <button class="button" onclick="return saveRandom();">Save Random</button>
+            </div>
+
+
             <div class="column">
 
                 <table class="table is-bordered is-striped bs-plot-table">
@@ -132,7 +140,7 @@ $fleetId = 0;
                                             <td class="cell">&nbsp;</td>
                                         @endif
                                     @else
-                                        <td class="cell has-text-centered bs-pos-cell-blank"
+                                        <td class="cell grid-cell has-text-centered bs-pos-cell-blank"
                                             id="cell_{{$row}}_{{$col}}" onclick="onClickAllocateCell(this);">O</td>
                                     @endif
                                 @endif
@@ -247,8 +255,10 @@ $fleetId = 0;
                 setElemStatusClass(elem, '');
                 $(elem).html('O');
                 // Generic removal of all cells flagged as available
-                $('.cell').removeClass('bs-pos-cell-available');
+                $('.grid-cell').removeClass('bs-pos-cell-available');
+
                 showNotification('Location has been cleared');
+
                 return false;
             } else if (0 == fleetVessel.locations.length || $(elem).hasClass('bs-pos-cell-available')) {
                 // Ok, we can start the plotting, or this cell can be plotted
@@ -285,7 +295,8 @@ $fleetId = 0;
         function onClickSelectVessel(elem)
         {
             // Generic removal of all cells flagged as available
-            $('.cell').removeClass('bs-pos-cell-available');
+            $('.grid-cell').removeClass('bs-pos-cell-available');
+
             // Get vessel id from the clicked element
             let elemIdData = elem.id.split('_');
             let fleetVesselId = parseInt(elemIdData[2]);
@@ -367,7 +378,8 @@ $fleetId = 0;
         function availableCells(row, col, fleetVessel)
         {
             // Generic removal of all cells flagged as available
-            $('.cell').removeClass('bs-pos-cell-available');
+            $('.grid-cell').removeClass('bs-pos-cell-available');
+
             // Exit if the vessel is already plotted
             if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
                 return;
@@ -398,7 +410,7 @@ $fleetId = 0;
                         if ($(elem).hasClass('bs-pos-cell-plotted') || $(elem).hasClass('bs-pos-cell-started')) {
                             // Ignore this location
                         } else {
-                            setElemStatusClass($('#cell_' + (tryRow + i) + '_' + (tryCol + j)), 'bs-pos-cell-available');
+                            setElemStatusClass(elem, 'bs-pos-cell-available');
                             if (1 == i && 1 == j) {
                                 // Do not count the primary cell, it is always at 1,1
                             } else {
@@ -432,7 +444,7 @@ $fleetId = 0;
 
             // There can only be 1 or 2 cells already started, as 3 would mean the vessel has been plotted
             // This drastically reduces the cells that are available
-            // Create an array of all elems with the started class, narrow down those available even more
+            // Create an array of all elems with the started class, narrows down those available even more
             let hasStarted = [];
             let availableElems = [];
             for (i = 0; i < itr; i++) {
@@ -672,12 +684,98 @@ $fleetId = 0;
         }
 
         /**
+         * Randomly plot any unplotted vessels
+         */
+        function goRandom()
+        {
+            // Generic removal of all classes of all cells
+            let cells = $('.grid-cell');
+            cells.removeClass('bs-pos-cell-available');
+            cells.removeClass('bs-pos-cell-started');
+            cells.removeClass('bs-pos-cell-plotted');
+            cells.html('O');
+            cells.addClass('unoccupied');       // Sets all cells as being available
+
+            for (let i = 0; i < fleetVessels.length; i++) {
+                // For each vessel we allocate a cell for each part of it, its length
+                let fleetVessel = fleetVessels[i];
+                fleetVessel.status = '{{FleetVessel::FLEET_VESSEL_AVAILABLE}}';
+                fleetVessel.locations = [];
+
+                let location = selectCellAndBuildLocation('unoccupied', fleetVessel);
+                fleetVessel.locations[fleetVessel.locations.length] = location;
+
+                // If there are more vessel parts, we work out available cells around it and attach one of them
+                if (fleetVessel.length >= 2) {
+                    availableCells(location.row, location.col, fleetVessel);
+                    // Now we select from the bs-pos-cell-available cells
+                    location = selectCellAndBuildLocation('bs-pos-cell-available', fleetVessel);
+                    fleetVessel.locations[fleetVessel.locations.length] = location;
+                }
+
+                if (fleetVessel.length > 2) {
+                    availableCells(location.row, location.col, fleetVessel);
+                    fleetVessel.locations[fleetVessel.locations.length] = selectCellAndBuildLocation('bs-pos-cell-available', fleetVessel);
+                }
+            }
+
+            let gridCell = $('.grid-cell');
+            gridCell.removeClass('unoccupied');
+            gridCell.removeClass('bs-pos-cell-available');
+
+            // Convert to plotted locations
+            // Set the fleet vessel to 'plotted'
+            // When user keys Save, convert to plotted and save to server
+//            $('.bs-pos-cell-started').addClass('bs-pos-cell-plotted');
+//            $('.bs-pos-cell-plotted').removeClass('bs-pos-cell-started');
+
+            // Reload the page, maybe
+
+            let checkStartedCells = $('.bs-pos-cell-started' );
+            if (12 != checkStartedCells.length) {
+                alert('Fleet vessel overlap detected with count ' + checkStartedCells.length);
+            }
+        }
+
+        /**
+         * Randomly chooses an available cell, builds and returns a location object
+         */
+        function selectCellAndBuildLocation(cellSelector, fleetVessel)
+        {
+            let selectedAvailableCells = $('.' + cellSelector);
+            // Obtain a random unoccupied cell
+            let cellNumber = Math.floor(Math.random() * selectedAvailableCells.length) + 1;
+            // Work out its row/col from its id
+            let elem = selectedAvailableCells.eq(cellNumber - 1);
+            let elemIdData = elem.prop('id').split('_');
+            let rowInt = parseInt(elemIdData[1]);
+            let colInt = parseInt(elemIdData[2]);
+            // Set this cell to be occupied and assign the first letter of the vessel type
+            let selectedCell = $('#' + elem.prop('id'));
+            selectedCell.addClass('bs-pos-cell-started');
+            selectedCell.removeClass(cellSelector);
+            selectedCell.removeClass('unoccupied');
+            selectedCell.html(fleetVessel.vessel_name.toUpperCase().charAt(0));
+            // Build a location object which we'll send to the server to update the db
+            let location = {
+                id: 0,
+                fleet_vessel_id: fleetVessel.fleetVesselId,
+                row: rowInt,
+                col: colInt,
+                vessel_name: fleetVessel.vessel_name
+            };
+
+            return location;
+        }
+
+        /**
          * Output a notification
          */
         function showNotification(message)
         {
-            $('#notification').html(message).show();
-            $('#notification').delay(3000).fadeOut();
+            let notification = $('#notification');
+            notification.html(message).show();
+            notification.delay(3000).fadeOut();
         }
 
         $(document).ready( function()

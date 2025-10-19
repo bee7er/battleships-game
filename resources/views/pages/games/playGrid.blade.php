@@ -549,9 +549,9 @@ use App\Game;
             let addTheirText = ' << Their go!';
             if (gameOver) {
                 if (myGo) {
-                    addMyText = " YOU LOST!! :o(";
-                } else {
                     addTheirText = " YOU WON!! ;o)";
+                } else {
+                    addMyText = " YOU LOST!! :o(";
                 }
             }
             if (myGo) {
