@@ -361,4 +361,45 @@ class BattleshipsApiController extends Controller
 
 		return $affectedLocations;
 	}
+
+	/**
+	 * Delete existing locations for each fleet vessel and replace them with those supplied
+	 */
+	public function replaceFleetVesselLocations(Request $request)
+	{
+		$message = "Data received OK";
+		$result = 'Error';
+		$returnedData = null;
+		$affectedLocations = null;
+
+		try {
+			// User token must be provided and valid for all API calls
+			User::checkUserToken($request->get(User::USER_TOKEN));
+
+			$gameId = $request->get('gameId');
+			$fleetId = $request->get('fleetId');
+
+			// TODO: Delete existing locations for each fleet vessel
+			// Create new locations for each fleet vessel, as supplied
+
+
+			$returnedData = [
+
+			];
+			$result = 'OK';
+
+		} catch(\Exception $exception) {
+			$result = 'Error';
+			$message = $exception->getMessage();
+			Log::info('Error in replaceFleetVesselLocations(): ' . $message);
+		}
+
+		$returnData = [
+			"message" => $message,
+			"result" => $result,
+			"returnedData" => $returnedData
+		];
+
+		return $returnData;   // Gets converted to json
+	}
 }

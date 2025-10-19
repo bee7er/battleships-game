@@ -64,6 +64,7 @@ $fleetId = 0;
         <div class="field">
             <div class="bs-section-help">Select each vessel and plot its positions on the grid.</div>
             <div class="bs-section-help">Each vessel has a length corresponding with the number of positions which must be plotted.</div>
+            <div class="bs-section-help">Click the <b>Go Random</b> button to have the game generate a random set of positions.</div>
             <div class="">Messages: <span id="notification" class="bs-notification">&nbsp;</span></div>
         </div>
 
@@ -356,40 +357,32 @@ $fleetId = 0;
          */
         function plotFleetLocations()
         {
-
-            console.log('============ using original');
-            console.log(fleetVessels);
-            console.log(fleetVessels.length);
-
-
-            for (let i=0; i<fleetVessels.length; i++) {
-                console.log('============ 1');
-                let fleetVessel = fleetVessels[i];
-                // Update the status, which may have changed
-                $('#status_' + fleetVessel.fleetVesselId).html(fleetVessel.status);
-                // Plot each location
-                for (let j=0; j<fleetVessel.locations.length; j++) {
-                    console.log('============ 2');
-                    let location = fleetVessel.locations[j];
-                    let cssClass = 'bs-pos-cell-started';
-                    if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
-                        console.log('============ 3');
-                        cssClass = 'bs-pos-cell-plotted';
-                        // Disable the corresponding radio button, as this vessel is fully plotted
-                        $('#radio_id_' + location.fleet_vessel_id).prop("disabled", true);
+            if ([] != fleetVessels && fleetVessels.length > 0) {
+                for (let i = 0; i < fleetVessels.length; i++) {
+                    let fleetVessel = fleetVessels[i];
+                    // Update the status, which may have changed
+                    $('#status_' + fleetVessel.fleetVesselId).html(fleetVessel.status);
+                    // Plot each location
+                    for (let j = 0; j < fleetVessel.locations.length; j++) {
+                        let location = fleetVessel.locations[j];
+                        let cssClass = 'bs-pos-cell-started';
+                        if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
+                            cssClass = 'bs-pos-cell-plotted';
+                            // Disable the corresponding radio button, as this vessel is fully plotted
+                            $('#radio_id_' + location.fleet_vessel_id).prop("disabled", true);
+                        }
+                        let tableCell = $('#cell_' + location.row + '_' + location.col);
+                        setElemStatusClass(tableCell, cssClass);
+                        tableCell.html(location.vessel_name.toUpperCase().charAt(0));
                     }
-                    let tableCell = $('#cell_' + location.row + '_' + location.col);
-                    setElemStatusClass(tableCell, cssClass);
-                    tableCell.html(location.vessel_name.toUpperCase().charAt(0));
-                    console.log('============ 4');
-                }
-                // NB If the selected vessel from above is now plotted then deselect it
-                let selected = $("input[type='radio'][name='vessel']:checked");
-                if (selected.length > 0) {
-                    let fleetVesselId = selected.val();
-                    fleetVessel = findFleetVessel(fleetVesselId);
-                    if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
-                        $("input[type='radio'][name='vessel']").prop('checked', false);
+                    // NB If the selected vessel from above is now plotted then deselect it
+                    let selected = $("input[type='radio'][name='vessel']:checked");
+                    if (selected.length > 0) {
+                        let fleetVesselId = selected.val();
+                        fleetVessel = findFleetVessel(fleetVesselId);
+                        if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
+                            $("input[type='radio'][name='vessel']").prop('checked', false);
+                        }
                     }
                 }
             }
@@ -703,6 +696,7 @@ $fleetId = 0;
                 gameId: returnedFleetVessel.gameId,
                 user_token: getCookie('user_token')
             };
+            // =====================================================================
             ajaxCall('getGameStatus', JSON.stringify(statusCheck), setGameStatus);
         }
 
@@ -809,15 +803,37 @@ $fleetId = 0;
         function saveRandom()
         {
             showNotification("Save not yet coded");
-            // Convert to plotted locations
-            // Set the fleet vessel to 'plotted'
-            // When user keys Save, convert to plotted and save to server
-//            $('.bs-pos-cell-started').addClass('bs-pos-cell-plotted');
-//            $('.bs-pos-cell-plotted').removeClass('bs-pos-cell-started');
-
-            // Reload the page, maybe
-
             randomMode = false;
+
+            // Convert all fleet vessel started locations to plotted locations
+            $('.bs-pos-cell-started').addClass('bs-pos-cell-plotted');
+            $('.bs-pos-cell-plotted').removeClass('bs-pos-cell-started');
+
+            for (let i = 0; i < fleetVessels.length; i++) {
+                fleetVessels[i].status = '{{FleetVessel::FLEET_VESSEL_PLOTTED}}';
+            }
+            let postData = {
+                gameId: gameId,
+                fleetId: fleetId,
+                fleetVessels: fleetVessels,
+                user_token: getCookie('user_token')
+            };
+
+            // ========================================================================
+            // Post the new vessel locations to the server and await the return in the callback
+            ajaxCall('replaceFleetVesselLocations', JSON.stringify(postData), replacedFleetVesselLocations);
+
+        }
+
+        /**
+         * Callback from replacing fleet locations with the randomly generated set
+         */
+        function replacedFleetVesselLocations(returnedFleetVessel)
+        {
+            // Check the result and reload page
+//            let row = returnedFleetVessel.subjectRow;
+//            let col = returnedFleetVessel.subjectCol;
+            showNotification('Got back from replaceFleetVesselLocations');
         }
 
         /**

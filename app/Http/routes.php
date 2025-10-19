@@ -37,3 +37,4 @@ Route::post('/getGameStatus', 'API\BattleshipsApiController@getGameStatus');
 Route::post('/markAsRead', 'API\BattleshipsApiController@markAsRead');
 Route::post('/getLatestOpponentMove', 'API\BattleshipsApiController@getLatestOpponentMove');
 Route::post('/strikeVesselLocation', 'API\BattleshipsApiController@strikeVesselLocation');
+Route::post('/replaceFleetVesselLocations', 'API\BattleshipsApiController@replaceFleetVesselLocations');
