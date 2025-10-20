@@ -357,32 +357,33 @@ $fleetId = 0;
          */
         function plotFleetLocations()
         {
-            if ([] != fleetVessels && fleetVessels.length > 0) {
-                for (let i = 0; i < fleetVessels.length; i++) {
-                    let fleetVessel = fleetVessels[i];
-                    // Update the status, which may have changed
-                    $('#status_' + fleetVessel.fleetVesselId).html(fleetVessel.status);
-                    // Plot each location
-                    for (let j = 0; j < fleetVessel.locations.length; j++) {
-                        let location = fleetVessel.locations[j];
-                        let cssClass = 'bs-pos-cell-started';
-                        if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
-                            cssClass = 'bs-pos-cell-plotted';
-                            // Disable the corresponding radio button, as this vessel is fully plotted
-                            $('#radio_id_' + location.fleet_vessel_id).prop("disabled", true);
-                        }
-                        let tableCell = $('#cell_' + location.row + '_' + location.col);
-                        setElemStatusClass(tableCell, cssClass);
-                        tableCell.html(location.vessel_name.toUpperCase().charAt(0));
+            if (null == fleetVessels || [] == fleetVessels || 0 == fleetVessels.length) {
+                return;
+            }
+            for (let i = 0; i < fleetVessels.length; i++) {
+                let fleetVessel = fleetVessels[i];
+                // Update the status, which may have changed
+                $('#status_' + fleetVessel.fleetVesselId).html(fleetVessel.status);
+                // Plot each location
+                for (let j = 0; j < fleetVessel.locations.length; j++) {
+                    let location = fleetVessel.locations[j];
+                    let cssClass = 'bs-pos-cell-started';
+                    if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
+                        cssClass = 'bs-pos-cell-plotted';
+                        // Disable the corresponding radio button, as this vessel is fully plotted
+                        $('#radio_id_' + location.fleet_vessel_id).prop("disabled", true);
                     }
-                    // NB If the selected vessel from above is now plotted then deselect it
-                    let selected = $("input[type='radio'][name='vessel']:checked");
-                    if (selected.length > 0) {
-                        let fleetVesselId = selected.val();
-                        fleetVessel = findFleetVessel(fleetVesselId);
-                        if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
-                            $("input[type='radio'][name='vessel']").prop('checked', false);
-                        }
+                    let tableCell = $('#cell_' + location.row + '_' + location.col);
+                    setElemStatusClass(tableCell, cssClass);
+                    tableCell.html(location.vessel_name.toUpperCase().charAt(0));
+                }
+                // NB If the selected vessel from above is now plotted then deselect it
+                let selected = $("input[type='radio'][name='vessel']:checked");
+                if (selected.length > 0) {
+                    let fleetVesselId = selected.val();
+                    fleetVessel = findFleetVessel(fleetVesselId);
+                    if ('{{FleetVessel::FLEET_VESSEL_PLOTTED}}' == fleetVessel.status) {
+                        $("input[type='radio'][name='vessel']").prop('checked', false);
                     }
                 }
             }
@@ -701,7 +702,7 @@ $fleetId = 0;
         }
 
         /**
-         * Randomly plot any unplotted vessels
+         * Randomly plot an entire set of vessels
          */
         function goRandom()
         {
@@ -785,7 +786,11 @@ $fleetId = 0;
          */
         function cancelRandom()
         {
+            if (false == randomMode) {
+                return;
+            }
             randomMode = false;
+
             // Enable all the radio buttons
             $(':radio').prop("disabled", false);
             // Restore the original set of locations
@@ -802,7 +807,9 @@ $fleetId = 0;
          */
         function saveRandom()
         {
-            showNotification("Save not yet coded");
+            if (false == randomMode) {
+                return;
+            }
             randomMode = false;
 
             // Convert all fleet vessel started locations to plotted locations
@@ -828,12 +835,15 @@ $fleetId = 0;
         /**
          * Callback from replacing fleet locations with the randomly generated set
          */
-        function replacedFleetVesselLocations(returnedFleetVessel)
+        function replacedFleetVesselLocations(returnedFleetVesselData)
         {
             // Check the result and reload page
-//            let row = returnedFleetVessel.subjectRow;
-//            let col = returnedFleetVessel.subjectCol;
-            showNotification('Got back from replaceFleetVesselLocations');
+            let fleetVesselCount = returnedFleetVesselData.fleetVesselCount;
+            let fleetVesselLocationCount = returnedFleetVesselData.fleetVesselLocationCount;
+//            showNotification("Got back from replaceFleetVesselLocations, with "
+//                    + fleetVesselCount + ' affected and ' + fleetVesselLocationCount + ' locations added');
+
+            location.reload();
         }
 
         /**

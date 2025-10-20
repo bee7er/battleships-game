@@ -159,24 +159,54 @@ class Game extends Model
             $gameStatus = self::STATUS_ENGAGED;
         }
         // Check the fleet vessel locations to see if all parts of all vessels have been destroyed
-        $fleetVesselLocations = FleetVessel::getAllFleetVesselLocations($fleetId);
-        $atLeastOneIntact = false;
-        if (isset($fleetVesselLocations) && count($fleetVesselLocations) > 0) {
-            foreach ($fleetVesselLocations as $location) {
-                if (FleetVesselLocation::FLEET_VESSEL_LOCATION_NORMAL == $location->vessel_location_status
-                    || FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT == $location->vessel_location_status) {
-                    // At least one part of one vessel remains intact
-                    $atLeastOneIntact = true;
-                    break;
-                }
-            }
-        }
-        if (!$atLeastOneIntact) {
+        $isFleetDestroyed = FleetVessel::isFleetDestroyed($fleetId);
+        if ($isFleetDestroyed) {
             // They are all destroyed
             $gameStatus = self::STATUS_COMPLETED;
         }
 
         $game = self::getGame($gameId);
+        $game->status = $gameStatus;
+        $game->save();
+    }
+
+    /**
+     * Check the satatus of the game
+     */
+    public static function setGameStatus($gameId)
+    {
+        $game = self::getGame($gameId);
+
+        $gameStatus = self::STATUS_EDIT;
+        // If there are any moves, then it has started
+        $moves = Move::getMoves($gameId);
+        if (isset($moves) && count($moves) > 0) {
+            $gameStatus = self::STATUS_ENGAGED;
+
+            $protagonistFleet = Fleet::getFleet($gameId, $game->protagonist_id);
+            // Check the fleet vessel locations to see if all parts of all vessels have been destroyed
+            $isFleetDestroyed = FleetVessel::isFleetDestroyed($protagonistFleet->id);
+            if ($isFleetDestroyed) {
+                $gameStatus = self::STATUS_COMPLETED;
+            } else {
+                // Ok, still fighting, check the opponent's fleet
+                $opponentFleet = Fleet::getFleet($gameId, $game->opponent_id);
+                $isFleetDestroyed = FleetVessel::isFleetDestroyed($opponentFleet->id);
+                if ($isFleetDestroyed) {
+                    $gameStatus = self::STATUS_COMPLETED;
+                }
+            }
+        } else {
+            $protagonistReady = Fleet::isFleetReady($gameId, $game->protagonist_id);
+            $opponentReady = Fleet::isFleetReady($gameId, $game->opponent_id);
+            if ($protagonistReady || $opponentReady) {
+                $gameStatus = self::STATUS_WAITING;
+            }
+            if ($protagonistReady && $opponentReady) {
+                $gameStatus = self::STATUS_READY;
+            }
+        }
+
         $game->status = $gameStatus;
         $game->save();
     }

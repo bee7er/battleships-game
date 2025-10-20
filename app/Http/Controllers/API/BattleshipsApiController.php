@@ -302,7 +302,7 @@ class BattleshipsApiController extends Controller
 				$affectedLocations = $this->getAffectedLocations($locationHit);
 			}
 
-			// Check if all fleet vessels have been destroyed
+			// Check if all fleet vessels have been destroyed, derives the game status as it currently stands
 			Game::checkGameStatus($gameId, $fleetId);
 
 			$returnedData = [
@@ -378,13 +378,37 @@ class BattleshipsApiController extends Controller
 
 			$gameId = $request->get('gameId');
 			$fleetId = $request->get('fleetId');
+			$fleetVessels = $request->get('fleetVessels');
+			// Delete all locations for each vessel
+			if (isset($fleetVessels) && count($fleetVessels) > 0) {
+				foreach ($fleetVessels as $fleetVessel) {
+					$locations = FleetVesselLocation::getFleetVesselLocationsByVesselId($fleetVessel['fleetVesselId']);
+					if (isset($locations) && count($locations) > 0) {
+						foreach ($locations as $location) {
+							$location->delete();
+						}
+					}
+				}
+			}
+			// Now add the new ones
+			$fleetVesselCount = 0;
+			$fleetVesselLocationCount = 0;
+			if (isset($fleetVessels) && count($fleetVessels) > 0) {
+				foreach ($fleetVessels as $fleetVessel) {
+					if (isset($fleetVessel['locations']) && count($fleetVessel['locations']) > 0) {
+						$fleetVesselCount += 1;
+						$fleetVesselLocationCount += count($fleetVessel['locations']);
+						FleetVesselLocation::addNewLocation($fleetVessel['fleetVesselId'], $fleetVessel['locations']);
+					}
+				}
+			}
 
-			// TODO: Delete existing locations for each fleet vessel
-			// Create new locations for each fleet vessel, as supplied
-
+			// Check the fleet vessels of both combatants and set the game status
+			Game::setGameStatus($gameId);
 
 			$returnedData = [
-
+				"fleetVesselCount" => $fleetVesselCount,
+				"fleetVesselLocationCount" => $fleetVesselLocationCount
 			];
 			$result = 'OK';
 

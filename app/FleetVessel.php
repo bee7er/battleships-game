@@ -112,4 +112,26 @@ class FleetVessel extends Model
 
         return null;
     }
+
+    /**
+     * Retrieve entire set of fleet vessel locations and checks their status
+     */
+    public static function isFleetDestroyed($fleetId)
+    {
+        // Check the fleet vessel locations to see if all parts of all vessels have been destroyed
+        $fleetVesselLocations = self::getAllFleetVesselLocations($fleetId);
+        $atLeastOneIntact = false;
+        if (isset($fleetVesselLocations) && count($fleetVesselLocations) > 0) {
+            foreach ($fleetVesselLocations as $location) {
+                if (FleetVesselLocation::FLEET_VESSEL_LOCATION_NORMAL == $location->vessel_location_status
+                    || FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT == $location->vessel_location_status) {
+                    // At least one part of one vessel remains intact
+                    $atLeastOneIntact = true;
+                    break;
+                }
+            }
+        }
+
+        return (!$atLeastOneIntact);
+    }
 }
