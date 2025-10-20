@@ -137,3 +137,9 @@ body {
 .bs-random_button {
     margin: 0 auto 10px auto;
 }
+.bs-games-button {
+    margin-right: 25px;
+}
+.bs-games-button:hover {
+    color: #0000c4;
+}

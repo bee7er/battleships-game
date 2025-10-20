@@ -176,6 +176,9 @@ use App\Game;
         var myName = '{{ucfirst($myUser->name)}}';
         var theirName = '{{ucfirst($theirUser->name)}}';
         var gameOver = ('{{Game::STATUS_COMPLETED}}' == '{{$game->status}}');
+        if (gameOver) {
+            setMyGoOrTheirGo();
+        }
 
         // Load all the existing data for the fleet
         @foreach ($myFleet as $fleetVessel)
@@ -257,7 +260,7 @@ use App\Game;
         function onClickStrikeCell(elem)
         {
             if (gameOver) {
-                showNotification('Great game is now over');
+                showNotification('The game is now over');
                 setMyGoOrTheirGo();
                 return false;
             }
@@ -299,7 +302,7 @@ use App\Game;
             };
 
             // ========================================================================
-            ajaxCall('strikeVesselLocation', JSON.stringify(location), updateTheirFleetLocations);
+            ajaxCall('strikeVesselLocation', JSON.stringify(location), updateTheirFleetLocationsCallback);
 
             return false;
         }
@@ -374,7 +377,7 @@ use App\Game;
         /**
          * Callback function receiving the latest move by the opponent
          */
-        function updateMyFleetLocations(returnedMoveData)
+        function updateMyFleetLocationsCallback(returnedMoveData)
         {
             if (null != returnedMoveData) {
                 // Updating my grid with their moves
@@ -406,13 +409,15 @@ use App\Game;
 
                 myGo = true;
                 setMyGoOrTheirGo();
+                // ========================================================================
+                ajaxCall('getGameStatus', JSON.stringify(statusCheck), setGameStatusCallback);
             }
         }
 
         /**
          * Callback function receiving the latest move by the opponent
          */
-        function updateTheirFleetLocations(returnedMoveData)
+        function updateTheirFleetLocationsCallback(returnedMoveData)
         {
             if (null != returnedMoveData) {
                 // We update their grid with my moves
@@ -456,7 +461,7 @@ use App\Game;
                 user_token: getCookie('user_token')
             };
             // ========================================================================
-            ajaxCall('getGameStatus', JSON.stringify(statusCheck), setGameStatus);
+            ajaxCall('getGameStatus', JSON.stringify(statusCheck), setGameStatusCallback);
         }
 
         /**
@@ -525,9 +530,13 @@ use App\Game;
         /**
          * Callback function to handle the asynchronous Ajax call
          */
-        function setGameStatus(returnedGameStatus)
+        function setGameStatusCallback(returnedGameStatus)
         {
             $('#gameStatus').html(returnedGameStatus);
+            gameOver = ('{{Game::STATUS_COMPLETED}}' == returnedGameStatus);
+            if (gameOver) {
+                setMyGoOrTheirGo();
+            }
         }
 
         /**
@@ -545,21 +554,22 @@ use App\Game;
          */
         function setMyGoOrTheirGo()
         {
-            let addMyText = ' << Your go!';
-            let addTheirText = ' << Their go!';
             if (gameOver) {
                 if (myGo) {
-                    addTheirText = " YOU WON!! ;o)";
+                    $('#myGoId').addClass('bs-status').html(myName + " YOU LOST !! :o(");
+                    $('#theirGoId').removeClass('bs-status').html(theirName);
                 } else {
-                    addMyText = " YOU LOST!! :o(";
+                    $('#myGoId').addClass('bs-status').html(myName + " YOU WON !! ;o)");
+                    $('#theirGoId').removeClass('bs-status').html(theirName);
                 }
-            }
-            if (myGo) {
-                $('#myGoId').addClass('bs-status').html(myName + addMyText);
-                $('#theirGoId').removeClass('bs-status').html(theirName);
             } else {
-                $('#theirGoId').addClass('bs-status').html(theirName + addTheirText);
-                $('#myGoId').removeClass('bs-status').html(myName);
+                if (myGo) {
+                    $('#myGoId').addClass('bs-status').html(myName + ' << Your go!');
+                    $('#theirGoId').removeClass('bs-status').html(theirName);
+                } else {
+                    $('#theirGoId').addClass('bs-status').html(theirName + ' << Their go!');
+                    $('#myGoId').removeClass('bs-status').html(myName);
+                }
             }
         }
 
@@ -568,7 +578,7 @@ use App\Game;
         function startCheckingForMoves()
         {
             //console.log('Starting to check for moves on the server');
-            intervalId = setInterval(checkForChanges, 5000);
+            intervalId = setInterval(checkForChanges, 2000);
         }
         function stopCheckingForMoves()
         {
@@ -589,7 +599,7 @@ use App\Game;
             };
 
             // ========================================================================
-            ajaxCall('getLatestOpponentMove', JSON.stringify(moveData), updateMyFleetLocations)
+            ajaxCall('getLatestOpponentMove', JSON.stringify(moveData), updateMyFleetLocationsCallback)
         }
 
         $(document).ready( function()

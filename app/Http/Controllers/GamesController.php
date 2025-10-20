@@ -165,10 +165,11 @@ class GamesController extends Controller
 				$game->opponent_id = $request->get('opponentId');
 			}
 			$game->save();
-			// Check for add mode again for the crfeatio of the fleet
+			// Check for add mode again for the creation of the fleet
 			if ('add' == $mode) {
 				// Create a fleet from the template set of vessels for the user creating the game
 				Fleet::createFleet($game->id, $user->id);
+                Message::addMessage($game->protagonist_id, $game->opponent_id, $game->id, Message::MESSAGE_INVITE);
 			}
 
 		} catch(Exception $e) {
@@ -209,12 +210,14 @@ class GamesController extends Controller
 
 			$fleet = Fleet::getFleetDetails($gameId, $userId);
 
+            $fleetLocationSize = FleetTemplate::getFleetLocationSize();
+
 		} catch(Exception $e) {
 			Log::notice("Error getting game for edit: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
 			$errors[] = $e->getMessage();
 		}
 
-		return view('pages.games.editGrid', compact('loggedIn', 'game', 'fleet', 'errors', 'msgs'));
+		return view('pages.games.editGrid', compact('loggedIn', 'game', 'fleet', 'fleetLocationSize', 'errors', 'msgs'));
 	}
 
 	/**

@@ -150,32 +150,13 @@ class Game extends Model
     /**
      * Check the satatus of the game
      */
-    public static function checkGameStatus($gameId, $fleetId)
-    {
-        $gameStatus = self::STATUS_READY;
-        // If there are any moves, then it has started
-        $moves = Move::getMoves($gameId);
-        if (isset($moves) && count($moves) > 0) {
-            $gameStatus = self::STATUS_ENGAGED;
-        }
-        // Check the fleet vessel locations to see if all parts of all vessels have been destroyed
-        $isFleetDestroyed = FleetVessel::isFleetDestroyed($fleetId);
-        if ($isFleetDestroyed) {
-            // They are all destroyed
-            $gameStatus = self::STATUS_COMPLETED;
-        }
-
-        $game = self::getGame($gameId);
-        $game->status = $gameStatus;
-        $game->save();
-    }
-
-    /**
-     * Check the satatus of the game
-     */
     public static function setGameStatus($gameId)
     {
         $game = self::getGame($gameId);
+        if (self::STATUS_COMPLETED == $game->status) {
+            // The game is already completed, just exit
+            return $game->status;
+        }
 
         $gameStatus = self::STATUS_EDIT;
         // If there are any moves, then it has started
@@ -188,6 +169,8 @@ class Game extends Model
             $isFleetDestroyed = FleetVessel::isFleetDestroyed($protagonistFleet->id);
             if ($isFleetDestroyed) {
                 $gameStatus = self::STATUS_COMPLETED;
+                // Notify both parties
+                // TODO: identify who won and add this to the game object, then send completion messages appropriately.
             } else {
                 // Ok, still fighting, check the opponent's fleet
                 $opponentFleet = Fleet::getFleet($gameId, $game->opponent_id);

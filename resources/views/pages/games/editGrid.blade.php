@@ -178,6 +178,7 @@ $fleetId = 0;
         var gridSize = 10;
         var randomMode = false;
         var fleetVesselsClone = null;
+        var fleetLocationSize = {{$fleetLocationSize}};
 
         // Load all the existing data for the fleet
         @foreach ($fleet as $fleetVessel)
@@ -745,7 +746,7 @@ $fleetId = 0;
             gridCell.removeClass('bs-pos-cell-available');
 
             let checkStartedCells = $('.bs-pos-cell-started' );
-            if (12 != checkStartedCells.length) {
+            if (fleetLocationSize != checkStartedCells.length) {
                 alert('Fleet vessel overlap detected with count ' + checkStartedCells.length);
             }
         }

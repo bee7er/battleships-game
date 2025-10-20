@@ -11,7 +11,9 @@ use App\Game;
         @include('common.msgs')
         @include('common.errors')
 
-        <div class="bs-add-link is-pulled-right" title="Add a new game"><a href="javascript: gotoAddGame()">Add Game</a></div>
+        <div class="bs-add-link is-pulled-right" title="Add a new game">
+            <a class="bs-games-button" href="javascript: location.reload();">Refresh</a><a class="bs-games-button" href="javascript: gotoAddGame()">Add Game</a>
+        </div>
 
         <form id="gamesForm" action="/editGame" method="GET" class="form-horizontal">
             <input type="hidden" name="gameId" id="gameId" value="" />

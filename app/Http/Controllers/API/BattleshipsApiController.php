@@ -303,7 +303,7 @@ class BattleshipsApiController extends Controller
 			}
 
 			// Check if all fleet vessels have been destroyed, derives the game status as it currently stands
-			Game::checkGameStatus($gameId, $fleetId);
+			Game::setGameStatus($gameId);
 
 			$returnedData = [
 				'move' => $move,

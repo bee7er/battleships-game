@@ -152,8 +152,6 @@ class Fleet extends Model
      */
     public static function isFleetReady($gameId, $userId)
     {
-
-        Log::info("Looking for: {{$userId}}");
         $fleet = self::getFleet($gameId, $userId);
         if (isset($fleet)) {
             // Check if there are any fleet vessels which aren't in the plotted status
