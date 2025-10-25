@@ -82,7 +82,7 @@ use App\Game;
                                     <div title="Delete the game"><a class="bs-games-button" href="javascript: gotoDelete('{{$game->id}}', '{{$game->name}}')">Delete</a></div>
                                 @endif
                                 @if ($game->status == Game::STATUS_COMPLETED)
-                                        <div title="Run simulation"><a class="bs-games-button" href="javascript: gotoRerun('{{$game->id}}')">Rerun</a></div>
+                                        <div title="Visualize the game by replaying all the moves"><a class="bs-games-button" href="javascript: gotoReplay('{{$game->id}}')">Replay</a></div>
                                 @endif
                             @endif
                         </td>
@@ -181,17 +181,17 @@ use App\Game;
         }
 
         /**
-         * Edit the requested game grid
+         * Replay all the moves of the game
          */
-        function gotoRerun(gameId) {
+        function gotoReplay(gameId) {
 
-            alert('This facility is not yet implemented');
+            alert('This functionality is not yet implemented');
             return false;
 
             let f = $('#gamesForm');
             let h = $('#gameId');
             h.val(gameId);
-            f.attr('action', '/rerun');
+            f.attr('action', '/replay');
             f.submit();
             return false;
         }

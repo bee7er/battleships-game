@@ -57,7 +57,7 @@ use App\Game;
 
         </article>
         <div class="field">
-            <div class="">Messages: <span id="notification" class="bs-notification">&nbsp;</span></div>
+            <div class=""><span class="bs-table-title">Messages:</span> <span id="notification" class="bs-notification">&nbsp;</span></div>
         </div>
 
         <div class="columns">
@@ -153,10 +153,6 @@ use App\Game;
                 </table>
             </div>
         </div>
-    </div>
-
-    <div class="">
-        <div style="text-align: center;padding:40px 0 10px 0;">&copy; {{ (new DateTime)->format('Y') }} Brian Etheridge</div>
     </div>
 @endsection
 

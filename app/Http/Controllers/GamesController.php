@@ -314,6 +314,75 @@ class GamesController extends Controller
 		return view('pages.games.playGrid', compact('loggedIn', 'game', 'currentUserIsProtagonist', 'myFleet', 'theirFleet', 'myUser', 'theirUser', 'myGo', 'myMoves', 'theirMoves', 'errors', 'msgs'));
 	}
 
+    /**
+     * Replay a completed game.
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function replay(Request $request)
+    {
+        if (!$this->auth->check()) {
+            return redirect()->intended('error');
+        }
+
+        $loggedIn = true;
+        $myUser = $this->auth->user();
+        $gameId = $request->get('gameId');
+
+        $errors = [];
+        $msgs = [];
+
+        $game = $theirUser = null;
+        try {
+            $game = Game::getGameDetails($gameId);
+
+            $gameError = false;
+            if (Game::STATUS_DELETED == $game->status) {
+                $errors[] = "The selected game is deleted";
+                $gameError = true;
+            } elseif (Game::STATUS_COMPLETED != $game->status) {
+                $errors[] = "The selected game has not yet completed playing";
+                $gameError = true;
+            }
+
+            if (false == $gameError) {
+                // We use the total count of moves to determine whose go it is
+                $moveCount = 0;
+                $totalMoves = Move::getMoves($gameId);
+                if (isset($totalMoves)) {
+                    $moveCount += count($totalMoves);
+                }
+
+                // We must be careful to distinguish between the game owner and the opponent, because
+                // when we get to the play grid it can be either.  We will call it 'myFleet' and 'theirFleet'
+                $myFleet = Fleet::getFleetDetails($gameId, $myUser->id);
+
+                $currentUserIsProtagonist = ($myUser->id == $game->protagonist_id) ? true : false;
+                if ($currentUserIsProtagonist) {
+                    $theirUser = User::getUser($game->opponent_id);
+                    $theirFleet = Fleet::getFleetDetails($gameId, $game->opponent_id);
+                    $myGo = ($moveCount % 2 == 0) ? true : false;
+                } else {
+                    $theirUser = User::getUser($game->protagonist_id);
+                    $theirFleet = Fleet::getFleetDetails($gameId, $game->protagonist_id);
+                    $myGo = ($moveCount % 2 == 0) ? false : true;
+                }
+
+                $myMoves = Move::getMoves($gameId, $myUser->id);
+                $theirMoves = Move::getMoves($gameId, $theirUser->id);
+            }
+
+            //dd($theirFleet);
+
+        } catch(Exception $e) {
+            Log::notice("Error getting game for edit: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");
+            $errors[] = $e->getMessage();
+        }
+
+        return view('pages.games.playGrid', compact('loggedIn', 'game', 'currentUserIsProtagonist', 'myFleet', 'theirFleet', 'myUser', 'theirUser', 'myGo', 'myMoves', 'theirMoves', 'errors', 'msgs'));
+    }
+
 	/**
 	 * Soft deletes the game
 	 *

@@ -23,6 +23,10 @@
 
 @yield('content')
 
+<div class="bs-footer">
+    <div class="bs-copyright">&copy; {{ (new DateTime)->format('Y') }} Brian Etheridge</div>
+</div>
+
 @yield('page-scripts')
 @yield('global-scripts')
 

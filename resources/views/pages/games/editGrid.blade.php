@@ -68,7 +68,7 @@ $fleetId = 0;
             <div class="bs-section-help">Select each vessel and plot its positions on the grid.</div>
             <div class="bs-section-help">Each vessel has a length corresponding with the number of positions which must be plotted.</div>
             <div class="bs-section-help">Click the <b>Go Random</b> button to have the game generate a random set of positions.</div>
-            <div class="">Messages: <span id="notification" class="bs-notification">&nbsp;</span></div>
+            <div class=""><span class="bs-table-title">Messages:</span> <span id="notification" class="bs-notification">&nbsp;</span></div>
         </div>
 
         <div class="columns">
@@ -113,13 +113,13 @@ $fleetId = 0;
             <div class="column has-text-centered is-one-quarter">
                 <table class="table is-bordered">
                     <tbody>
-                    <tr class=""><td class="bs-pos-key-blank" colspan="2">Key to colours:</td></tr>
+                    <tr class=""><td class="bs-pos-key-blank bs-table-title" colspan="2">Key to colours:</td></tr>
                     <tr class=""><td class="bs-pos-key-started">&nbsp;</td><td class="bs-pos-key-blank">Vessel started</td></tr>
                     <tr class=""><td class="bs-pos-key-plotted">&nbsp;</td><td class="bs-pos-key-blank">Vessel plotted</td></tr>
                     </tbody>
                 </table>
                 <hr />
-                Get the game to plot the vessels:
+                <span class="bs-table-title">Get the game to plot the vessels:</span>
                 <div>
                     <button class="button bs-random_button" onclick="return goRandom();">Go Random</button>
                 </div>

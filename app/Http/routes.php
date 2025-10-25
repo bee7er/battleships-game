@@ -28,6 +28,7 @@ Route::get('/playGrid', 'GamesController@playGrid');
 Route::get('/editGame', 'GamesController@editGame');
 Route::get('/acceptGame', 'GamesController@acceptGame');
 Route::post('/updateGame', 'GamesController@updateGame');
+Route::get('/replay', 'GamesController@replay');
 Route::get('/deleteGame', 'GamesController@deleteGame');
 
 /* API functions */
