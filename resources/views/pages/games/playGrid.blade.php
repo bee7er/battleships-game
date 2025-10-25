@@ -105,11 +105,11 @@ use App\Game;
             <div class="column">
                 <table class="table is-bordered">
                     <tbody>
-                    <tr class=""><td class="bs-pos-cell-blank" colspan="2">Key to colours:</td></tr>
-                    <tr class=""><td class="bs-pos-cell-plotted">&nbsp;</td><td class="bs-pos-cell-blank">Vessel plotted</td></tr>
-                    <tr class=""><td class="bs-pos-cell-strike">&nbsp;</td><td class="bs-pos-cell-blank">Location has been bombed but missed the fleet</td></tr>
-                    <tr class=""><td class="bs-pos-cell-hit">&nbsp;</td><td class="bs-pos-cell-blank">Location has been bombed and hit a target</td></tr>
-                    <tr class=""><td class="bs-pos-cell-destroyed">&nbsp;</td><td class="bs-pos-cell-blank">Vessel destroyed</td></tr>
+                    <tr class=""><td class="bs-pos-key-blank" colspan="2">Key to colours:</td></tr>
+                    <tr class=""><td class="bs-pos-key-plotted">&nbsp;</td><td class="bs-pos-cell-blank">Vessel plotted</td></tr>
+                    <tr class=""><td class="bs-pos-key-strike">&nbsp;</td><td class="bs-pos-cell-blank">Location has been bombed but missed the fleet</td></tr>
+                    <tr class=""><td class="bs-pos-key-hit">&nbsp;</td><td class="bs-pos-cell-blank">Location has been bombed and hit a target</td></tr>
+                    <tr class=""><td class="bs-pos-key-destroyed">&nbsp;</td><td class="bs-pos-cell-blank">Vessel destroyed</td></tr>
                     </tbody>
                 </table>
             </div>

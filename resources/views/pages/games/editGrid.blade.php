@@ -113,9 +113,9 @@ $fleetId = 0;
             <div class="column has-text-centered is-one-quarter">
                 <table class="table is-bordered">
                     <tbody>
-                    <tr class=""><td class="bs-pos-cell-blank" colspan="2">Key to colours:</td></tr>
-                    <tr class=""><td class="bs-pos-key-started">&nbsp;</td><td class="bs-pos-cell-blank">Vessel started</td></tr>
-                    <tr class=""><td class="bs-pos-key-plotted">&nbsp;</td><td class="bs-pos-cell-blank">Vessel plotted</td></tr>
+                    <tr class=""><td class="bs-pos-key-blank" colspan="2">Key to colours:</td></tr>
+                    <tr class=""><td class="bs-pos-key-started">&nbsp;</td><td class="bs-pos-key-blank">Vessel started</td></tr>
+                    <tr class=""><td class="bs-pos-key-plotted">&nbsp;</td><td class="bs-pos-key-blank">Vessel plotted</td></tr>
                     </tbody>
                 </table>
                 <hr />
