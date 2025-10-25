@@ -5,6 +5,15 @@ body {
     color: #000;
 }
 
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #aaa;
+    margin: 1em 0;
+    padding: 0;
+}
+
 .is-selected {
     color: white !important;
 }
@@ -124,7 +133,15 @@ body {
     background-color: #00c4c4 !important;
     color: #fff !important;
 }
+.bs-pos-key-started {
+    background-color: #00c4c4 !important;
+    color: #fff !important;
+}
 .bs-pos-cell-plotted {
+    background-color: #0000c4 !important;
+    color: #fff !important;
+}
+.bs-pos-key-plotted {
     background-color: #0000c4 !important;
     color: #fff !important;
 }

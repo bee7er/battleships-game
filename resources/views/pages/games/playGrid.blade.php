@@ -103,7 +103,6 @@ use App\Game;
             </div>
 
             <div class="column">
-
                 <table class="table is-bordered">
                     <tbody>
                     <tr class=""><td class="bs-pos-cell-blank" colspan="2">Key to colours:</td></tr>
