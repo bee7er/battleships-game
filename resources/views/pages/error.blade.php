@@ -16,7 +16,8 @@
 
                         <div class="field is-grouped">
                             <div class="control">
-                                Sorry, you need to be logged in to access that page
+                                <p>Sorry, you need to be logged in to access that page</p>
+                                <p>This may be due to your session having timed out after a period of inactivity</p>
                             </div>
                         </div>
 

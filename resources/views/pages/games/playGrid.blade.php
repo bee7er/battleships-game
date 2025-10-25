@@ -541,7 +541,7 @@ use App\Game;
         function setGameStatusCallback(returnedGameStatus)
         {
             $('#gameStatus').html(returnedGameStatus);
-            gameOver = ('{{Game::STATUS_COMPLETED}}' == returnedGameStatus);
+            gameOver = ('{{Game::STATUS_COMPLETED}}' == returnedGameStatus.toLowerCase());
             if (gameOver) {
                 setMyGoOrTheirGo();
             }
