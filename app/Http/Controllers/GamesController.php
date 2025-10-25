@@ -369,8 +369,7 @@ class GamesController extends Controller
                     $myGo = ($moveCount % 2 == 0) ? false : true;
                 }
 
-                $myMoves = Move::getMoves($gameId, $myUser->id);
-                $theirMoves = Move::getMoves($gameId, $theirUser->id);
+                $allMoves = Move::getMoves($gameId);
             }
 
             //dd($theirFleet);
@@ -380,7 +379,7 @@ class GamesController extends Controller
             $errors[] = $e->getMessage();
         }
 
-        return view('pages.games.playGrid', compact('loggedIn', 'game', 'currentUserIsProtagonist', 'myFleet', 'theirFleet', 'myUser', 'theirUser', 'myGo', 'myMoves', 'theirMoves', 'errors', 'msgs'));
+        return view('pages.games.replay', compact('loggedIn', 'game', 'currentUserIsProtagonist', 'myFleet', 'theirFleet', 'myUser', 'theirUser', 'myGo', 'allMoves', 'errors', 'msgs'));
     }
 
 	/**

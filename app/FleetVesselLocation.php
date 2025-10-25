@@ -22,7 +22,7 @@ class FleetVesselLocation extends Model
      *
      * @var array
      */
-    protected $fillable = ['fleet_vessel_id', 'row', 'col', 'status'];
+    protected $fillable = ['fleet_vessel_id', 'move_id', 'row', 'col', 'status'];
 
     /**
      * Retrieve a specific fleet vessel location
@@ -33,6 +33,7 @@ class FleetVesselLocation extends Model
             array(
                 'fleet_vessel_locations.id',
                 'fleet_vessel_locations.fleet_vessel_id',
+                'fleet_vessel_locations.move_id',
                 'fleet_vessel_locations.row',
                 'fleet_vessel_locations.col',
                 'fleet_vessel_locations.status'
@@ -58,6 +59,7 @@ class FleetVesselLocation extends Model
             array(
                 'fleet_vessel_locations.id',
                 'fleet_vessel_locations.fleet_vessel_id',
+                'fleet_vessel_locations.move_id',
                 'fleet_vessel_locations.row',
                 'fleet_vessel_locations.col',
                 'fleet_vessel_locations.status',
@@ -77,6 +79,7 @@ class FleetVesselLocation extends Model
             array(
                 'fleet_vessel_locations.id',
                 'fleet_vessel_locations.fleet_vessel_id',
+                'fleet_vessel_locations.move_id',
                 'fleet_vessel_locations.row',
                 'fleet_vessel_locations.col',
                 'fleet_vessel_locations.status as vessel_location_status',

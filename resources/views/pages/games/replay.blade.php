@@ -12,7 +12,7 @@ use App\Game;
     <div class="container is-fluid">
 
         <article class="panel is-success">
-            <p class="panel-heading">Play Game</p>
+            <p class="panel-heading">Replay Game</p>
             @include('common.msgs')
             @include('common.errors')
 
@@ -163,8 +163,7 @@ use App\Game;
         var theirFleetId = 0;
         var myFleetVessels = [];
         var theirFleetVessels = [];
-        var myMoves = [];
-        var theirMoves = [];
+        var allMoves = [];
         var fleetVesselLocations = [];
         var myUserId = {{$myUser->id}};
         var theirUserId = {{$theirUser->id}};
@@ -236,21 +235,14 @@ use App\Game;
         @endforeach
 
         // Load all the moves for each user
-        @foreach ($myMoves as $aMove)
+        @foreach ($allMoves as $aMove)
                 myMoves[myMoves.length] = {
                     id: {{$aMove->id}},
+                    player_id: {{$aMove->player_id}},
                     row: {{$aMove->row}},
                     col: {{$aMove->col}}
                 };
         @endforeach
-        @foreach ($theirMoves as $aMove)
-                theirMoves[theirMoves.length] = {
-                    id: {{$aMove->id}},
-                    row: {{$aMove->row}},
-                    col: {{$aMove->col}}
-                };
-        @endforeach
-
         /**
          * Shoots a missile at cell to try to bomb a vessel
          */

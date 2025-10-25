@@ -67,6 +67,7 @@ class FleetVessel extends Model
                 'fleet_vessels.fleet_id',
                 'fleet_vessel_locations.id as fleet_vessel_location_id',
                 'fleet_vessel_locations.fleet_vessel_id',
+                'fleet_vessel_locations.move_id',
                 'fleet_vessel_locations.row',
                 'fleet_vessel_locations.col',
                 'fleet_vessel_locations.status as vessel_location_status',

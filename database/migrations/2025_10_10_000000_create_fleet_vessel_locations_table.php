@@ -18,6 +18,7 @@ class CreateFleetVesselLocationsTable extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id')->unsigned();
             $table->integer('fleet_vessel_id')->unsigned();
+            $table->integer('move_id')->unsigned();
             $table->tinyInteger('row')->unsigned();
             $table->tinyInteger('col')->unsigned();
             $table->enum('status', [

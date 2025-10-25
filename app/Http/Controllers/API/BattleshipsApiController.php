@@ -298,6 +298,10 @@ class BattleshipsApiController extends Controller
 			$locationHit = FleetVessel::getFleetVesselLocationByRowCol($move->row, $move->col, $fleetId);
 
 			if (isset($locationHit)) {
+				// Record the move that caused this hit
+				$fvl = FleetVesselLocation::getFleetVesselLocationById($locationHit->fleet_vessel_location_id);
+				$fvl->move_id = $move->id;
+				$fvl->save();
 				// The strike has hit a vessel at that location.  Get all affected locations.
 				$affectedLocations = $this->getAffectedLocations($locationHit);
 			}

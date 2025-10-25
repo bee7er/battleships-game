@@ -112,7 +112,8 @@ use App\Game;
         /**
          * Add a new game
          */
-        function gotoAddGame() {
+        function gotoAddGame()
+        {
             let f = $('#gamesForm');
             f.attr('action', '/addGame');
             f.submit();
@@ -133,7 +134,8 @@ use App\Game;
         /**
          * Accept as an opponent to the requested game
          */
-        function gotoAccept(gameId) {
+        function gotoAccept(gameId)
+        {
             let f = $('#gamesForm');
             let h = $('#gameId');
             h.val(gameId);
@@ -145,7 +147,8 @@ use App\Game;
         /**
          * Edit the requested game
          */
-        function gotoEdit(gameId) {
+        function gotoEdit(gameId)
+        {
             let f = $('#gamesForm');
             let h = $('#gameId');
             h.val(gameId);
@@ -169,7 +172,8 @@ use App\Game;
         /**
          * Delete the game
          */
-        function gotoDelete(gameId, gameName) {
+        function gotoDelete(gameId, gameName)
+        {
             if (confirm("Are you sure you want to delete '" + gameName + "'")) {
                 let f = $('#gamesForm');
                 let h = $('#gameId');
@@ -183,11 +187,8 @@ use App\Game;
         /**
          * Replay all the moves of the game
          */
-        function gotoReplay(gameId) {
-
-            alert('This functionality is not yet implemented');
-            return false;
-
+        function gotoReplay(gameId)
+        {
             let f = $('#gamesForm');
             let h = $('#gameId');
             h.val(gameId);
@@ -199,7 +200,8 @@ use App\Game;
         /**
          * Reload games with showing deleted ones, or not
          */
-        function gotoShowDeletedGames(elem) {
+        function gotoShowDeletedGames(elem)
+        {
             let f = $('#gamesForm');
             let checked = '0';
             if ($(elem).is(':checked')) {
