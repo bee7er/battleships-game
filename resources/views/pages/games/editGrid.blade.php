@@ -28,8 +28,11 @@ $fleetId = 0;
                             <td class="cell bs-section-title">
                                 Game status:
                             </td>
-                            <td class="cell bs-status" id="gameStatus">
-                                {{ucfirst($game->status)}}
+                            <td class="cell bs-status">
+                                <span id="gameStatus">{{ucfirst($game->status)}}</span>
+                                <span id="engageLink" class="is-pulled-right">
+                                    <a class="bs-games-button" href="javascript: location.href='/playGrid?gameId={{$game->id}}'">Engage</a>
+                                </span>
                             </td>
                         </tr>
                         <tr class="">
@@ -142,7 +145,7 @@ $fleetId = 0;
                                 @else
                                     @if ($col == 0)
                                         @if ($row > 0)
-                                            <td class="cell has-text-centered bs-plot-cell-header">{{$row}}</td>
+                                            <td class="cell has-text-centered bs-plot-cell-header">{{getAlpha($row)}}</td>
                                         @else
                                             <td class="cell">&nbsp;</td>
                                         @endif
@@ -654,6 +657,11 @@ $fleetId = 0;
         function setGameStatus(returnedGameStatus)
         {
             $('#gameStatus').html(returnedGameStatus);
+            if ('{{Game::STATUS_READY}}' == returnedGameStatus.toLowerCase()
+                    || '{{Game::STATUS_ENGAGED}}' == returnedGameStatus.toLowerCase()
+            ) {
+                $('#engageLink').show();
+            }
         }
 
         /**
@@ -841,8 +849,6 @@ $fleetId = 0;
             // Check the result and reload page
             let fleetVesselCount = returnedFleetVesselData.fleetVesselCount;
             let fleetVesselLocationCount = returnedFleetVesselData.fleetVesselLocationCount;
-//            showNotification("Got back from replaceFleetVesselLocations, with "
-//                    + fleetVesselCount + ' affected and ' + fleetVesselLocationCount + ' locations added');
 
             location.reload();
         }
@@ -874,6 +880,10 @@ $fleetId = 0;
 
         $(document).ready( function()
         {
+            @if (Game::STATUS_READY != $game->status && Game::STATUS_ENGAGED != $game->status)
+                $('#engageLink').hide();
+            @endif
+
             plotFleetLocations();
 
             return true;

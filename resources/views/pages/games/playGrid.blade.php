@@ -64,7 +64,7 @@ use App\Game;
 
             <div class="column">
 
-                <table class="table is-bordered is-striped">
+                <table class="table is-bordered is-striped bs-plot-table">
                     <tbody>
                     <tr class="">
                         <th class="bs-section-title" colspan="99">My Fleet Vessel Locations:</th>
@@ -84,7 +84,7 @@ use App\Game;
                                 @else
                                     @if ($col == 0)
                                         @if ($row > 0)
-                                            <td class="cell has-text-centered bs-plot-cell-header">{{$row}}</td>
+                                            <td class="cell has-text-centered bs-plot-cell-header">{{getAlpha($row)}}</td>
                                         @else
                                             <td class="cell">&nbsp;</td>
                                         @endif
@@ -104,18 +104,20 @@ use App\Game;
 
             <div class="column">
 
-                <table class="table is-bordered" style="margin-top:50%;">
+                <table class="table is-bordered">
                     <tbody>
-                    <tr class=""><td class="bs-pos-cell-strike">Location has been bombed but missed the fleet</td></tr>
-                    <tr class=""><td class="bs-pos-cell-hit">Location has been bombed and hit a target</td></tr>
-                    <tr class=""><td class="bs-pos-cell-destroyed">Vessel has been destroyed</td></tr>
+                    <tr class=""><td class="bs-pos-cell-blank" colspan="2">Key to colours:</td></tr>
+                    <tr class=""><td class="bs-pos-cell-plotted">&nbsp;</td><td class="bs-pos-cell-blank">Vessel plotted</td></tr>
+                    <tr class=""><td class="bs-pos-cell-strike">&nbsp;</td><td class="bs-pos-cell-blank">Location has been bombed but missed the fleet</td></tr>
+                    <tr class=""><td class="bs-pos-cell-hit">&nbsp;</td><td class="bs-pos-cell-blank">Location has been bombed and hit a target</td></tr>
+                    <tr class=""><td class="bs-pos-cell-destroyed">&nbsp;</td><td class="bs-pos-cell-blank">Vessel destroyed</td></tr>
                     </tbody>
                 </table>
             </div>
 
             <div class="column">
 
-                <table class="table is-bordered is-striped">
+                <table class="table is-bordered is-striped bs-grid-table">
                     <tbody>
                     <tr class="">
                         <th class="bs-section-title" colspan="99">Their Fleet Vessel Locations:</th>
@@ -135,7 +137,7 @@ use App\Game;
                                 @else
                                     @if ($col == 0)
                                         @if ($row > 0)
-                                            <td class="cell has-text-centered bs-plot-cell-header">{{$row}}</td>
+                                            <td class="cell has-text-centered bs-plot-cell-header">{{getAlpha($row)}}</td>
                                         @else
                                             <td class="cell">&nbsp;</td>
                                         @endif
@@ -409,6 +411,13 @@ use App\Game;
 
                 myGo = true;
                 setMyGoOrTheirGo();
+
+                let statusCheck = {
+                    gameId: gameId,
+                    userId: myUserId,
+                    fleetId: theirFleetId,
+                    user_token: getCookie('user_token')
+                };
                 // ========================================================================
                 ajaxCall('getGameStatus', JSON.stringify(statusCheck), setGameStatusCallback);
             }
@@ -452,7 +461,7 @@ use App\Game;
                 setMyGoOrTheirGo();
             }
 
-            // I have just made a mmove, so we want to check for moves by me and the
+            // I have just made a move, so we want to check for moves by me and the
             // destruction of their fleet
             let statusCheck = {
                 gameId: gameId,

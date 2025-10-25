@@ -63,26 +63,26 @@ use App\Game;
                                 @if ($game->status == Game::STATUS_EDIT
                                  || $game->status == Game::STATUS_WAITING)
                                     @if ($game->protagonist_id == $userId)
-                                        <div title="Edit the game"><a href="javascript: gotoEdit({{$game->id}})">Edit</a></div>
-                                        <div title="Edit the game grid"><a href="javascript: gotoEditGrid({{$game->id}})">Edit Grid</a></div>
+                                        <div title="Edit the game"><a class="bs-games-button" href="javascript: gotoEdit({{$game->id}})">Edit</a></div>
+                                        <div title="Edit the game grid"><a class="bs-games-button" href="javascript: gotoEditGrid({{$game->id}})">Edit Grid</a></div>
                                     @else
                                         {{--Current user is an opponent in this game--}}
                                         @if (isset($game->opponent_fleet))
-                                            <div title="Edit the game grid"><a href="javascript: gotoEditGrid({{$game->id}})">Edit Grid</a></div>
+                                            <div title="Edit the game grid"><a class="bs-games-button" href="javascript: gotoEditGrid({{$game->id}})">Edit Grid</a></div>
                                         @else
-                                            <div title="Accept the game"><a href="javascript: gotoAccept({{$game->id}})">Accept</a></div>
+                                            <div title="Accept the game"><a class="bs-games-button" href="javascript: gotoAccept({{$game->id}})">Accept</a></div>
                                         @endif
                                     @endif
                                 @else
                                     @if ($game->status == Game::STATUS_READY || $game->status == Game::STATUS_ENGAGED)
-                                        <div title="Start the game"><a href="javascript: gotoEngage({{$game->id}})">Engage</a></div>
+                                        <div title="Start the game"><a class="bs-games-button" href="javascript: gotoEngage({{$game->id}})">Engage</a></div>
                                     @endif
                                 @endif
                                 @if ($game->protagonist_id == $userId)
-                                    <div title="Delete the game"><a href="javascript: gotoDelete('{{$game->id}}', '{{$game->name}}')">Delete</a></div>
+                                    <div title="Delete the game"><a class="bs-games-button" href="javascript: gotoDelete('{{$game->id}}', '{{$game->name}}')">Delete</a></div>
                                 @endif
                                 @if ($game->status == Game::STATUS_COMPLETED)
-                                        <div title="Run simulation"><a href="javascript: gotoRerun('{{$game->id}}')">Rerun</a></div>
+                                        <div title="Run simulation"><a class="bs-games-button" href="javascript: gotoRerun('{{$game->id}}')">Rerun</a></div>
                                 @endif
                             @endif
                         </td>
@@ -97,7 +97,7 @@ use App\Game;
             </table>
             <div class="is-pulled-right mr-6 bs-show-deleted">
                 <label class="checkbox">
-                    <input type="checkbox" name="showDeletedGames" id="showDeletedGames" value="1" {{$showDeletedGames ? 'checked': ''}} onclick="gotoShowDeletedGames(this)" />
+                    <input type="checkbox" class="" name="showDeletedGames" id="showDeletedGames" value="1" {{$showDeletedGames ? 'checked': ''}} onclick="gotoShowDeletedGames(this)" />
                     Show deleted games
                 </label>
             </div>

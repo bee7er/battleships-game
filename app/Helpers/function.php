@@ -37,3 +37,13 @@ if (!function_exists('urlAction')) {
         return segment(request()->headers->get('referer'), count(segments(request()->headers->get('referer'))), 'error');
     }
 }
+
+if (!function_exists('getAlpha')) {
+    /**
+     * Returns the alpha equivalent of an integer
+     */
+    function getAlpha($i)
+    {
+        return substr('abcdefghij', ($i-1), 1); // nb zero based
+    }
+}
