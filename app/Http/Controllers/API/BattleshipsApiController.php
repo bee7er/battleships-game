@@ -117,7 +117,6 @@ class BattleshipsApiController extends Controller
 
 		try {
 			// User token must be provided and valid for all API calls
-			//Log::info('Checking authorisation: ' . $request->get(User::USER_TOKEN));
 			User::checkUserToken($request->get(User::USER_TOKEN));
 
 			// Update the fleet vessel status, returned below
@@ -129,23 +128,7 @@ class BattleshipsApiController extends Controller
 				// However, care must be taken because the current user could be either
 				// the protagonist or the opponent.
 				$game = Game::getGame($fleetVessel['gameId']);
-				$protagonistReady = Fleet::isFleetReady($game->id, $game->protagonist_id);
-				$opponentReady = Fleet::isFleetReady($game->id, $game->opponent_id);
-				if ($protagonistReady && $opponentReady) {
-					$game->status = Game::STATUS_READY;	// Both are ready
-					// Message the protagonist and the opponent that the game is ready
-					Message::addMessage($game->opponent_id, $game->protagonist_id, $game->id, Message::MESSAGE_READY, '012');
-					Message::addMessage($game->protagonist_id, $game->opponent_id, $game->id, Message::MESSAGE_READY, '012');
-				} elseif ($protagonistReady || $opponentReady) {
-					$game->status = Game::STATUS_WAITING;
-					// If the protagonist or opponent is not yet started then send them a message
-					if ($protagonistReady && Fleet::isFleetNotStarted($game->id, $game->opponent_id)) {
-						Message::addMessage($game->protagonist_id, $game->opponent_id, $game->id, Message::MESSAGE_WAITING, '102');
-					} elseif ($opponentReady && Fleet::isFleetNotStarted($game->id, $game->protagonist_id)) {
-						Message::addMessage($game->opponent_id, $game->protagonist_id, $game->id, Message::MESSAGE_WAITING, '102');
-					}
-				}
-				$game->save();
+				$game->status = Game::setGameStatus($game->id);
 			}
 			$result = 'OK';
 

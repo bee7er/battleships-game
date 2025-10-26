@@ -16,21 +16,21 @@ class FleetTemplatesTableSeeder extends Seeder {
         $submarine = Vessel::where('name', Vessel::VESSEL_TYPE_SUBMARINE)->firstOrFail();
         $zodiac = Vessel::where('name', Vessel::VESSEL_TYPE_ZODIAC)->firstOrFail();
 
-//        $fleetTemplate = new FleetTemplate();
-//        $fleetTemplate->vessel_id = $battleship->id;
-//        $fleetTemplate->save();
-//
-//        $fleetTemplate = new FleetTemplate();
-//        $fleetTemplate->vessel_id = $destroyer->id;
-//        $fleetTemplate->save();
-//
-//        $fleetTemplate = new FleetTemplate();
-//        $fleetTemplate->vessel_id = $destroyer->id;
-//        $fleetTemplate->save();
-//
-//        $fleetTemplate = new FleetTemplate();
-//        $fleetTemplate->vessel_id = $submarine->id;
-//        $fleetTemplate->save();
+        $fleetTemplate = new FleetTemplate();
+        $fleetTemplate->vessel_id = $battleship->id;
+        $fleetTemplate->save();
+
+        $fleetTemplate = new FleetTemplate();
+        $fleetTemplate->vessel_id = $destroyer->id;
+        $fleetTemplate->save();
+
+        $fleetTemplate = new FleetTemplate();
+        $fleetTemplate->vessel_id = $destroyer->id;
+        $fleetTemplate->save();
+
+        $fleetTemplate = new FleetTemplate();
+        $fleetTemplate->vessel_id = $submarine->id;
+        $fleetTemplate->save();
 
         $fleetTemplate = new FleetTemplate();
         $fleetTemplate->vessel_id = $submarine->id;
@@ -43,10 +43,10 @@ class FleetTemplatesTableSeeder extends Seeder {
         $fleetTemplate = new FleetTemplate();
         $fleetTemplate->vessel_id = $zodiac->id;
         $fleetTemplate->save();
-//
-//        $fleetTemplate = new FleetTemplate();
-//        $fleetTemplate->vessel_id = $zodiac->id;
-//        $fleetTemplate->save();
+
+        $fleetTemplate = new FleetTemplate();
+        $fleetTemplate->vessel_id = $zodiac->id;
+        $fleetTemplate->save();
         
 
     }

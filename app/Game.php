@@ -173,8 +173,14 @@ class Game extends Model
             if ($isFleetDestroyed) {
                 $gameStatus = self::STATUS_COMPLETED;
                 $game->winner_id = $game->opponent_id;
-                Message::addMessage($game->protagonist_id, $game->opponent_id, $game->id, Message::MESSAGE_WINNER, '021');
-                Message::addMessage($game->opponent_id, $game->protagonist_id, $game->id, Message::MESSAGE_LOSER, '021');
+                // Notify both parties
+                $messageText = Message::retrieveMessageText(Message::MESSAGE_WINNER,
+                    [User::getUser($game->protagonist_id)->name,Game::getGame($game->id)->name,Message::
+                    SYSTEM_USER_NAME]);
+                Message::addMessage($messageText, Message::SYSTEM_USER_ID, $game->protagonist_id);
+                $messageText = Message::retrieveMessageText(Message::MESSAGE_LOSER,
+                    [User::getUser($game->opponent_id)->name,Game::getGame($game->id)->name,Message::SYSTEM_USER_NAME]);
+                Message::addMessage($messageText, Message::SYSTEM_USER_ID, $game->opponent_id);
             } else {
                 // Ok, still fighting, check the opponent's fleet
                 $opponentFleet = Fleet::getFleet($gameId, $game->opponent_id);
@@ -182,18 +188,42 @@ class Game extends Model
                 if ($isFleetDestroyed) {
                     $gameStatus = self::STATUS_COMPLETED;
                     $game->winner_id = $game->protagonist_id;
-                    Message::addMessage($game->opponent_id, $game->protagonist_id, $game->id, Message::MESSAGE_WINNER, '021');
-                    Message::addMessage($game->protagonist_id, $game->opponent_id, $game->id, Message::MESSAGE_LOSER, '021');
+                    // Notify both parties
+                    $messageText = Message::retrieveMessageText(Message::MESSAGE_WINNER,
+                        [User::getUser($game->opponent_id)->name,Game::getGame($game->id)->name,Message::SYSTEM_USER_NAME]);
+                    Message::addMessage($messageText, Message::SYSTEM_USER_ID, $game->opponent_id);
+                    $messageText = Message::retrieveMessageText(Message::MESSAGE_LOSER,
+                        [User::getUser($game->protagonist_id)->name,Game::getGame($game->id)->name,Message::SYSTEM_USER_NAME]);
+                    Message::addMessage($messageText, Message::SYSTEM_USER_ID, $game->protagonist_id);
                 }
             }
         } else {
             $protagonistReady = Fleet::isFleetReady($gameId, $game->protagonist_id);
             $opponentReady = Fleet::isFleetReady($gameId, $game->opponent_id);
-            if ($protagonistReady || $opponentReady) {
-                $gameStatus = self::STATUS_WAITING;
-            }
             if ($protagonistReady && $opponentReady) {
                 $gameStatus = self::STATUS_READY;
+                // Message the protagonist and the opponent that the game is ready
+                $messageText = Message::retrieveMessageText(Message::MESSAGE_READY,
+                    [User::getUser($game->protagonist_id)->name,User::getUser($game->opponent_id)->name,Game::getGame($game->id)->name]);
+                Message::addMessage($messageText, Message::SYSTEM_USER_ID, $game->protagonist_id);
+
+                $messageText = Message::retrieveMessageText(Message::MESSAGE_READY,
+                    [User::getUser($game->opponent_id)->name,User::getUser($game->protagonist_id)->name,Game::getGame($game->id)->name]);
+                Message::addMessage($messageText, Message::SYSTEM_USER_ID, $game->opponent_id);
+
+            } elseif ($protagonistReady || $opponentReady) {
+                $gameStatus = self::STATUS_WAITING;
+                // If the protagonist or opponent is not yet started then send them a message
+                if ($protagonistReady && Fleet::isFleetNotStarted($game->id, $game->opponent_id)) {
+                    $messageText = Message::retrieveMessageText(Message::MESSAGE_WAITING,
+                        [User::getUser($game->opponent_id)->name,User::getUser($game->protagonist_id)->name,Game::getGame($game->id)->name]);
+                    Message::addMessage($messageText, Message::SYSTEM_USER_ID, $game->opponent_id);
+
+                } elseif ($opponentReady && Fleet::isFleetNotStarted($game->id, $game->protagonist_id)) {
+                    $messageText = Message::retrieveMessageText(Message::MESSAGE_WAITING,
+                        [User::getUser($game->protagonist_id)->name,User::getUser($game->opponent_id)->name,Game::getGame($game->id)->name]);
+                    Message::addMessage($messageText, Message::SYSTEM_USER_ID, $game->protagonist_id);
+                }
             }
         }
 

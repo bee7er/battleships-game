@@ -20,7 +20,8 @@ class MessagesTableSeeder extends Seeder {
         $game3 = Game::where('name', Game::GAME_THIRD_NAVAL_BATTLE)->firstOrFail();
 
         $message = new Message();
-        $message->message_text = Message::retrieveMessageText($brian->id, $dave->id, $game->id, Message::MESSAGE_INVITE);
+        $msgDataAry = [$dave->name, $game->name, $brian->name];
+        $message->message_text = Message::retrieveMessageText(Message::MESSAGE_INVITE, $msgDataAry);
         $message->status = Message::STATUS_OPEN;
         $message->sending_user_id = $brian->id;
         $message->receiving_user_id = $dave->id;
@@ -28,7 +29,8 @@ class MessagesTableSeeder extends Seeder {
         $message->save();
 
         $message = new Message();
-        $message->message_text = Message::retrieveMessageText($steve->id, $brian->id, $game2->id, Message::MESSAGE_INVITE);
+        $msgDataAry = [$brian->name, $game2->name, $steve->name];
+        $message->message_text = Message::retrieveMessageText(Message::MESSAGE_INVITE, $msgDataAry);
         $message->status = Message::STATUS_OPEN;
         $message->sending_user_id = $steve->id;
         $message->receiving_user_id = $brian->id;
@@ -36,7 +38,8 @@ class MessagesTableSeeder extends Seeder {
         $message->save();
 
         $message = new Message();
-        $message->message_text = Message::retrieveMessageText($steve->id, $dave->id, $game3->id, Message::MESSAGE_INVITE);
+        $msgDataAry = [$dave->name, $game3->name, $steve->name];
+        $message->message_text = Message::retrieveMessageText(Message::MESSAGE_INVITE, $msgDataAry);
         $message->status = Message::STATUS_OPEN;
         $message->sending_user_id = $steve->id;
         $message->receiving_user_id = $dave->id;

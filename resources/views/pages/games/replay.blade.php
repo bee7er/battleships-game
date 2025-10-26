@@ -380,7 +380,7 @@ use App\Game;
             gameOver = false;
             setMyGoOrTheirGo();
 
-            intervalId = setInterval(plotMoveLocations, 1000);
+            intervalId = setInterval(plotMoveLocations, 700);
         }
         function stopPlottingMoves()
         {

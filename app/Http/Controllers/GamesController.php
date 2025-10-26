@@ -169,7 +169,9 @@ class GamesController extends Controller
 			if ('add' == $mode) {
 				// Create a fleet from the template set of vessels for the user creating the game
 				Fleet::createFleet($game->id, $user->id);
-                Message::addMessage($game->protagonist_id, $game->opponent_id, $game->id, Message::MESSAGE_INVITE);
+                $messageText = Message::retrieveMessageText(Message::MESSAGE_INVITE,
+                    [User::getUser($game->opponent_id)->name,Game::getGame($game->id)->name,User::getUser($game->protagonist_id)->name]);
+                Message::addMessage($messageText, $game->protagonist_id, $game->opponent_id);
 			}
 
 		} catch(Exception $e) {
@@ -241,7 +243,14 @@ class GamesController extends Controller
 
 			// Message the protagonist that the game is accepted
 			$game = Game::getGame($gameId);
-			Message::addMessage($game->opponent_id, $game->protagonist_id, $game->id, Message::MESSAGE_ACCEPT);
+            $messageText = Message::retrieveMessageText(Message::MESSAGE_ACCEPT,
+                [
+                    User::getUser($game->protagonist_id)->name,
+                    Game::getGame($game->id)->name,
+                    User::getUser($game->opponent_id)->name,
+                ]
+            );
+			Message::addMessage($messageText, $game->opponent_id, $game->protagonist_id);
 
 		} catch(Exception $e) {
 			Log::notice("Error accepting game: {$e->getMessage()} at {$e->getFile()}, {$e->getLine()}");

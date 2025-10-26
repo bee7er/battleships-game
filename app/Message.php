@@ -15,8 +15,11 @@ class Message extends Model
     const MESSAGE_ACCEPT = "Hi %s, I will love playing '%s' with you. %s";
     const MESSAGE_READY = "Hi %s and %s, I'm happy to say that '%s' is ready to play. System";
     const MESSAGE_WAITING = "Hi %s, %s is waiting for you to finish plotting your fleet in the '%s' game. System";
-    const MESSAGE_WINNER = "Hi %s, you won the '%s' game.  Well done. System";
-    const MESSAGE_LOSER = "Hi %s, sadly you lost the '%s' game.  Try again later. System";
+    const MESSAGE_WINNER = "Hi %s, you won the '%s' game.  Well done. %s";
+    const MESSAGE_LOSER = "Hi %s, sadly you lost the '%s' game.  Try again later. %s";
+
+    const SYSTEM_USER_ID = 9999;
+    const SYSTEM_USER_NAME = 'System';
 
     /**
      * The database table used by the model.
@@ -78,15 +81,12 @@ class Message extends Model
     /**
      * Add a new message
      *
+     * @param $messageText
      * @param $fromUserId
      * @param $toUserId
-     * @param $gameId
-     * @param $message
-     * @param string $msgDataIdx - used to override the order of message substitution data in the message
      */
-    public static function addMessage($fromUserId, $toUserId, $gameId, $message, $msgDataIdx='120')
+    public static function addMessage($messageText, $fromUserId, $toUserId)
     {
-        $messageText = self::retrieveMessageText($fromUserId, $toUserId, $gameId, $message, $msgDataIdx);
         $message = Message::getMessage();
         $message->message_text = $messageText;
         $message->status = self::STATUS_OPEN;
@@ -98,19 +98,13 @@ class Message extends Model
     /**
      * Retrieve message text given the appropriate parameters
      *
-     * @param $fromUserId
-     * @param $toUserId
-     * @param $gameId
      * @param $message
-     * @param string $msgDataIdx - used to override the order of message substitution data in the message
+     * @param $msgDataAry
      * @return string
      */
-    public static function retrieveMessageText($fromUserId, $toUserId, $gameId, $message, $msgDataIdx='120')
+    public static function retrieveMessageText($message, $msgDataAry)
     {
-        $msgData[] = User::getUser($fromUserId)->name;
-        $msgData[] = User::getUser($toUserId)->name;
-        $msgData[] = Game::getGame($gameId)->name;
-        $messageText = sprintf($message, $msgData[$msgDataIdx[0]], $msgData[$msgDataIdx[1]], $msgData[$msgDataIdx[2]]);
+        $messageText = sprintf($message, $msgDataAry[0], $msgDataAry[1], $msgDataAry[2]);
 
         return $messageText;
     }
