@@ -33,7 +33,7 @@ class Game extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'status', 'protagonist_id', 'opponent_id', 'started_at', 'ended_at', 'deleted_at'];
+    protected $fillable = ['name', 'status', 'protagonist_id', 'opponent_id', 'winner_id', 'started_at', 'ended_at', 'deleted_at'];
 
     /**
      * Retrieve a game
@@ -52,6 +52,7 @@ class Game extends Model
                 'games.status',
                 'games.protagonist_id',
                 'games.opponent_id',
+                'games.winner_id',
                 'games.started_at',
                 'games.ended_at',
                 'games.deleted_at'
@@ -87,6 +88,7 @@ class Game extends Model
                 'protagonist.name as protagonist_name',
                 'games.opponent_id',
                 'opponent.name as opponent_name',
+                'games.winner_id',
                 'games.status',
                 'games.started_at',
                 'games.ended_at',
@@ -124,6 +126,7 @@ class Game extends Model
                 'users1.name as protagonist_name',
                 'games.opponent_id',
                 'users2.name as opponent_name',
+                'games.winner_id',
                 'games.status',
                 'games.started_at',
                 'games.ended_at',
@@ -169,14 +172,18 @@ class Game extends Model
             $isFleetDestroyed = FleetVessel::isFleetDestroyed($protagonistFleet->id);
             if ($isFleetDestroyed) {
                 $gameStatus = self::STATUS_COMPLETED;
-                // Notify both parties
-                // TODO: identify who won and add this to the game object, then send completion messages appropriately.
+                $game->winner_id = $game->opponent_id;
+                Message::addMessage($game->protagonist_id, $game->opponent_id, $game->id, Message::MESSAGE_WINNER, '021');
+                Message::addMessage($game->opponent_id, $game->protagonist_id, $game->id, Message::MESSAGE_LOSER, '021');
             } else {
                 // Ok, still fighting, check the opponent's fleet
                 $opponentFleet = Fleet::getFleet($gameId, $game->opponent_id);
                 $isFleetDestroyed = FleetVessel::isFleetDestroyed($opponentFleet->id);
                 if ($isFleetDestroyed) {
                     $gameStatus = self::STATUS_COMPLETED;
+                    $game->winner_id = $game->protagonist_id;
+                    Message::addMessage($game->opponent_id, $game->protagonist_id, $game->id, Message::MESSAGE_WINNER, '021');
+                    Message::addMessage($game->protagonist_id, $game->opponent_id, $game->id, Message::MESSAGE_LOSER, '021');
                 }
             }
         } else {

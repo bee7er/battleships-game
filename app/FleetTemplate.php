@@ -44,8 +44,6 @@ class FleetTemplate extends Model
             }
         }
 
-        Log::info("Size= $fleetLocationSize");
-
         return $fleetLocationSize;
     }
 }

@@ -103,7 +103,7 @@ use App\Game;
             </div>
 
             <div class="column">
-                <table class="table is-bordered">
+                <table class="table is-bordered bs-plot-table">
                     <tbody>
                     <tr class=""><td class="bs-pos-key-blank bs-table-title" colspan="2">Key to colours:</td></tr>
                     <tr class=""><td class="bs-pos-key-plotted">&nbsp;</td><td class="bs-pos-cell-blank">Vessel plotted</td></tr>

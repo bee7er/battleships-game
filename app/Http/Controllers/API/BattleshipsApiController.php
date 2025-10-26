@@ -133,7 +133,7 @@ class BattleshipsApiController extends Controller
 				$opponentReady = Fleet::isFleetReady($game->id, $game->opponent_id);
 				if ($protagonistReady && $opponentReady) {
 					$game->status = Game::STATUS_READY;	// Both are ready
-					// Message the protagonist and the opponent that the game is eady
+					// Message the protagonist and the opponent that the game is ready
 					Message::addMessage($game->opponent_id, $game->protagonist_id, $game->id, Message::MESSAGE_READY, '012');
 					Message::addMessage($game->protagonist_id, $game->opponent_id, $game->id, Message::MESSAGE_READY, '012');
 				} elseif ($protagonistReady || $opponentReady) {

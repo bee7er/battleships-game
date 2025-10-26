@@ -89,7 +89,7 @@ use App\Game;
                                             <td class="cell">&nbsp;</td>
                                         @endif
                                     @else
-                                        <td class="cell has-text-centered bs-pos-cell-blank"
+                                        <td class="cell grid-cell has-text-centered bs-pos-cell-blank"
                                             id="myCell_{{$row}}_{{$col}}">O</td>
                                     @endif
                                 @endif
@@ -102,8 +102,8 @@ use App\Game;
                 </table>
             </div>
 
-            <div class="column">
-                <table class="table is-bordered">
+            <div class="column  has-text-centered">
+                <table class="table is-bordered bs-plot-table">
                     <tbody>
                     <tr class=""><td class="bs-pos-key-blank bs-table-title" colspan="2">Key to colours:</td></tr>
                     <tr class=""><td class="bs-pos-key-plotted">&nbsp;</td><td class="bs-pos-cell-blank">Vessel plotted</td></tr>
@@ -112,6 +112,15 @@ use App\Game;
                     <tr class=""><td class="bs-pos-key-destroyed">&nbsp;</td><td class="bs-pos-cell-blank">Vessel destroyed</td></tr>
                     </tbody>
                 </table>
+
+                <hr />
+                <span class="bs-table-title">Start or stop the replay:</span>
+                <div>
+                    <button class="button bs-random_button" onclick="return startPlottingMoves();">Start Replay</button>
+                </div>
+                <div>
+                    <button class="button bs-random_button" onclick="return stopPlottingMoves();">Stop Replay</button>
+                </div>
             </div>
 
             <div class="column">
@@ -141,8 +150,8 @@ use App\Game;
                                             <td class="cell">&nbsp;</td>
                                         @endif
                                     @else
-                                        <td class="cell has-text-centered bs-pos-cell-blank"
-                                            id="theirCell_{{$row}}_{{$col}}" onclick="onClickStrikeCell(this);">O</td>
+                                        <td class="cell grid-cell has-text-centered bs-pos-cell-blank"
+                                            id="theirCell_{{$row}}_{{$col}}">O</td>
                                     @endif
                                 @endif
 
@@ -159,24 +168,22 @@ use App\Game;
 @section('page-scripts')
     <script type="text/javascript">
         var gameId = {{$game->id}};
+        var winnerId = {{$game->winner_id}};
         var myFleetId = 0;
         var theirFleetId = 0;
         var myFleetVessels = [];
         var theirFleetVessels = [];
         var allMoves = [];
+        var allMovesClone = null;
         var fleetVesselLocations = [];
         var myUserId = {{$myUser->id}};
         var theirUserId = {{$theirUser->id}};
-        var gridSize = 10;
-        var myGo = {{($myGo ? 'true': 'false')}};
         var myName = '{{ucfirst($myUser->name)}}';
         var theirName = '{{ucfirst($theirUser->name)}}';
-        var gameOver = ('{{Game::STATUS_COMPLETED}}' == '{{$game->status}}');
-        if (gameOver) {
-            setMyGoOrTheirGo();
-        }
+        var myGo = {{$myGo}};
+        var gameOver = false;
 
-        // Load all the existing data for the fleet
+        // Load all the existing data for my fleet
         @foreach ($myFleet as $fleetVessel)
 
             fleetVesselLocations = [];
@@ -188,7 +195,7 @@ use App\Game;
                         fleet_vessel_id: {{$fleetVesselLocation['fleet_vessel_id']}},
                         row: {{$fleetVesselLocation['row']}},
                         col: {{$fleetVesselLocation['col']}},
-                        status: '{{$fleetVesselLocation['vessel_location_status']}}',
+                        status: '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_NORMAL}}',
                         vessel_name: '{{$fleetVesselLocation['vessel_name']}}'
                     };
             @endforeach
@@ -205,7 +212,7 @@ use App\Game;
             myFleetVessels[myFleetVessels.length] = fleetVessel;
         @endforeach
 
-        // Load all the existing data for the fleet
+        // Load all the existing data for their fleet
         @foreach ($theirFleet as $fleetVessel)
 
             fleetVesselLocations = [];
@@ -217,7 +224,7 @@ use App\Game;
                         fleet_vessel_id: {{$fleetVesselLocation['fleet_vessel_id']}},
                         row: {{$fleetVesselLocation['row']}},
                         col: {{$fleetVesselLocation['col']}},
-                        status: '{{$fleetVesselLocation['vessel_location_status']}}',
+                        status: '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_NORMAL}}',
                         vessel_name: '{{$fleetVesselLocation['vessel_name']}}'
                     };
             @endforeach
@@ -236,64 +243,17 @@ use App\Game;
 
         // Load all the moves for each user
         @foreach ($allMoves as $aMove)
-                myMoves[myMoves.length] = {
+                allMoves[allMoves.length] = {
                     id: {{$aMove->id}},
                     player_id: {{$aMove->player_id}},
                     row: {{$aMove->row}},
                     col: {{$aMove->col}}
                 };
         @endforeach
-        /**
-         * Shoots a missile at cell to try to bomb a vessel
-         */
-        function onClickStrikeCell(elem)
-        {
-            if (gameOver) {
-                showNotification('The game is now over');
-                setMyGoOrTheirGo();
-                return false;
-            }
 
-            if (!myGo) {
-                showNotification('It is not your go');
-                return false;
-            }
-
-            if ($(elem).hasClass('bs-pos-cell-strike')
-                    || $(elem).hasClass('bs-pos-cell-hit')
-                    || $(elem).hasClass('bs-pos-cell-destroyed')
-            ) {
-                showNotification('You have already fired at that location, try again');
-                return false;
-            }
-
-            // Get row/col from the clicked element
-            let elemIdData = elem.id.split('_');
-            let row = parseInt(elemIdData[1]);
-            let col = parseInt(elemIdData[2]);
-
-            theirFleetVesselByRowCol = findTheirFleetVesselByRowCol(row, col);
-            if (null == theirFleetVesselByRowCol) {
-                showNotification('Sorry you missed');
-            } else {
-                showNotification('Bang! good shot, you have hit something');
-                $(elem).addClass('bs-pos-cell-hit');
-            }
-
-            // Ok, notify the server of this move, me striking their fleet
-            let location = {
-                gameId: gameId,
-                userId: myUserId,
-                fleetId: theirFleetId,
-                row: row,
-                col: col,
-                user_token: getCookie('user_token')
-            };
-
-            // ========================================================================
-            ajaxCall('strikeVesselLocation', JSON.stringify(location), updateTheirFleetLocationsCallback);
-
-            return false;
+        if (null == allMovesClone) {
+            // Back up the all moves array, so we can restore it later
+            allMovesClone = jQuery.extend(true, [], allMoves);
         }
 
         /**
@@ -307,7 +267,7 @@ use App\Game;
                 for (let j=0; j<fleetVessel.locations.length; j++) {
                     let location = fleetVessel.locations[j];
                     let tableCell = $('#myCell_' + location.row + '_' + location.col);
-                    let cssClass = getCssClass(location, 'bs-pos-cell-plotted');
+                    let cssClass = 'bs-pos-cell-plotted';
                     setElemStatusClass(tableCell, cssClass);
                     tableCell.html(location.vessel_name.toUpperCase().charAt(0));
                 }
@@ -318,32 +278,10 @@ use App\Game;
                 for (let j=0; j<fleetVessel.locations.length; j++) {
                     let location = fleetVessel.locations[j];
                     let tableCell = $('#theirCell_' + location.row + '_' + location.col);
-                    let cssClass = getCssClass(location, '');
+                    let cssClass = 'bs-pos-cell-plotted';
                     setElemStatusClass(tableCell, cssClass);
-                    // Only show the vessel identifier if it has been hit or destroyed
-                    if ('{{FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT}}' == location.status
-                        || '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED}}' == location.status) {
-                        tableCell.html(location.vessel_name.toUpperCase().charAt(0));
-                    }
+                    tableCell.html(location.vessel_name.toUpperCase().charAt(0));
                 }
-            }
-        }
-
-        /**
-         * Plot moves by each player
-         * NB My moves go on to their grid
-         */
-        function plotMoveLocations()
-        {
-            for (let i=0; i<myMoves.length; i++) {
-                let aMove = myMoves[i];
-                let tableCell = $('#theirCell_' + aMove.row + '_' + aMove.col);
-                setElemStatusClass(tableCell, 'bs-pos-cell-strike');
-            }
-            for (let i=0; i<theirMoves.length; i++) {
-                let aMove = theirMoves[i];
-                let tableCell = $('#myCell_' + aMove.row + '_' + aMove.col);
-                setElemStatusClass(tableCell, 'bs-pos-cell-strike');
             }
         }
 
@@ -364,149 +302,27 @@ use App\Game;
         }
 
         /**
-         * Callback function receiving the latest move by the opponent
+         * Set whether it is my go or not, or whether I won or not
          */
-        function updateMyFleetLocationsCallback(returnedMoveData)
+        function setMyGoOrTheirGo()
         {
-            if (null != returnedMoveData) {
-                // Updating my grid with their moves
-                theirMoves[theirMoves.length] = {
-                    id: returnedMoveData.move.id,
-                    row: returnedMoveData.move.row,
-                    col: returnedMoveData.move.col
-                };
-
-                // Update my fleet vessel location status
-                if (null != returnedMoveData.affectedLocations) {
-                    for (let i=0; i<returnedMoveData.affectedLocations.length; i++) {
-                        let loc = returnedMoveData.affectedLocations[i];
-                        let fleetVessel = findMyFleetVessel(loc.fleetVesselId);
-                        // Find the corresponding fleet vessel location
-                        for (let j=0; j<fleetVessel.locations.length; j++) {
-                            let fvl = fleetVessel.locations[j];
-                            if (fvl.id == loc.fleetVesselLocationId) {
-                                fvl.status = loc.status;
-                                break;
-                            }
-                        }
-                    }
+            if (gameOver) {
+                if (winnerId == myUserId) {
+                    $('#myGoId').addClass('bs-status').html(myName + " WINNER ;o)");
+                    $('#theirGoId').addClass('bs-status').html(theirName + " LOSER :o(");
+                } else {
+                    $('#myGoId').addClass('bs-status').html(myName + " LOSER :o(");
+                    $('#theirGoId').addClass('bs-status').html(theirName + " WINNER ;o)");
                 }
-                plotMoveLocations();
-                plotFleetLocations();
-
-                stopCheckingForMoves();
-
-                myGo = true;
-                setMyGoOrTheirGo();
-
-                let statusCheck = {
-                    gameId: gameId,
-                    userId: myUserId,
-                    fleetId: theirFleetId,
-                    user_token: getCookie('user_token')
-                };
-                // ========================================================================
-                ajaxCall('getGameStatus', JSON.stringify(statusCheck), setGameStatusCallback);
-            }
-        }
-
-        /**
-         * Callback function receiving the latest move by the opponent
-         */
-        function updateTheirFleetLocationsCallback(returnedMoveData)
-        {
-            if (null != returnedMoveData) {
-                // We update their grid with my moves
-                myMoves[myMoves.length] = {
-                    id: returnedMoveData.move.id,
-                    row: returnedMoveData.move.row,
-                    col: returnedMoveData.move.col
-                };
-                // Update their fleet vessel location status
-                if (null != returnedMoveData.affectedLocations) {
-                    for (let i = 0; i < returnedMoveData.affectedLocations.length; i++) {
-                        let loc = returnedMoveData.affectedLocations[i];
-                        let fleetVessel = findTheirFleetVessel(loc.fleetVesselId);
-                        // Find the corresponding fleet vessel location
-                        for (let j = 0; j < fleetVessel.locations.length; j++) {
-                            let fvl = fleetVessel.locations[j];
-                            if (fvl.id == loc.fleetVesselLocationId) {
-                                fvl.status = loc.status;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                plotMoveLocations();
-                plotFleetLocations();
-
-                // Now we poll the server for their response
-                startCheckingForMoves();
-
-                myGo = false;
-                setMyGoOrTheirGo();
-            }
-
-            // I have just made a move, so we want to check for moves by me and the
-            // destruction of their fleet
-            let statusCheck = {
-                gameId: gameId,
-                userId: myUserId,
-                fleetId: theirFleetId,
-                user_token: getCookie('user_token')
-            };
-            // ========================================================================
-            ajaxCall('getGameStatus', JSON.stringify(statusCheck), setGameStatusCallback);
-        }
-
-        /**
-         * Find the fleet vessel details based on the fleet vessel id
-         */
-        function findMyFleetVessel(fleetVesselId)
-        {
-            return findFleetVessel(fleetVesselId, myFleetVessels, 'my')
-        }
-        function findTheirFleetVessel(fleetVesselId)
-        {
-            return findFleetVessel(fleetVesselId, theirFleetVessels, 'their')
-        }
-        function findFleetVessel(fleetVesselId, fleetVessels, which)
-        {
-            for (let i=0; i<fleetVessels.length; i++) {
-                let fleetVessel = fleetVessels[i];
-                if (fleetVesselId == fleetVessel.fleetVesselId) {
-                    return fleetVessel;
+            } else {
+                if (myGo) {
+                    $('#myGoId').addClass('bs-status').html(myName);
+                    $('#theirGoId').removeClass('bs-status').html(theirName);
+                } else {
+                    $('#theirGoId').addClass('bs-status').html(theirName);
+                    $('#myGoId').removeClass('bs-status').html(myName);
                 }
             }
-            alert('Error: Could not find ' + which + ' fleet vessel for id ' + fleetVesselId);
-
-            return null;
-        }
-
-        /**
-         * Find the fleet vessel details by row/col location
-         */
-        function findMyFleetVesselByRowCol(row, col)
-        {
-            return findFleetVesselByRowCol(row, col, myFleetVessels, 'my');
-        }
-        function findTheirFleetVesselByRowCol(row, col)
-        {
-            return findFleetVesselByRowCol(row, col, theirFleetVessels, 'their');
-        }
-        function findFleetVesselByRowCol(row, col, fleetVessels, which)
-        {
-            for (let i=0; i<fleetVessels.length; i++) {
-                let fleetVessel = fleetVessels[i];
-                for (let j=0; j<fleetVessel.locations.length; j++) {
-                    if (fleetVessel.locations[j].row == row && fleetVessel.locations[j].col == col) {
-                        return fleetVessel;
-                    }
-                }
-            }
-            // Not found, so not a hit.
-            return null;
         }
 
         /**
@@ -524,15 +340,21 @@ use App\Game;
         }
 
         /**
-         * Callback function to handle the asynchronous Ajax call
+         * Clears the entire grid
          */
-        function setGameStatusCallback(returnedGameStatus)
+        function clearGrid()
         {
-            $('#gameStatus').html(returnedGameStatus);
-            gameOver = ('{{Game::STATUS_COMPLETED}}' == returnedGameStatus.toLowerCase());
-            if (gameOver) {
-                setMyGoOrTheirGo();
-            }
+            // Generic removal of all classes of all cells
+            let cells = $('.grid-cell');
+            cells.removeClass('bs-pos-cell-destroyed');
+            cells.removeClass('bs-pos-cell-hit');
+            cells.removeClass('bs-pos-cell-strike');
+            cells.removeClass('bs-pos-cell-available');
+            cells.removeClass('bs-pos-cell-started');
+            cells.removeClass('bs-pos-cell-plotted');
+            cells.html('O');
+
+            return cells;
         }
 
         /**
@@ -545,76 +367,119 @@ use App\Game;
             notification.delay(3000).fadeOut();
         }
 
-        /**
-         * Set whether it is my go or not, or whether I won or not
-         */
-        function setMyGoOrTheirGo()
-        {
-            if (gameOver) {
-                if (myGo) {
-                    $('#myGoId').addClass('bs-status').html(myName + " YOU LOST !! :o(");
-                    $('#theirGoId').removeClass('bs-status').html(theirName);
-                } else {
-                    $('#myGoId').addClass('bs-status').html(myName + " YOU WON !! ;o)");
-                    $('#theirGoId').removeClass('bs-status').html(theirName);
-                }
-            } else {
-                if (myGo) {
-                    $('#myGoId').addClass('bs-status').html(myName + ' << Your go!');
-                    $('#theirGoId').removeClass('bs-status').html(theirName);
-                } else {
-                    $('#theirGoId').addClass('bs-status').html(theirName + ' << Their go!');
-                    $('#myGoId').removeClass('bs-status').html(myName);
-                }
-            }
-        }
-
-        // Call across to the server to see if there have been any changes
+        // We are going to plot each move in turn
         let intervalId;
-        function startCheckingForMoves()
+        function startPlottingMoves()
         {
-            //console.log('Starting to check for moves on the server');
-            intervalId = setInterval(checkForChanges, 2000);
+            clearGrid();
+            if (null == allMoves || allMoves.length <= 0) {
+                // Restore all moves from cloned backup
+                allMoves = allMovesClone;
+            }
+            plotFleetLocations();
+            gameOver = false;
+            setMyGoOrTheirGo();
+
+            intervalId = setInterval(plotMoveLocations, 1000);
         }
-        function stopCheckingForMoves()
+        function stopPlottingMoves()
         {
-            //console.log('Stop checking for moves on the server');
             clearInterval(intervalId);
             // release our intervalId from the variable
             intervalId = null;
         }
-        function checkForChanges()
-        {
-            // We call across to the server to see if they have struck my grid
-            // We find their latest move and see if it has impacted my fleet
-            let moveData = {
-                gameId: gameId,
-                userId: theirUserId,
-                fleetId: myFleetId,
-                user_token: getCookie('user_token')
-            };
 
-            // ========================================================================
-            ajaxCall('getLatestOpponentMove', JSON.stringify(moveData), updateMyFleetLocationsCallback)
+        /**
+         * Plot moves by each player
+         * NB My moves go on to their grid
+         */
+        function plotMoveLocations()
+        {
+            let elem = allMoves.pop();
+            if (null == elem) {
+                stopPlottingMoves();
+                gameOver = true;
+            } else {
+                let tableCell = null;
+                if (elem.player_id == myUserId) {
+                    myGo = true;
+                    tableCell = $('#theirCell_' + elem.row + '_' + elem.col);
+                } else  {
+                    myGo = false;
+                    tableCell = $('#myCell_' + elem.row + '_' + elem.col);
+                }
+                let newStatus = checkFleetVesselLocationsForStatus(elem.row, elem.col);
+                setElemStatusClass(tableCell, newStatus);
+            }
+            setMyGoOrTheirGo();
+        }
+
+        /**
+         * Check all locations of the affected fleet vessel to determine the status
+         */
+        function checkFleetVesselLocationsForStatus(row, col)
+        {
+            let newStatus = 'bs-pos-cell-strike';
+            // Look for the fleet vessel, if found, check all locations, i.e. the various bits of the vessel
+            let fleetVessels = (myGo ? theirFleetVessels: myFleetVessels);
+            let fleetVessel = findFleetVesselByRowCol(row, col, fleetVessels);
+            if (null != fleetVessel) {
+                // We have a hit, but check the status of all locations
+                newStatus = 'bs-pos-cell-hit';
+                if (fleetVessel.length == 1) {
+                    fleetVessel.locations[0].status = '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED}}';
+                    newStatus = 'bs-pos-cell-destroyed';
+                } else {
+                    // Set the status of the location that has been hit
+                    for (let i=0; i<fleetVessel.locations.length; i++) {
+                        let loc = fleetVessel.locations[i];
+                        if (loc.row == row && loc.col == col) {
+                            loc.status = '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT}}';
+                            break;
+                        }
+                    }
+                    // Have they all been hit?
+                    let atLeastOneNotHit = false;
+                    for (let i=0; i<fleetVessel.locations.length; i++) {
+                        let loc = fleetVessel.locations[i];
+                        if (loc.status != '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT}}') {
+                            atLeastOneNotHit = true;
+                            break;
+                        }
+                    }
+                    // If they've all been hit, then they are all destroyed
+                    if (false == atLeastOneNotHit) {
+                        for (let i=0; i<fleetVessel.locations.length; i++) {
+                            let loc = fleetVessel.locations[i];
+                            loc.status = '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED}}';
+                            let tableCell = $((myGo ? '#theirCell_': '#myCell_') + loc.row + '_' + loc.col);
+                            setElemStatusClass(tableCell, 'bs-pos-cell-destroyed');
+                        }
+                        newStatus = 'bs-pos-cell-destroyed';
+                    }
+                }
+            }
+            return newStatus;
+        }
+        function findFleetVesselByRowCol(row, col, fleetVessels)
+        {
+            for (let i=0; i<fleetVessels.length; i++) {
+                let fleetVessel = fleetVessels[i];
+                for (let j=0; j<fleetVessel.locations.length; j++) {
+                    if (fleetVessel.locations[j].row == row && fleetVessel.locations[j].col == col) {
+                        return fleetVessel;
+                    }
+                }
+            }
+            // Not found, so not a hit.
+            return null;
         }
 
         $(document).ready( function()
         {
-            plotMoveLocations();
-
             plotFleetLocations();
 
             setMyGoOrTheirGo();
-
-            if (gameOver) {
-                showNotification('Great game is now over');
-            } else {
-
-                if (!myGo) {
-                    // We poll the server for their move
-                    startCheckingForMoves();
-                }
-            }
 
             return true;
         });

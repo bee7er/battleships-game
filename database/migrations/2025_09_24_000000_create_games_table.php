@@ -29,6 +29,7 @@ class CreateGamesTable extends Migration
             );
             $table->unsignedInteger('protagonist_id');
             $table->unsignedInteger('opponent_id');
+            $table->unsignedInteger('winner_id');
             $table->dateTime('started_at')->nullable();
             $table->dateTime('ended_at')->nullable();
             $table->dateTime('deleted_at')->nullable();

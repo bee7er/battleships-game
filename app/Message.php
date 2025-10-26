@@ -15,6 +15,8 @@ class Message extends Model
     const MESSAGE_ACCEPT = "Hi %s, I will love playing '%s' with you. %s";
     const MESSAGE_READY = "Hi %s and %s, I'm happy to say that '%s' is ready to play. System";
     const MESSAGE_WAITING = "Hi %s, %s is waiting for you to finish plotting your fleet in the '%s' game. System";
+    const MESSAGE_WINNER = "Hi %s, you won the '%s' game.  Well done. System";
+    const MESSAGE_LOSER = "Hi %s, sadly you lost the '%s' game.  Try again later. System";
 
     /**
      * The database table used by the model.
