@@ -72,3 +72,26 @@ function ajaxCall(url, data, callBackFunction) {
             }
         });
     };
+
+/* ************************ */
+
+/**
+ * Check for the issuing of a sound
+ */
+function checkForSound(locationStatus)
+{
+    if ('hit' == locationStatus) {
+        playAudio('hit');
+    } else if ('destroyed' == locationStatus) {
+        playAudio('destroyed');
+    }
+}
+
+/**
+ * Play audio
+ */
+function playAudio(sound)
+{
+    let audio = new Audio('sounds/' + sound + '.wav');
+    audio.play();
+}

@@ -121,6 +121,11 @@ use App\Game;
                 <div>
                     <button class="button bs-random_button" onclick="return stopPlottingMoves();">Stop Replay</button>
                 </div>
+                <div class="is-pulled-right mr-6 bs-show-deleted">
+                    <label class="checkbox">
+                        <input type="checkbox" class="" id="useSound" value="1" onclick="setUseSound(this)" checked /> Use sound
+                    </label>
+                </div>
             </div>
 
             <div class="column">
@@ -369,6 +374,7 @@ use App\Game;
 
         // We are going to plot each move in turn
         let intervalId;
+        let originalStatus = '';
         function startPlottingMoves()
         {
             clearGrid();
@@ -376,6 +382,11 @@ use App\Game;
                 // Restore all moves from cloned backup
                 allMoves = allMovesClone;
             }
+
+            let gameStatusElem = $('#gameStatus');
+            originalStatus = gameStatusElem.html();
+            gameStatusElem.html('Replaying');
+
             plotFleetLocations();
             gameOver = false;
             setMyGoOrTheirGo();
@@ -387,6 +398,8 @@ use App\Game;
             clearInterval(intervalId);
             // release our intervalId from the variable
             intervalId = null;
+
+            $('#gameStatus').html(originalStatus);
         }
 
         /**
@@ -423,12 +436,15 @@ use App\Game;
             // Look for the fleet vessel, if found, check all locations, i.e. the various bits of the vessel
             let fleetVessels = (myGo ? theirFleetVessels: myFleetVessels);
             let fleetVessel = findFleetVesselByRowCol(row, col, fleetVessels);
-            if (null != fleetVessel) {
+            if (null == fleetVessel) {
+                playGameSound('splash');
+            } else {
                 // We have a hit, but check the status of all locations
                 newStatus = 'bs-pos-cell-hit';
                 if (fleetVessel.length == 1) {
                     fleetVessel.locations[0].status = '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED}}';
                     newStatus = 'bs-pos-cell-destroyed';
+                    playGameSound('destroyed');
                 } else {
                     // Set the status of the location that has been hit
                     for (let i=0; i<fleetVessel.locations.length; i++) {
@@ -444,6 +460,7 @@ use App\Game;
                         let loc = fleetVessel.locations[i];
                         if (loc.status != '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT}}') {
                             atLeastOneNotHit = true;
+                            playGameSound('hit');
                             break;
                         }
                     }
@@ -456,6 +473,7 @@ use App\Game;
                             setElemStatusClass(tableCell, 'bs-pos-cell-destroyed');
                         }
                         newStatus = 'bs-pos-cell-destroyed';
+                        playGameSound('destroyed');
                     }
                 }
             }
@@ -473,6 +491,21 @@ use App\Game;
             }
             // Not found, so not a hit.
             return null;
+        }
+
+        var playAllSounds = true;
+        function playGameSound(sound)
+        {
+            if (playAllSounds) {
+                playAudio(sound);
+            }
+        }
+        function setUseSound(elem)
+        {
+            playAllSounds = false;
+            if ($(elem).is(':checked')) {
+                playAllSounds = true;
+            }
         }
 
         $(document).ready( function()

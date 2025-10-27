@@ -283,9 +283,11 @@ use App\Game;
             theirFleetVesselByRowCol = findTheirFleetVesselByRowCol(row, col);
             if (null == theirFleetVesselByRowCol) {
                 showNotification('Sorry you missed');
+                playAudio('splash');
             } else {
                 showNotification('Bang! good shot, you have hit something');
                 $(elem).addClass('bs-pos-cell-hit');
+                playAudio('hit');
             }
 
             // Ok, notify the server of this move, me striking their fleet
@@ -430,6 +432,7 @@ use App\Game;
                     row: returnedMoveData.move.row,
                     col: returnedMoveData.move.col
                 };
+                console.log(returnedMoveData.affectedLocations);
                 // Update their fleet vessel location status
                 if (null != returnedMoveData.affectedLocations) {
                     for (let i = 0; i < returnedMoveData.affectedLocations.length; i++) {
@@ -440,6 +443,7 @@ use App\Game;
                             let fvl = fleetVessel.locations[j];
                             if (fvl.id == loc.fleetVesselLocationId) {
                                 fvl.status = loc.status;
+                                checkForSound(loc.status);
                                 break;
                             }
                         }
@@ -473,11 +477,11 @@ use App\Game;
          */
         function findMyFleetVessel(fleetVesselId)
         {
-            return findFleetVessel(fleetVesselId, myFleetVessels, 'my')
+            return findFleetVessel(fleetVesselId, myFleetVessels, 'my');
         }
         function findTheirFleetVessel(fleetVesselId)
         {
-            return findFleetVessel(fleetVesselId, theirFleetVessels, 'their')
+            return findFleetVessel(fleetVesselId, theirFleetVessels, 'their');
         }
         function findFleetVessel(fleetVesselId, fleetVessels, which)
         {

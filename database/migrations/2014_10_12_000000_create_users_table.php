@@ -22,6 +22,10 @@ class CreateUsersTable extends Migration
             $table->string('user_token', 16)->unique()->nullable()->default(null);
             $table->boolean('admin')->default(false);
             $table->rememberToken();
+            // Statistics used to run the leader board
+            $table->integer('games_played')->unsigned()->default(0);
+            $table->integer('vessels_destroyed')->unsigned()->default(0);
+            $table->integer('points_scored')->unsigned()->default(0);
             $table->timestamps();
         });
     }

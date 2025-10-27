@@ -36,7 +36,7 @@ class User extends Model implements AuthenticatableContract,
      *
      * @var array
      */
-    protected $fillable = ['name', 'email', 'password', 'user_token'];
+    protected $fillable = ['name', 'email', 'password', 'user_token', 'games_played', 'vessels_destroyed', 'points_scored'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -56,6 +56,27 @@ class User extends Model implements AuthenticatableContract,
         }
 
         return self::findOrFail($id);
+    }
+
+    /**
+     * Increase the user's game count
+     */
+    public static function addGameCount($id)
+    {
+        $user = self::getUser($id);
+        $user->games_played += 1;
+        $user->save();
+    }
+
+    /**
+     * Increase the user's destroyed vessel count and points
+     */
+    public static function addDestroyedCount($id, $points)
+    {
+        $user = self::getUser($id);
+        $user->vessels_destroyed += 1;
+        $user->points_scored += $points;
+        $user->save();
     }
 
     /**

@@ -270,6 +270,12 @@ class BattleshipsApiController extends Controller
 			$userId = $request->get('userId');
 			$gameId = $request->get('gameId');
 			$fleetId = $request->get('fleetId');
+			// Check if this is the first move by this user for this game
+			$userMoves = Move::getMoves($gameId, $userId);
+			if (!isset($userMoves) || count($userMoves) <= 0) {
+				// First move, bump up the game played counter
+				User::addGameCount($userId);
+			}
 			// We save this latest move.
 			$move = new Move();
 			$move->game_id = $gameId;
@@ -286,7 +292,7 @@ class BattleshipsApiController extends Controller
 				$fvl->move_id = $move->id;
 				$fvl->save();
 				// The strike has hit a vessel at that location.  Get all affected locations.
-				$affectedLocations = $this->getAffectedLocations($locationHit);
+				$affectedLocations = $this->getAffectedLocations($locationHit, $userId);
 			}
 
 			// Check if all fleet vessels have been destroyed, derives the game status as it currently stands
@@ -316,7 +322,7 @@ class BattleshipsApiController extends Controller
 	/**
 	 * A successful hit, find and returned all affected locations
 	 */
-	private function getAffectedLocations($locationHit)
+	private function getAffectedLocations($locationHit, $userId=null)
 	{
 		$affectedLocations = [];
 		$affectedLocations[] = ['fleetVesselId' => $locationHit->fleet_vessel_id, 'fleetVesselLocationId' => $locationHit->fleet_vessel_location_id,
@@ -334,9 +340,16 @@ class BattleshipsApiController extends Controller
 				break;
 			}
 		}
+
 		if (true == $isDestroyed) {
+			if (null != $userId) {
+				$fleetVessel = FleetVessel::getFleetVessel($locationHit->fleet_vessel_id);
+				// Vessel destroyed, bump up the destroyed and points counts
+				User::addDestroyedCount($userId, $fleetVessel->points);
+			}
+
 			$affectedLocations = [];
-			// Update the status of the various parts to to destroyed
+			// Update the status of the various parts to destroyed
 			foreach ($fleetVesselLocations as $fvl) {
 				$fvl->status = FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED;
 				$fvl->save();

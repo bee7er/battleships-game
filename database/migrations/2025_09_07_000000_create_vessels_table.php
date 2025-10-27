@@ -24,8 +24,8 @@ class CreateVesselsTable extends Migration
                 Vessel::VESSEL_TYPE_ZODIAC,
                 ]
             );
-            $table->integer('length');
-            $table->integer('points');
+            $table->integer('length')->unsigned();
+            $table->integer('points')->unsigned();
             $table->timestamps();
         });
     }
