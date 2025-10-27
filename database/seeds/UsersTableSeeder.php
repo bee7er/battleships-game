@@ -12,6 +12,14 @@ class UsersTableSeeder extends Seeder {
         DB::table('users')->delete();
 
         $user = new User();
+        $user->name = 'System';
+        $user->email = 'system@gmail.com';
+        $user->password = Hash::make('Freddo911');
+        $user->user_token = User::getNewToken();
+        $user->admin = true;
+        $user->save();
+
+        $user = new User();
         $user->name = 'brian';
         $user->email = 'brian@gmail.com';
         $user->password = Hash::make('Freddo911');

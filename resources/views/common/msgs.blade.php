@@ -6,7 +6,7 @@
                 <div class="fixed-grid has-1-cols">
                     <div class="grid">
                         @foreach ($msgs as $msgAry)
-                            <div class="cell bs-msgs">{{ $msgAry['message_text'] }} <a class="bs-msgs-link" href="javascript: markAsRead('{{ $msgAry['id'] }}')">mark as read</a></div>
+                            <div class="cell bs-msgs"><a class="bs-msgs-link" href="javascript: markAsRead('{{ $msgAry['id'] }}')">dismiss</a> {{ $msgAry['message_text'] }}</div>
                         @endforeach
                     </div>
                 </div>

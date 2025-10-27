@@ -24,6 +24,8 @@ class User extends Model implements AuthenticatableContract,
     const USER_STEVE = 'steve';
     const USER_DAVE = 'dave';
 
+    const SYSTEM_USER_NAME = 'System';
+
     /**
      * The database table used by the model.
      *
@@ -44,6 +46,14 @@ class User extends Model implements AuthenticatableContract,
      * @var array
      */
     protected $hidden = ['password', 'remember_token'];
+
+    /**
+     * Retrieve the system user
+     */
+    public static function systemUser()
+    {
+        return self::where("users.name", "=", self::SYSTEM_USER_NAME);
+    }
 
     /**
      * Retrieve a user

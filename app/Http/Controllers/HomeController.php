@@ -88,15 +88,17 @@ class HomeController extends Controller
 	 */
 	public function profile(Request $request)
 	{
-		$loggedIn = false;
-		if ($this->auth->check()) {
-			$loggedIn = true;
+		if (!$this->auth->check()) {
+			return redirect()->intended('error');
 		}
+
+		$loggedIn = true;
+		$user = $this->auth->user();
 
 		$errors = [];
 		$msgs = [];
 
-		return view('pages.profile', compact('loggedIn', 'errors', 'msgs'));
+		return view('pages.profile', compact('loggedIn', 'user', 'errors', 'msgs'));
 	}
 
 	/**

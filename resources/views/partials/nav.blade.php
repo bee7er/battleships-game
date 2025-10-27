@@ -22,6 +22,9 @@
                 <a class="navbar-item {{(Request::is('games') ? ' is-selected' : '')}}" href="{{ url('games') }}">
                     My Games
                 </a>
+                <a class="navbar-item {{(Request::is('leaderboard') ? ' is-selected' : '')}}" href="{{ url('leaderboard') }}">
+                    Leaderboard
+                </a>
             @endif
 
             <a class="navbar-item {{(Request::is('about') ? ' is-selected' : '')}}" href="{{ url('about') }}">

@@ -19,6 +19,7 @@ Route::post('/home', 'HomeController@index');
 
 Route::get('/error', 'HomeController@error');
 Route::get('/about', 'HomeController@about');
+
 Route::get('/profile', 'HomeController@profile');
 Route::get('/games', 'GamesController@index');
 Route::get('/addGame', 'GamesController@addGame');
@@ -30,6 +31,8 @@ Route::get('/acceptGame', 'GamesController@acceptGame');
 Route::post('/updateGame', 'GamesController@updateGame');
 Route::get('/replay', 'GamesController@replay');
 Route::get('/deleteGame', 'GamesController@deleteGame');
+
+Route::get('/leaderboard', 'LeaderboardController@index');
 
 /* API functions */
 Route::post('/setVesselLocation', 'API\BattleshipsApiController@setVesselLocation');

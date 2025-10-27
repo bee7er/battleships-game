@@ -93,11 +93,16 @@ hr {
     font-weight: bold;
 }
 
-
 .bs-msgs-link {
     color: #0000c4 !important;
     font-weight: bold;
     margin-left: 10px;
+}
+
+.bs-error-link {
+    color: #0000c4 !important;
+    font-weight: bold;
+    margin: 0;
 }
 
 .bs-add-link, .bs-show-deleted {

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title') home @parent @endsection
+@section('title') error @parent @endsection
 
 @section('content')
 
@@ -18,6 +18,8 @@
                             <div class="control">
                                 <p>Sorry, you need to be logged in to access that page</p>
                                 <p>This may be due to your session having timed out after a period of inactivity</p>
+                                <p>To renew the session just return to the <a class="bs-error-link" href="javascript: gotoUrl('errorForm', '/home')">home page</a></p>
+                                <p>You may have to login once more</p>
                             </div>
                         </div>
 

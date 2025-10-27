@@ -11,10 +11,20 @@
 
             <section class="hero">
                 <div class="hero-head">
-                    <p class="title">Home</p>
+                    <p class="title">Why Battleships?</p>
                 </div>
                 <div class="hero-body">
-                    Home page stuff here
+                    <div class="content">
+                        <p>The inspiration for writing this game came from a visit to the Newhaven Fort, on the south side of Newhaven, known as Seahaven. The fort recently had a major facelift and I took two of my grandsons there on a day trip to enjoy its many attractions.</p>
+
+                        <p>One such attraction was an animated version of Battleships, which my grandsons very much enjoyed.  I thought it would be fun to write an online version of the game for them to play against each other.</p>
+
+                        <p>I've probably spent too much time writing this version of the game, as it is more complicated than it might seem, given how easy it is to play the manual/verbal version using pieces of paper to record the location of the fleet.</p>
+
+                        <p>Plus, it looks as though the boys have moved on to K-pop Demon Hunters.</p>
+
+                        <p>Anyway, it was fun writing it and I hope there aren't any major bugs.</p>
+                    </div>
                 </div>
             </section>
         </div>

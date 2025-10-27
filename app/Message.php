@@ -18,9 +18,6 @@ class Message extends Model
     const MESSAGE_WINNER = "Hi %s, you won the '%s' game.  Well done. %s";
     const MESSAGE_LOSER = "Hi %s, sadly you lost the '%s' game.  Try again later. %s";
 
-    const SYSTEM_USER_ID = 9999;
-    const SYSTEM_USER_NAME = 'System';
-
     /**
      * The database table used by the model.
      *

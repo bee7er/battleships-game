@@ -48,12 +48,11 @@ class GamesController extends Controller
 	 */
 	public function index(Request $request)
 	{
-		$loggedIn = true;
 		if (!$this->auth->check()) {
 			return redirect()->intended('error');
 		}
 
-
+		$loggedIn = true;
 		$userId = $this->auth->user()->id;
 
 		$errors = [];
