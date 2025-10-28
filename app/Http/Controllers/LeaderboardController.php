@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Game;
 use App\Message;
+use App\User;
 use Exception;
 use Illuminate\Auth\Guard;
 use Illuminate\Http\Request;
@@ -48,10 +49,11 @@ class LeaderboardController extends Controller
 
 		$loggedIn = true;
 		$user = $this->auth->user();
+		$users = User::getLeaderboardUsers();
 
 		$errors = [];
 		$msgs = [];
 
-		return view('pages.leaderboard', compact('loggedIn', 'user', 'errors', 'msgs'));
+		return view('pages.leaderboard', compact('loggedIn', 'user', 'users', 'errors', 'msgs'));
 	}
 }

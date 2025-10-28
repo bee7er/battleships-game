@@ -48,11 +48,11 @@ class User extends Model implements AuthenticatableContract,
     protected $hidden = ['password', 'remember_token'];
 
     /**
-     * Retrieve the system user
+     * Retrieve a user
      */
     public static function systemUser()
     {
-        return self::where("users.name", "=", self::SYSTEM_USER_NAME);
+        return self::where("users.name", "=", self::USER_S);
     }
 
     /**
@@ -107,6 +107,26 @@ class User extends Model implements AuthenticatableContract,
             $builder
                 ->where("users.id", "<>", $exceptUserId);
         }
+
+        return $builder->get();
+    }
+
+    /**
+     * Retrieve all users for leaderboard
+     */
+    public static function getLeaderboardUsers()
+    {
+        $builder = self::select(
+            array(
+                'users.id',
+                'users.name',
+                'users.email',
+                'games_played',
+                'vessels_destroyed',
+                'points_scored'
+            )
+        )
+            ->orderBy("users.points_scored", "DESC");
 
         return $builder->get();
     }

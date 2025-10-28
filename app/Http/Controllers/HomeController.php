@@ -93,7 +93,12 @@ class HomeController extends Controller
 		}
 
 		$loggedIn = true;
-		$user = $this->auth->user();
+		$userId = $request->get('userId');
+		if (null != $userId) {
+			$user = User::getUser($userId);
+		} else {
+			$user = $this->auth->user();
+		}
 
 		$errors = [];
 		$msgs = [];

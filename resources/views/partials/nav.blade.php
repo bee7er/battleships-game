@@ -1,8 +1,8 @@
 <nav class="navbar" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
-        <a href="{{config('app.base_url')}}images/battleships.jpeg" target="_self">
-            <img class="bs-navbar-item" alt="" src="{{config('app.base_url')}}images/battleships.jpeg" width="100px" height="45px">
-        </a>
+        {{--<a href="{{config('app.base_url')}}images/battleships.jpeg" target="_self">--}}
+            {{--<img class="bs-navbar-item" alt="" src="{{config('app.base_url')}}images/battleships.jpeg" width="100px" height="45px">--}}
+        {{--</a>--}}
 
         <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
             <span aria-hidden="true"></span>

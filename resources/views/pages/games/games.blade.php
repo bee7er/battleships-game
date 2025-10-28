@@ -49,44 +49,46 @@ use App\Game;
 
                 @if (isset($games) && $games->count() > 0)
                     @foreach($games as $game)
-                    <tr>
-                        <td>{{$game->id}}</td>
-                        <td>{{$game->name}}</td>
-                        <td>{{$game->protagonist_name}}</td>
-                        <td>{{$game->opponent_name}}</td>
-                        <td>{{isset($game->fleet) ? $game->fleet->fleet_name: 'not set yet'}}</td>
-                        <td>{{$game->status}}</td>
-                        <td>{{$game->started_at}}</td>
-                        <td>{{$game->ended_at}}</td>
-                        <td>
-                            @if ($game->status != Game::STATUS_DELETED)
-                                @if ($game->status == Game::STATUS_EDIT
-                                 || $game->status == Game::STATUS_WAITING)
-                                    @if ($game->protagonist_id == $userId)
-                                        <div title="Edit the game"><a class="bs-games-button" href="javascript: gotoEdit({{$game->id}})">Edit</a></div>
-                                        <div title="Edit the game grid"><a class="bs-games-button" href="javascript: gotoEditGrid({{$game->id}})">Edit Grid</a></div>
-                                    @else
-                                        {{--Current user is an opponent in this game--}}
-                                        @if (isset($game->opponent_fleet))
+                        <tr>
+                            <td>{{$game->id}}</td>
+                            <td>{{$game->name}}</td>
+                            <td>{{$game->protagonist_name}}</td>
+                            <td>{{$game->opponent_name}}</td>
+                            <td>{{isset($game->fleet) ? $game->fleet->fleet_name: 'not set yet'}}</td>
+                            <td>{{$game->status}}</td>
+                            <td>{{$game->started_at}}</td>
+                            <td>{{$game->ended_at}}</td>
+                            <td>
+                                @if ($game->status == Game::STATUS_DELETED)
+                                    <div title="Visualize the game by replaying all the moves"><a class="bs-games-button" href="javascript: gotoReplay('{{$game->id}}')">Replay</a></div>
+                                @else
+                                    @if ($game->status == Game::STATUS_EDIT
+                                     || $game->status == Game::STATUS_WAITING)
+                                        @if ($game->protagonist_id == $userId)
+                                            <div title="Edit the game"><a class="bs-games-button" href="javascript: gotoEdit({{$game->id}})">Edit</a></div>
                                             <div title="Edit the game grid"><a class="bs-games-button" href="javascript: gotoEditGrid({{$game->id}})">Edit Grid</a></div>
                                         @else
-                                            <div title="Accept the game"><a class="bs-games-button" href="javascript: gotoAccept({{$game->id}})">Accept</a></div>
+                                            {{--Current user is an opponent in this game--}}
+                                            @if (isset($game->opponent_fleet))
+                                                <div title="Edit the game grid"><a class="bs-games-button" href="javascript: gotoEditGrid({{$game->id}})">Edit Grid</a></div>
+                                            @else
+                                                <div title="Accept the game"><a class="bs-games-button" href="javascript: gotoAccept({{$game->id}})">Accept</a></div>
+                                            @endif
+                                        @endif
+                                    @else
+                                        @if ($game->status == Game::STATUS_READY || $game->status == Game::STATUS_ENGAGED)
+                                            <div title="Start the game"><a class="bs-games-button" href="javascript: gotoEngage({{$game->id}})">Engage</a></div>
                                         @endif
                                     @endif
-                                @else
-                                    @if ($game->status == Game::STATUS_READY || $game->status == Game::STATUS_ENGAGED)
-                                        <div title="Start the game"><a class="bs-games-button" href="javascript: gotoEngage({{$game->id}})">Engage</a></div>
+                                    @if ($game->protagonist_id == $userId)
+                                        <div title="Delete the game"><a class="bs-games-button" href="javascript: gotoDelete('{{$game->id}}', '{{$game->name}}')">Delete</a></div>
+                                    @endif
+                                    @if ($game->status == Game::STATUS_COMPLETED)
+                                        <div title="Visualize the game by replaying all the moves"><a class="bs-games-button" href="javascript: gotoReplay('{{$game->id}}')">Replay</a></div>
                                     @endif
                                 @endif
-                                @if ($game->protagonist_id == $userId)
-                                    <div title="Delete the game"><a class="bs-games-button" href="javascript: gotoDelete('{{$game->id}}', '{{$game->name}}')">Delete</a></div>
-                                @endif
-                                @if ($game->status == Game::STATUS_COMPLETED)
-                                        <div title="Visualize the game by replaying all the moves"><a class="bs-games-button" href="javascript: gotoReplay('{{$game->id}}')">Replay</a></div>
-                                @endif
-                            @endif
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
                     @endforeach
                 @else
                     <tr>
