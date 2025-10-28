@@ -52,8 +52,8 @@ use App\Game;
                         <tr>
                             <td>{{$game->id}}</td>
                             <td>{{$game->name}}</td>
-                            <td>{{$game->protagonist_name}}</td>
-                            <td>{{$game->opponent_name}}</td>
+                            <td>{{$game->protagonist_name}} {{($game->protagonist_id == $game->winner_id ? '*': '')}}</td>
+                            <td>{{$game->opponent_name}} {{($game->opponent_id == $game->winner_id ? '*': '')}}</td>
                             <td>{{isset($game->fleet) ? $game->fleet->fleet_name: 'not set yet'}}</td>
                             <td>{{$game->status}}</td>
                             <td>{{$game->started_at}}</td>

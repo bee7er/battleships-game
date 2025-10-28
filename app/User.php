@@ -52,7 +52,7 @@ class User extends Model implements AuthenticatableContract,
      */
     public static function systemUser()
     {
-        return self::where("users.name", "=", self::USER_S);
+        return self::where("users.name", "=", self::SYSTEM_USER_NAME)->get()[0];
     }
 
     /**
@@ -126,6 +126,7 @@ class User extends Model implements AuthenticatableContract,
                 'points_scored'
             )
         )
+            ->where("users.name", "!=", self::SYSTEM_USER_NAME)
             ->orderBy("users.points_scored", "DESC");
 
         return $builder->get();

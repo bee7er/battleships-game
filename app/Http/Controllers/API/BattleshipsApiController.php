@@ -415,7 +415,9 @@ class BattleshipsApiController extends Controller
 		} catch(\Exception $exception) {
 			$result = 'Error';
 			$message = $exception->getMessage();
-			Log::info('Error in replaceFleetVesselLocations(): ' . $message);
+			$file = $exception->getFile();
+			$line = $exception->getLine();
+			Log::info('Error in replaceFleetVesselLocations(): ' . $message . ', file: ' . $file . ', line: ' . $line);
 		}
 
 		$returnData = [

@@ -165,6 +165,10 @@ class Game extends Model
         // If there are any moves, then it has started
         $moves = Move::getMoves($gameId);
         if (isset($moves) && count($moves) > 0) {
+            if (1 == count($moves)) {
+                // First move, set the game started datetime
+                $game->started_at = date('Y-m-d H:i:s');
+            }
             $gameStatus = self::STATUS_ENGAGED;
 
             $protagonistFleet = Fleet::getFleet($gameId, $game->protagonist_id);
@@ -197,6 +201,10 @@ class Game extends Model
                         [User::getUser($game->protagonist_id)->name,Game::getGame($game->id)->name,User::systemUser()->name]);
                     Message::addMessage($messageText, User::systemUser()->id, $game->protagonist_id);
                 }
+            }
+            if ($gameStatus == self::STATUS_COMPLETED) {
+                // Last move, set the game ended datetime
+                $game->ended_at = date('Y-m-d H:i:s');
             }
         } else {
             $protagonistReady = Fleet::isFleetReady($gameId, $game->protagonist_id);
