@@ -88,6 +88,8 @@ class AuthController extends Controller
             // Authentication passed...
             return redirect()->intended('/home');
         }
+
+        $errors[] = 'Email not found or an incorrect password was used.';
         return view('auth.login', compact('loggedIn', 'errors', 'msgs'));
     }
 

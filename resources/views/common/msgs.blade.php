@@ -1,7 +1,7 @@
 @if (count($msgs) > 0)
     <div class="container is-fluid">
         <section class="hero">
-            <div class="hero-body" style="padding: 10px 50px 10px 50px;margin: 0;">
+            <div class="hero-body bs-common-block">
                 <p class="bs-msgs-title">Please review the following message(s)</p>
                 <div class="fixed-grid has-1-cols">
                     <div class="grid">

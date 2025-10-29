@@ -36,7 +36,7 @@
             <div class="navbar-item">
                 <div class="buttons">
                     @if (Auth::guest())
-                        <a class="button is-light" href="{{url('auth/login')}}">
+                        <a class="navbar-item {{(Request::is('auth/login') ? ' is-selected' : '')}}" href="{{url('auth/login')}}">
                             Login
                         </a>
                     @else
