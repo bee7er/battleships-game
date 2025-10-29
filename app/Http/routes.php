@@ -8,10 +8,14 @@
 */
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 
-Route::get('auth/login', 'Auth\AuthController@getLogin');
-Route::post('auth/login', 'Auth\AuthController@postLogin');
-Route::get('auth/logout', 'Auth\AuthController@getLogout');
+//Log:info('in routes');
+/* Games section */
+Route::get('/auth/login', 'Auth\AuthController@getLogin');
+Route::post('/auth/login', 'Auth\AuthController@postLogin');
+Route::get('/auth/logout', 'Auth\AuthController@getLogout');
 
 Route::get('/', 'HomeController@index');
 Route::get('/home', 'HomeController@index');
@@ -42,3 +46,6 @@ Route::post('/markAsRead', 'API\BattleshipsApiController@markAsRead');
 Route::post('/getLatestOpponentMove', 'API\BattleshipsApiController@getLatestOpponentMove');
 Route::post('/strikeVesselLocation', 'API\BattleshipsApiController@strikeVesselLocation');
 Route::post('/replaceFleetVesselLocations', 'API\BattleshipsApiController@replaceFleetVesselLocations');
+
+/* Admin section */
+Route::get('/admin/dashboard', 'Admin\AdminController@index');

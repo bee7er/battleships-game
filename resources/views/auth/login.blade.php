@@ -8,7 +8,7 @@
             @include('common.msgs')
             @include('common.errors')
 
-            <form id="loginForm" action="/auth/login" method="POST" class="form-horizontal">
+            <form id="loginForm" action="{{env("BASE_URL", "/")}}auth/login" method="POST" class="form-horizontal">
                 {{ csrf_field() }}
 
                 <div class="field">
@@ -33,10 +33,10 @@
 
                 <div class="field is-grouped">
                     <div class="control">
-                        <button class="button is-link">Submit</button>
+                        <button type="submit" class="button is-link">Submit</button>
                     </div>
                     <div class="control">
-                        <button class="button is-link is-light" onclick="gotoUrl('loginForm', '/home')">Cancel</button>
+                        <button class="button is-link is-light" onclick="gotoUrl('loginForm', '{{env("BASE_URL", "/")}}home')">Cancel</button>
                     </div>
                 </div>
 

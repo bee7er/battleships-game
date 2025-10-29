@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Language;
 use Illuminate\Auth\Guard;
 use Illuminate\Http\Request;
 
@@ -40,16 +39,21 @@ class AdminController extends Controller
 	public function index(Request $request)
 	{
 		$loggedIn = false;
-		if ($this->auth->check()) {
-			$loggedIn = true;
+		if (!$this->auth->check()) {
+			return redirect()->intended('error');
 		}
+
+		$user = $this->auth->user();
+		if (!$user->admin) {
+			return redirect()->intended('error');
+		}
+
+		$loggedIn = true;
 
 		$errors = [];
 		$msgs = [];
-		$languageCode = self::getCurrentLanguageCode();
-		$languages = Language::getLanguages();
 
-		return view('pages.admin.admin', compact('languageCode', 'languages', 'loggedIn', 'errors', 'msgs'));
+		return view('pages.admin.admin', compact('loggedIn', 'errors', 'msgs'));
 	}
 
 }

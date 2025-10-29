@@ -3,16 +3,15 @@
 
 @section('content')
 
-    <div class="container is-fluid">
-        <div class="notification">
+    <section class="container is-fluid">
+
+        <article class="panel is-success">
+            <p class="panel-heading">Why Battleships?</p>
             @include('common.msgs')
             @include('common.errors')
             <input type="hidden" id="userToken" value="{{$userToken}}" />
 
             <section class="hero">
-                <div class="hero-head">
-                    <p class="title">Why Battleships?</p>
-                </div>
                 <div class="hero-body">
                     <div class="content">
                         <p>The inspiration for writing this game came from a visit to the Newhaven Fort, on the south side of Newhaven, known as Seahaven. The fort recently had a major facelift and I took two of my grandsons there on a day trip to enjoy its many attractions.</p>
@@ -27,8 +26,8 @@
                     </div>
                 </div>
             </section>
-        </div>
-    </div>
+        </article>
+    </section>
 
 @endsection
 

@@ -18,14 +18,14 @@
                             <div class="control">
                                 <p>Sorry, you need to be logged in to access that page</p>
                                 <p>This may be due to your session having timed out after a period of inactivity</p>
-                                <p>To renew the session just return to the <a class="bs-error-link" href="javascript: gotoUrl('errorForm', '/home')">home page</a></p>
+                                <p>To renew the session just return to the <a class="bs-error-link" href="javascript: gotoUrl('errorForm', '{{env("BASE_URL", "/")}}home')">home page</a></p>
                                 <p>You may have to login once more</p>
                             </div>
                         </div>
 
                         <div class="field is-grouped">
                             <div class="control">
-                                <button class="button is-link is-light" onclick="gotoUrl('errorForm', '/home')">Continue ...</button>
+                                <button class="button is-link is-light" onclick="gotoUrl('errorForm', '{{env("BASE_URL", "/")}}home')">Continue ...</button>
                             </div>
                         </div>
 

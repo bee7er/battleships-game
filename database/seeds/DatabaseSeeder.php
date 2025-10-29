@@ -16,12 +16,12 @@ class DatabaseSeeder extends Seeder
 
         $this->call(UsersTableSeeder::class);
         $this->call(VesselsTableSeeder::class);
-        $this->call(GamesTableSeeder::class);
+//        $this->call(GamesTableSeeder::class);
         $this->call(FleetTemplatesTableSeeder::class);
-        $this->call(FleetsTableSeeder::class);
-        $this->call(FleetVesselsTableSeeder::class);
-        $this->call(FleetVesselLocationsTableSeeder::class);
-        $this->call(MessagesTableSeeder::class);
+//        $this->call(FleetsTableSeeder::class);
+//        $this->call(FleetVesselsTableSeeder::class);
+//        $this->call(FleetVesselLocationsTableSeeder::class);
+//        $this->call(MessagesTableSeeder::class);
 
         Model::reguard();
     }

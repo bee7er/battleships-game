@@ -14,7 +14,7 @@ class UsersTableSeeder extends Seeder {
         $user = new User();
         $user->name = 'System';
         $user->email = 'system@gmail.com';
-        $user->password = Hash::make('Freddo911');
+        $user->password = Hash::make('battle101');
         $user->user_token = User::getNewToken();
         $user->admin = true;
         $user->save();
@@ -22,24 +22,71 @@ class UsersTableSeeder extends Seeder {
         $user = new User();
         $user->name = 'brian';
         $user->email = 'brian@gmail.com';
-        $user->password = Hash::make('Freddo911');
+        $user->password = Hash::make('battle101');
         $user->user_token = User::getNewToken();
         $user->admin = true;
         $user->save();
 
         $user = new User();
-        $user->name = 'steve';
-        $user->email = 'steve@gmail.com';
-        $user->password = Hash::make('Freddo911');
+        $user->name = 'phil';
+        $user->email = 'phil@gmail.com';
+        $user->password = Hash::make('battle101');
         $user->user_token = User::getNewToken();
         $user->admin = false;
         $user->save();
 
+        $user = new User();
+        $user->name = 'andrew';
+        $user->email = 'andrew@gmail.com';
+        $user->password = Hash::make('battle101');
+        $user->user_token = User::getNewToken();
+        $user->admin = false;
+        $user->save();
 
         $user = new User();
-        $user->name = 'dave';
-        $user->email = 'dave@gmail.com';
-        $user->password = Hash::make('Freddo911');
+        $user->name = 'greg';
+        $user->email = 'greg@gmail.com';
+        $user->password = Hash::make('battle101');
+        $user->user_token = User::getNewToken();
+        $user->admin = false;
+        $user->save();
+
+        $user = new User();
+        $user->name = 'tim';
+        $user->email = 'tim@gmail.com';
+        $user->password = Hash::make('battle101');
+        $user->user_token = User::getNewToken();
+        $user->admin = false;
+        $user->save();
+
+        $user = new User();
+        $user->name = 'ben';
+        $user->email = 'ben@gmail.com';
+        $user->password = Hash::make('battle101');
+        $user->user_token = User::getNewToken();
+        $user->admin = false;
+        $user->save();
+
+        $user = new User();
+        $user->name = 'russ';
+        $user->email = 'russ@gmail.com';
+        $user->password = Hash::make('battle101');
+        $user->user_token = User::getNewToken();
+        $user->admin = false;
+        $user->save();
+
+        $user = new User();
+        $user->name = 'kika';
+        $user->email = 'kika@gmail.com';
+        $user->password = Hash::make('battle101');
+        $user->user_token = User::getNewToken();
+        $user->admin = false;
+        $user->save();
+
+        $user = new User();
+        $user->name = 'ayndie';
+        $user->email = 'ayndie@gmail.com';
+        $user->password = Hash::make('battle101');
         $user->user_token = User::getNewToken();
         $user->admin = false;
         $user->save();

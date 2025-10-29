@@ -15,7 +15,7 @@
                 <div class="hero-body">
                     <div class="content">
 
-                        <form id="gameForm" action="/updateUser" method="POST" class="form-horizontal">
+                        <form id="gameForm" action="{{env("BASE_URL", "/")}}updateUser" method="POST" class="form-horizontal">
                             {{ csrf_field() }}
 
                             <input type="hidden" name="userId" id="userId" value="{{$user->id}}" />

@@ -197,6 +197,7 @@ class GamesController extends Controller
 		$userId = $this->auth->user()->id;
 		$gameId = $request->get('gameId');
 		$fleetId = 0;
+		$fleetLocationSize = 0;
 		$fleet = null;
 
 		$errors = [];

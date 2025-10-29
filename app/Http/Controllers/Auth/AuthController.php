@@ -60,7 +60,7 @@ class AuthController extends Controller
             $loggedIn = true;
         }
 
-        //dd(Hash::make('Freddo911'));
+        //dd(Hash::make('battle101'));
 
         $errors = [];
         $msgs = [];
@@ -81,15 +81,13 @@ class AuthController extends Controller
         if ($this->auth->check()) {
             $loggedIn = true;
         }
-
         $errors = [];
         $msgs = [];
 
         if (Auth::attempt(['email' => $request->get('email'), 'password' => $request->get('password')])) {
             // Authentication passed...
-            return redirect()->intended('home');
+            return redirect()->intended('/home');
         }
-
         return view('auth.login', compact('loggedIn', 'errors', 'msgs'));
     }
 

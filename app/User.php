@@ -101,6 +101,7 @@ class User extends Model implements AuthenticatableContract,
                 'users.email'
             )
         )
+            ->where("users.name", "<>", self::SYSTEM_USER_NAME)
             ->orderBy("users.name");
 
         if (isset($exceptUserId) && $exceptUserId > 0) {

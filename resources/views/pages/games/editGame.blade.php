@@ -15,7 +15,7 @@ use App\Game;
             @include('common.msgs')
             @include('common.errors')
 
-            <form id="gameForm" action="/updateGame" method="POST" class="form-horizontal">
+            <form id="gameForm" action="{{env("BASE_URL", "/")}}updateGame" method="POST" class="form-horizontal">
                 {{ csrf_field() }}
 
                 <input type="hidden" name="gameId" id="gameId" value="{{$game->id}}" />
@@ -131,7 +131,7 @@ use App\Game;
                 return false;
             }
 
-            f.attr('action', '/updateGame');
+            f.attr('action', '{{env("BASE_URL", "/")}}updateGame');
             f.submit();
             return false;
         }

@@ -17,7 +17,7 @@ $fleetId = 0;
             @include('common.msgs')
             @include('common.errors')
 
-            <form id="gameForm" action="/updateGame" method="POST" class="form-horizontal">
+            <form id="gameForm" action="{{env("BASE_URL", "/")}}updateGame" method="POST" class="form-horizontal">
                 {{ csrf_field() }}
 
                 <input type="hidden" name="gameId" id="gameId" value="{{$game->id}}" />
@@ -31,7 +31,7 @@ $fleetId = 0;
                             <td class="cell bs-status">
                                 <span id="gameStatus">{{ucfirst($game->status)}}</span>
                                 <span id="engageLink" class="is-pulled-right">
-                                    <a class="bs-games-button" href="javascript: location.href='/playGrid?gameId={{$game->id}}'">Engage</a>
+                                    <a class="bs-games-button" href="javascript: location.href='{{env("BASE_URL", "/")}}playGrid?gameId={{$game->id}}'">Engage</a>
                                 </span>
                             </td>
                         </tr>
@@ -87,23 +87,23 @@ $fleetId = 0;
                         <th class="cell">Status</th>
                         <th class="cell">Length</th>
                         <th class="cell">Points</th>
-                        <th class="cell">Id</th>
                     </tr>
 
-                    @foreach ($fleet as $fleetVessel)
-                        <?php $fleetId = $fleetVessel->id; ?>
-                        <tr class="" onclick="selectRow('{{$fleetVessel->fleet_vessel_id}}')">
-                            <td class="cell">
-                                <input type="radio" id="radio_id_{{$fleetVessel->fleet_vessel_id}}"
-                                       name="vessel" value="{{$fleetVessel->fleet_vessel_id}}" onclick="onClickSelectVessel(this);" />
-                            </td>
-                            <td class="cell" id="name_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->vessel_name}}</td>
-                            <td class="cell" id="status_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->status}}</td>
-                            <td class="cell" id="length_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->length}}</td>
-                            <td class="cell" id="points_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->points}}</td>
-                            <td class="cell" id="points_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->fleet_vessel_id}}</td>
-                        </tr>
-                    @endforeach
+                    @if (isset($fleet) && count($fleet) > 0)
+                        @foreach ($fleet as $fleetVessel)
+                            <?php $fleetId = $fleetVessel->id; ?>
+                            <tr class="" onclick="selectRow('{{$fleetVessel->fleet_vessel_id}}')">
+                                <td class="cell">
+                                    <input type="radio" id="radio_id_{{$fleetVessel->fleet_vessel_id}}"
+                                           name="vessel" value="{{$fleetVessel->fleet_vessel_id}}" onclick="onClickSelectVessel(this);" />
+                                </td>
+                                <td class="cell" id="name_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->vessel_name}}</td>
+                                <td class="cell" id="status_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->status}}</td>
+                                <td class="cell" id="length_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->length}}</td>
+                                <td class="cell" id="points_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->points}}</td>
+                            </tr>
+                        @endforeach
+                    @endif
 
                     </tbody>
                 </table>
@@ -193,31 +193,33 @@ $fleetId = 0;
         var fleetLocationSize = {{$fleetLocationSize}};
 
         // Load all the existing data for the fleet
-        @foreach ($fleet as $fleetVessel)
+        @if (isset($fleet) && count($fleet) > 0)
+            @foreach ($fleet as $fleetVessel)
 
-            fleetVesselLocations = [];
+                fleetVesselLocations = [];
 
-            @foreach ($fleetVessel->locations as $fleetVesselLocation)
-                fleetVesselLocations[fleetVesselLocations.length] = {
-                    id: {{$fleetVesselLocation['id']}},
-                    fleet_vessel_id: {{$fleetVesselLocation['fleet_vessel_id']}},
-                    row: {{$fleetVesselLocation['row']}},
-                    col: {{$fleetVesselLocation['col']}},
-                    vessel_name: '{{$fleetVesselLocation['vessel_name']}}',
+                @foreach ($fleetVessel->locations as $fleetVesselLocation)
+                    fleetVesselLocations[fleetVesselLocations.length] = {
+                        id: {{$fleetVesselLocation['id']}},
+                        fleet_vessel_id: {{$fleetVesselLocation['fleet_vessel_id']}},
+                        row: {{$fleetVesselLocation['row']}},
+                        col: {{$fleetVesselLocation['col']}},
+                        vessel_name: '{{$fleetVesselLocation['vessel_name']}}',
+                    };
+                @endforeach
+
+                fleetVessel = {
+                    fleetVesselId: {{$fleetVessel->fleet_vessel_id}},
+                    vessel_name: '{{$fleetVessel->vessel_name}}',
+                    status: '{{$fleetVessel['status']}}',
+                    length: {{$fleetVessel->length}},
+                    points: {{$fleetVessel->points}},
+                    locations: fleetVesselLocations
                 };
+
+                fleetVessels[fleetVessels.length] = fleetVessel;
             @endforeach
-
-            fleetVessel = {
-                fleetVesselId: {{$fleetVessel->fleet_vessel_id}},
-                vessel_name: '{{$fleetVessel->vessel_name}}',
-                status: '{{$fleetVessel['status']}}',
-                length: {{$fleetVessel->length}},
-                points: {{$fleetVessel->points}},
-                locations: fleetVesselLocations
-            };
-
-            fleetVessels[fleetVessels.length] = fleetVessel;
-        @endforeach
+        @endif
 
         /**
          * Allocates a cell to a vessel
