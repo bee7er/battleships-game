@@ -220,3 +220,18 @@ hr {
     padding: 10px 50px 10px 50px;
     margin: 0;
 }
+
+.bs-leaderboard-first {
+    background-color: #d4af37 !important;
+    color: #555;
+}
+
+.bs-leaderboard-second {
+    background-color: #c0c0c0 !important;
+    color: #555;
+}
+
+.bs-leaderboard-third {
+    background-color: #cd7f32 !important;
+    color: #555;
+}

@@ -114,6 +114,7 @@ $fleetId = 0;
                 <table class="table is-bordered bs-plot-table">
                     <tbody>
                     <tr class=""><td class="bs-pos-key-blank bs-table-title" colspan="2">Key to colours:</td></tr>
+                    <tr class=""><td class="bs-pos-key-available">&nbsp;</td><td class="bs-pos-key-blank">Available location</td></tr>
                     <tr class=""><td class="bs-pos-key-started">&nbsp;</td><td class="bs-pos-key-blank">Vessel started</td></tr>
                     <tr class=""><td class="bs-pos-key-plotted">&nbsp;</td><td class="bs-pos-key-blank">Vessel plotted</td></tr>
                     </tbody>

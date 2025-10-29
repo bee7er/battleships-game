@@ -19,7 +19,6 @@
                 <table class="table is-fullwidth is-bordered is-striped">
                     <thead>
                     <tr>
-                        <th>Id</th>
                         <th>Name</th>
                         <th>Games Played</th>
                         <th>Vessels Destroyed</th>
@@ -29,7 +28,6 @@
                     </thead>
                     <tfoot>
                     <tr>
-                        <th>Id</th>
                         <th>Name</th>
                         <th>Games Played</th>
                         <th>Vessels Destroyed</th>
@@ -39,10 +37,20 @@
                     </tfoot>
                     <tbody>
 
+                    <?php
+                        $first = 'bs-leaderboard-first';
+                        $second = 'bs-leaderboard-second';
+                        $third = 'bs-leaderboard-third';
+                    ?>
                     @if (isset($users) && $users->count() > 0)
                         @foreach($users as $user)
-                            <tr>
-                                <td>{{$user->id}}</td>
+                            <?php
+                                    $class = '';
+                                    if ($first) { $class = $first; $first = null; }
+                                    elseif ($second) { $class = $second; $second = null; }
+                                    elseif ($third) { $class = $third; $third = null; }
+                            ?>
+                            <tr class="{{$class}}">
                                 <td>{{$user->name}}</td>
                                 <td>{{$user->games_played}}</td>
                                 <td>{{$user->vessels_destroyed}}</td>
