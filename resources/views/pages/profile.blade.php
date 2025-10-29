@@ -4,14 +4,12 @@
 @section('content')
 
     <div class="container is-fluid">
-        <div class="notification">
+        <article class="panel is-success">
+            <p class="panel-heading">Your Profile</p>
             @include('common.msgs')
             @include('common.errors')
 
             <section class="hero">
-                <div class="hero-head">
-                    <p class="title">Profile</p>
-                </div>
                 <div class="hero-body">
                     <div class="content">
 
@@ -69,7 +67,8 @@
                     </div>
                 </div>
             </section>
-        </div>
+
+        </article>
 
     </div>
 

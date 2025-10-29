@@ -53,7 +53,7 @@
                                     @endif
                                 @endif
                                 <a class="navbar-item {{(Request::is('profile') ? ' is-selected' : '')}}" href="{{ url('profile') }}">
-                                    Profile
+                                    Your Profile
                                 </a>
                                 <hr class="navbar-divider">
                                 <a class="navbar-item" href="{{ url('auth/logout') }}">
