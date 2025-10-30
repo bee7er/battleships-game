@@ -21,4 +21,27 @@
         }
     }
 
+
+    /**
+     * Check for the issuing of a sound
+     */
+    function checkForSound(locationStatus)
+    {
+        if ('hit' == locationStatus) {
+            playGameSound('hit');
+        } else if ('destroyed' == locationStatus) {
+            playGameSound('destroyed');
+        }
+        // else, no sound
+    }
+
+    /**
+     * Play audio
+     */
+    function playAudio(sound)
+    {
+        let audio = new Audio('sounds/' + sound + '.wav');
+        audio.play();
+    }
+
 </script>
