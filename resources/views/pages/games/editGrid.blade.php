@@ -681,7 +681,10 @@ $fleetId = 0;
          */
         function selectRow(fleetVesselId)
         {
-            $('#radio_id_' + fleetVesselId).prop('checked', true);
+            let elem = $('#radio_id_' + fleetVesselId);
+            elem.prop('checked', true);
+            // Process the selected eleemnt
+            onClickSelectVessel(elem.get(0));
         }
 
         /**
@@ -729,6 +732,8 @@ $fleetId = 0;
         {
             randomMode = true;
 
+            // Uncheck all radio buttons.  User must cancel random to continue editing locations.
+            $("input[type='radio'][name='vessel']").prop('checked', false);
             let cells = clearGrid();
             cells.addClass('unoccupied');       // Sets all cells as being available
 

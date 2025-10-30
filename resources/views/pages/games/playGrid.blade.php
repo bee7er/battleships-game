@@ -432,7 +432,6 @@ use App\Game;
                     row: returnedMoveData.move.row,
                     col: returnedMoveData.move.col
                 };
-                console.log(returnedMoveData.affectedLocations);
                 // Update their fleet vessel location status
                 if (null != returnedMoveData.affectedLocations) {
                     for (let i = 0; i < returnedMoveData.affectedLocations.length; i++) {
@@ -597,6 +596,7 @@ use App\Game;
         }
         function checkForChanges()
         {
+            console.log('============');
             // We call across to the server to see if they have struck my grid
             // We find their latest move and see if it has impacted my fleet
             let moveData = {
