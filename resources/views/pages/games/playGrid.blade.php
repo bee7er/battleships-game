@@ -112,6 +112,9 @@ use App\Game;
                     <tr class=""><td class="bs-pos-key-destroyed">&nbsp;</td><td class="bs-pos-cell-blank">Vessel destroyed</td></tr>
                     </tbody>
                 </table>
+
+                @include('partials.sound')
+
             </div>
 
             <div class="column">
@@ -283,11 +286,11 @@ use App\Game;
             theirFleetVesselByRowCol = findTheirFleetVesselByRowCol(row, col);
             if (null == theirFleetVesselByRowCol) {
                 showNotification('Sorry you missed');
-                playAudio('splash');
+                playGameSound('splash');
             } else {
                 showNotification('Bang! good shot, you have hit something');
                 $(elem).addClass('bs-pos-cell-hit');
-                playAudio('hit');
+                playGameSound('hit');
             }
 
             // Ok, notify the server of this move, me striking their fleet
@@ -596,7 +599,6 @@ use App\Game;
         }
         function checkForChanges()
         {
-            console.log('============');
             // We call across to the server to see if they have struck my grid
             // We find their latest move and see if it has impacted my fleet
             let moveData = {

@@ -250,4 +250,19 @@ class Game extends Model
         $this->save();
     }
 
+    /**
+     * Get a count of the number of wins by the specified user
+     */
+    public static function getWinnerCount($userId)
+    {
+        $wins = self::select('*')
+            ->where("games.winner_id", "=", $userId)->get();
+
+        if (isset($wins) && count($wins) > 0) {
+            return count($wins);
+        }
+
+        return 0;
+    }
+
 }

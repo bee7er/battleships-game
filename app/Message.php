@@ -18,6 +18,8 @@ class Message extends Model
     const MESSAGE_WINNER = "Hi %s, you won the '%s' game.  Well done. %s";
     const MESSAGE_LOSER = "Hi %s, sadly you lost the '%s' game.  Try again later. %s";
 
+    const MESSAGE_BROADCAST_GAMES_WON = "Hi %s, System";
+
     /**
      * The database table used by the model.
      *
@@ -104,6 +106,23 @@ class Message extends Model
         $messageText = sprintf($message, $msgDataAry[0], $msgDataAry[1], $msgDataAry[2]);
 
         return $messageText;
+    }
+
+    /**
+     * Send a message to all users
+     */
+    public static function broadcastMessage($users, $systemUserId, $messageText)
+    {
+        if (isset($users) && count($users) > 0) {
+            foreach ($users as $user) {
+                $message = Message::getMessage();
+                $message->message_text = $messageText;
+                $message->status = self::STATUS_OPEN;
+                $message->sending_user_id = $systemUserId;
+                $message->receiving_user_id = $user->id;
+                $message->save();
+            }
+        }
     }
 
 }

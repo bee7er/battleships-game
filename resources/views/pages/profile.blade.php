@@ -46,6 +46,14 @@
                                 </tr>
                                 <tr class="">
                                     <td class="cell bs-section-title">
+                                        Games won:
+                                    </td>
+                                    <td class="cell">
+                                        {{$user->wins}}
+                                    </td>
+                                </tr>
+                                <tr class="">
+                                    <td class="cell bs-section-title">
                                         Vessels destroyed:
                                     </td>
                                     <td class="cell">

@@ -130,7 +130,14 @@ class User extends Model implements AuthenticatableContract,
             ->where("users.name", "!=", self::SYSTEM_USER_NAME)
             ->orderBy("users.points_scored", "DESC");
 
-        return $builder->get();
+        $users = $builder->get();
+        if (isset($users) && count($users) > 0) {
+            foreach ($users as &$user) {
+                $user->wins = Game::getWinnerCount($user->id);
+            }
+        }
+
+        return $users;
     }
 
     /**

@@ -121,11 +121,9 @@ use App\Game;
                 <div>
                     <button class="button bs-random_button" onclick="return stopPlottingMoves();">Stop Replay</button>
                 </div>
-                <div class="is-pulled-right mr-6 bs-show-deleted">
-                    <label class="checkbox">
-                        <input type="checkbox" class="" id="useSound" value="1" onclick="setUseSound(this)" checked /> Use sound
-                    </label>
-                </div>
+
+                @include('partials.sound')
+
             </div>
 
             <div class="column">
@@ -491,21 +489,6 @@ use App\Game;
             }
             // Not found, so not a hit.
             return null;
-        }
-
-        var playAllSounds = true;
-        function playGameSound(sound)
-        {
-            if (playAllSounds) {
-                playAudio(sound);
-            }
-        }
-        function setUseSound(elem)
-        {
-            playAllSounds = false;
-            if ($(elem).is(':checked')) {
-                playAllSounds = true;
-            }
         }
 
         $(document).ready( function()

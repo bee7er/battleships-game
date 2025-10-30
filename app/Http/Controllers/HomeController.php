@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Game;
 use App\User;
 use App\Message;
 use Exception;
@@ -31,6 +32,18 @@ class HomeController extends Controller
 	public function __construct(Guard $auth)
 	{
 		$this->auth = $auth;
+	}
+
+	/**
+	 * CHeck if a broadcast message is needed
+	 */
+	public function checkForBroadcastMessage(Guard $auth)
+	{
+		// TODO: Continue
+		$users = [];
+		$systemUserId = 0;
+		$messageText = '';
+		Message::broadcastMessage($users, $systemUserId, $messageText);
 	}
 
 	/**
@@ -99,6 +112,8 @@ class HomeController extends Controller
 		} else {
 			$user = $this->auth->user();
 		}
+
+		$user->wins = Game::getWinnerCount($user->id);
 
 		$errors = [];
 		$msgs = [];

@@ -21,6 +21,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Games Played</th>
+                        <th>Games Won</th>
                         <th>Vessels Destroyed</th>
                         <th>Points Scored</th>
                         <th>Action</th>
@@ -30,6 +31,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Games Played</th>
+                        <th>Games Won</th>
                         <th>Vessels Destroyed</th>
                         <th>Points Scored</th>
                         <th>Action</th>
@@ -53,6 +55,7 @@
                             <tr class="{{$class}}">
                                 <td>{{$user->name}}</td>
                                 <td>{{$user->games_played}}</td>
+                                <td>{{$user->wins}}</td>
                                 <td>{{$user->vessels_destroyed}}</td>
                                 <td>{{$user->points_scored}}</td>
                                 <td><div title="User profile"><a class="bs-games-button" href="javascript: location.href='/profile?userId={{$user->id}}'">Profile</a></div></td>
