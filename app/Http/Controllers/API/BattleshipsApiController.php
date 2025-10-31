@@ -77,6 +77,7 @@ class BattleshipsApiController extends Controller
 		$message = "Data received OK";
 		$result = 'Error';
 		$gameStatus = 'unknown';
+		$winnerId = null;
 
 		try {
 			// User token must be provided and valid for all API calls
@@ -85,6 +86,7 @@ class BattleshipsApiController extends Controller
 			$gameId = $request->get('gameId');
 			$game = Game::getGame($gameId);
 			$gameStatus = ucfirst($game->status);
+			$winnerId = $game->winner_id;
 
 			$result = 'OK';
 
@@ -97,7 +99,7 @@ class BattleshipsApiController extends Controller
 		$returnData = [
 			"message" => $message,
 			"result" => $result,
-			"returnedData" => $gameStatus
+			"returnedData" => ['gameStatus' => $gameStatus, 'winnerId' => $winnerId]
 		];
 
 		return $returnData;   // Gets converted to json

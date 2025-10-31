@@ -290,11 +290,7 @@ class GamesController extends Controller
 			}
 
             // We use the total count of moves to determine whose go it is
-            $moveCount = 0 ;
-            $totalMoves = Move::getMoves($gameId);
-            if (isset($totalMoves)) {
-                $moveCount += count($totalMoves);
-            }
+			$latestMove = Move::latest()->first();
 
 			// We must be careful to distinguish between the game owner and the opponent, because
 			// when we get to the play grid it can be either.  We will call it 'myFleet' and 'theirFleet'
@@ -304,11 +300,11 @@ class GamesController extends Controller
 			if ($currentUserIsProtagonist) {
 				$theirUser = User::getUser($game->opponent_id);
 				$theirFleet = Fleet::getFleetDetails($gameId, $game->opponent_id);
-				$myGo = ($moveCount % 2 == 0) ? true: false;
+				$myGo = ($latestMove == null) ? true: ($latestMove->player_id != $myUser->id);
 			} else {
 				$theirUser = User::getUser($game->protagonist_id);
 				$theirFleet = Fleet::getFleetDetails($gameId, $game->protagonist_id);
-				$myGo = ($moveCount % 2 == 0) ? false: true;
+				$myGo = ($latestMove == null) ? false:  ($latestMove->player_id != $myUser->id);
 			}
 
             $myMoves = Move::getMoves($gameId, $myUser->id);

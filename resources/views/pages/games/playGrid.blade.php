@@ -176,8 +176,9 @@ use App\Game;
         var myName = '{{ucfirst($myUser->name)}}';
         var theirName = '{{ucfirst($theirUser->name)}}';
         var gameOver = ('{{Game::STATUS_COMPLETED}}' == '{{$game->status}}');
+        var winnerId = {{$game->winner_id}};
         if (gameOver) {
-            setMyGoOrTheirGo();
+            setMyGoOrTheirGo(winnerId);
         }
 
         // Load all the existing data for the fleet
@@ -261,7 +262,7 @@ use App\Game;
         {
             if (gameOver) {
                 showNotification('The game is now over');
-                setMyGoOrTheirGo();
+                setMyGoOrTheirGo(winnerId);
                 return false;
             }
 
@@ -390,6 +391,7 @@ use App\Game;
                 };
 
                 // Update my fleet vessel location status
+                let hitOrDestroyed = false;
                 if (null != returnedMoveData.affectedLocations) {
                     for (let i=0; i<returnedMoveData.affectedLocations.length; i++) {
                         let loc = returnedMoveData.affectedLocations[i];
@@ -399,6 +401,10 @@ use App\Game;
                             let fvl = fleetVessel.locations[j];
                             if (fvl.id == loc.fleetVesselLocationId) {
                                 fvl.status = loc.status;
+                                if (loc.status == '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT}}'
+                                        || loc.status == '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED}}') {
+                                    hitOrDestroyed = true;
+                                }
                                 break;
                             }
                         }
@@ -407,10 +413,15 @@ use App\Game;
                 plotMoveLocations();
                 plotFleetLocations();
 
-                stopCheckingForMoves();
+                if (hitOrDestroyed) {
+                    // We allow the opponent user to continue firing
+                } else {
+                    // We stop checking for moves, as it is my go
+                    stopCheckingForMoves();
 
-                myGo = true;
-                setMyGoOrTheirGo();
+                    myGo = true;
+                    setMyGoOrTheirGo(winnerId);
+                }
 
                 let statusCheck = {
                     gameId: gameId,
@@ -436,6 +447,7 @@ use App\Game;
                     col: returnedMoveData.move.col
                 };
                 // Update their fleet vessel location status
+                let hitOrDestroyed = false;
                 if (null != returnedMoveData.affectedLocations) {
                     for (let i = 0; i < returnedMoveData.affectedLocations.length; i++) {
                         let loc = returnedMoveData.affectedLocations[i];
@@ -446,6 +458,10 @@ use App\Game;
                             if (fvl.id == loc.fleetVesselLocationId) {
                                 fvl.status = loc.status;
                                 checkForSound(loc.status);
+                                if (loc.status == '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT}}'
+                                        || loc.status == '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED}}') {
+                                    hitOrDestroyed = true;
+                                }
                                 break;
                             }
                         }
@@ -455,11 +471,15 @@ use App\Game;
                 plotMoveLocations();
                 plotFleetLocations();
 
-                // Now we poll the server for their response
-                startCheckingForMoves();
+                if (hitOrDestroyed) {
+                    // We allow the current user to continue firing
+                } else {
+                    // Now we poll the server for their response
+                    startCheckingForMoves();
 
-                myGo = false;
-                setMyGoOrTheirGo();
+                    myGo = false;
+                    setMyGoOrTheirGo(winnerId);
+                }
             }
 
             // I have just made a move, so we want to check for moves by me and the
@@ -540,12 +560,13 @@ use App\Game;
         /**
          * Callback function to handle the asynchronous Ajax call
          */
-        function setGameStatusCallback(returnedGameStatus)
+        function setGameStatusCallback(returnedData)
         {
-            $('#gameStatus').html(returnedGameStatus);
-            gameOver = ('{{Game::STATUS_COMPLETED}}' == returnedGameStatus.toLowerCase());
+            $('#gameStatus').html(returnedData.gameStatus);
+            gameOver = ('{{Game::STATUS_COMPLETED}}' == returnedData.gameStatus.toLowerCase());
             if (gameOver) {
-                setMyGoOrTheirGo();
+                winnerId = returnedData.winnerId;
+                setMyGoOrTheirGo(winnerId);
             }
         }
 
@@ -562,14 +583,14 @@ use App\Game;
         /**
          * Set whether it is my go or not, or whether I won or not
          */
-        function setMyGoOrTheirGo()
+        function setMyGoOrTheirGo(winnerId)
         {
             if (gameOver) {
-                if (myGo) {
-                    $('#myGoId').addClass('bs-status').html(myName + " YOU LOST !! :o(");
+                if (winnerId == myUserId) {
+                    $('#myGoId').addClass('bs-status').html(myName + " YOU WON !! ;o)");
                     $('#theirGoId').removeClass('bs-status').html(theirName);
                 } else {
-                    $('#myGoId').addClass('bs-status').html(myName + " YOU WON !! ;o)");
+                    $('#myGoId').addClass('bs-status').html(myName + " YOU LOST !! :o(");
                     $('#theirGoId').removeClass('bs-status').html(theirName);
                 }
             } else {
@@ -618,10 +639,10 @@ use App\Game;
 
             plotFleetLocations();
 
-            setMyGoOrTheirGo();
+            setMyGoOrTheirGo(winnerId);
 
             if (gameOver) {
-                showNotification('Great game is now over');
+                showNotification('The game is now over');
             } else {
 
                 if (!myGo) {
