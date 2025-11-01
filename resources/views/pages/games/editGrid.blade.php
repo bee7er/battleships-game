@@ -227,6 +227,11 @@ $fleetId = 0;
          */
         function onClickAllocateCell(elem)
         {
+            if (allVesselsPlotted()) {
+                showNotification('All the vessels have been plotted.');
+                return false;
+            }
+
             if (true == randomMode) {
                 showNotification('Cancel random allocation of vessels to continue');
                 return false;
@@ -668,9 +673,9 @@ $fleetId = 0;
          */
         function setGameStatus(returnedGameStatus)
         {
-            $('#gameStatus').html(returnedGameStatus);
-            if ('{{Game::STATUS_READY}}' == returnedGameStatus.toLowerCase()
-                    || '{{Game::STATUS_ENGAGED}}' == returnedGameStatus.toLowerCase()
+            $('#gameStatus').html(returnedGameStatus.gameStatus);
+            if ('{{Game::STATUS_READY}}' == returnedGameStatus.gameStatus.toLowerCase()
+                    || '{{Game::STATUS_ENGAGED}}' == returnedGameStatus.gameStatus.toLowerCase()
             ) {
                 $('#engageLink').show();
             }
@@ -868,6 +873,21 @@ $fleetId = 0;
             let fleetVesselLocationCount = returnedFleetVesselData.fleetVesselLocationCount;
 
             location.reload();
+        }
+
+        /**
+         * Examine the vessels, are they all plotted?
+         */
+        function allVesselsPlotted()
+        {
+            let allPlotted  = true;
+            for (let i=0; i<fleetVessels.length; i++) {
+                let fleetVessel = fleetVessels[i];
+                if (fleetVessel.status != '{{FleetVessel::FLEET_VESSEL_PLOTTED}}') {
+                    allPlotted = false;
+                }
+            }
+            return allPlotted;
         }
 
         /**
