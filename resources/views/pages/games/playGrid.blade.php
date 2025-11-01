@@ -177,6 +177,8 @@ use App\Game;
         var theirName = '{{ucfirst($theirUser->name)}}';
         var gameOver = ('{{Game::STATUS_COMPLETED}}' == '{{$game->status}}');
         var winnerId = {{$game->winner_id}};
+        var yourGoText = ' << Your go!';
+        var youGetAnotherGo = ' << You get another go!';
         if (gameOver) {
             setMyGoOrTheirGo(winnerId);
         }
@@ -473,6 +475,7 @@ use App\Game;
 
                 if (hitOrDestroyed) {
                     // We allow the current user to continue firing
+                    setYourGoText(youGetAnotherGo);
                 } else {
                     // Now we poll the server for their response
                     startCheckingForMoves();
@@ -595,13 +598,18 @@ use App\Game;
                 }
             } else {
                 if (myGo) {
-                    $('#myGoId').addClass('bs-status').html(myName + ' << Your go!');
+                    $('#myGoId').addClass('bs-status').html(myName + yourGoText);
                     $('#theirGoId').removeClass('bs-status').html(theirName);
                 } else {
                     $('#theirGoId').addClass('bs-status').html(theirName + ' << Their go!');
                     $('#myGoId').removeClass('bs-status').html(myName);
                 }
             }
+        }
+
+        function setYourGoText(theText)
+        {
+            $('#myGoId').addClass('bs-status').html(myName + theText);
         }
 
         // Call across to the server to see if there have been any changes
