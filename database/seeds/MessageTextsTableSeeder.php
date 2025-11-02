@@ -60,5 +60,12 @@ class MessageTextsTableSeeder extends Seeder {
         $messageText->type = MessageText::TYPE_BROADCAST;
         $messageText->status = MessageText::STATUS_READY;
         $messageText->save();
+
+        $messageText = new MessageText();
+        $messageText->name = MessageText::MESSAGE_BROADCAST_VOLUME_RANGE;
+        $messageText->text = "Hi %s, there is now a range of volumes to which the sound can be set. System";
+        $messageText->type = MessageText::TYPE_BROADCAST;
+        $messageText->status = MessageText::STATUS_READY;
+        $messageText->save();
     }
 }

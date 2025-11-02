@@ -22,6 +22,7 @@ class MessageText extends Model
     const MESSAGE_LOSER = "Loser";
 
     const MESSAGE_BROADCAST_HIT_ANOTHER_GO = "Another go for hit";
+    const MESSAGE_BROADCAST_VOLUME_RANGE = "Volume level can be set";
 
     /**
      * The database table used by the model.
@@ -62,35 +63,7 @@ class MessageText extends Model
     }
 
     /**
-     * Retrieve all messages for the given user
-     */
-    public static function getMessages($receivingUserId)
-    {
-        $builder = self::select(
-            array(
-                'messages.id',
-                'messages.message_text',
-                'messages.status',
-                'messages.sending_user_id',
-                'messages.receiving_user_id',
-                'messages.read_at',
-                'sender.name as sender_name',
-                'receiver.name as receiver_name',
-            )
-        )
-            ->join('users as sender', 'sender.id', '=', 'messages.sending_user_id')
-            ->join('users as receiver', 'receiver.id', '=', 'messages.receiving_user_id')
-            ->orderBy("messages.created_at", "DESC");
-
-        $messages = $builder
-            ->where("messages.receiving_user_id", "=", $receivingUserId)
-            ->where("messages.status", "=", self::STATUS_OPEN);
-
-        return $messages->get();
-    }
-
-    /**
-     * Returns any broadcast messages, hwch have not yet been processed
+     * Returns any broadcast messages, which have not yet been processed
      */
     public static function getNewBroadcastMessages()
     {
