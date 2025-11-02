@@ -35,18 +35,6 @@ class HomeController extends Controller
 	}
 
 	/**
-	 * CHeck if a broadcast message is needed
-	 */
-	public function checkForBroadcastMessage(Guard $auth)
-	{
-		// TODO: Continue
-		$users = [];
-		$systemUserId = 0;
-		$messageText = '';
-		Message::broadcastMessage($users, $systemUserId, $messageText);
-	}
-
-	/**
 	 * Show the application dashboard to the user.
 	 *
 	 * @param Request $request
@@ -65,6 +53,10 @@ class HomeController extends Controller
 			// We place the user token in the response so it can be obtained
 			// by the client and stored in a cookie
 			$userToken = $user->user_token;
+			// Check if there are any system messages to be broadcast
+			// With just a small number of users this technique is ok.  If lots more come on board then this
+			// function should go into a kron job
+			Message::sendAnyBroadcastMessages();
 
 			$msgs = Message::getMessages($user->id)->toArray();
 		}

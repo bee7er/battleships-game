@@ -22,7 +22,7 @@ class User extends Model implements AuthenticatableContract,
 
     const USER_BRIAN = 'brian';
     const USER_STEVE = 'steve';
-    const USER_DAVE = 'dave';
+    const USER_BEN = 'ben';
 
     const SYSTEM_USER_NAME = 'System';
 
@@ -90,7 +90,10 @@ class User extends Model implements AuthenticatableContract,
     }
 
     /**
-     * Retrieve all users
+     * Retrieve all users (except System by default)
+     *
+     * @param null $exceptUserId - exclude this user, as well as System
+     * @return mixed
      */
     public static function getUsers($exceptUserId=null)
     {

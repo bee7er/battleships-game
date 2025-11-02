@@ -7,6 +7,7 @@ use App\FleetVessel;
 use App\FleetVesselLocation;
 use App\Game;
 use App\Message;
+use App\MessageText;
 use App\Move;
 use App\User;
 use App\Fleet;
@@ -169,7 +170,7 @@ class GamesController extends Controller
 			if ('add' == $mode) {
 				// Create a fleet from the template set of vessels for the user creating the game
 				Fleet::createFleet($game->id, $user->id);
-                $messageText = Message::retrieveMessageText(Message::MESSAGE_INVITE,
+                $messageText = MessageText::retrieveMessageText(MessageText::MESSAGE_INVITE,
                     [User::getUser($game->opponent_id)->name,Game::getGame($game->id)->name,User::getUser($game->protagonist_id)->name]);
                 Message::addMessage($messageText, $game->protagonist_id, $game->opponent_id);
 			}
@@ -244,7 +245,7 @@ class GamesController extends Controller
 
 			// Message the protagonist that the game is accepted
 			$game = Game::getGame($gameId);
-            $messageText = Message::retrieveMessageText(Message::MESSAGE_ACCEPT,
+            $messageText = MessageText::retrieveMessageText(MessageText::MESSAGE_ACCEPT,
                 [
                     User::getUser($game->protagonist_id)->name,
                     Game::getGame($game->id)->name,

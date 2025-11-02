@@ -11,15 +11,6 @@ class Message extends Model
     const STATUS_OPEN = 'open';
     const STATUS_READ = 'read';
 
-    const MESSAGE_INVITE = "Hi %s, will you play '%s' with me? %s";
-    const MESSAGE_ACCEPT = "Hi %s, I will love playing '%s' with you. %s";
-    const MESSAGE_READY = "Hi %s and %s, I'm happy to say that '%s' is ready to play. System";
-    const MESSAGE_WAITING = "Hi %s, %s is waiting for you to finish plotting your fleet in the '%s' game. System";
-    const MESSAGE_WINNER = "Hi %s, you won the '%s' game.  Well done. %s";
-    const MESSAGE_LOSER = "Hi %s, sadly you lost the '%s' game.  Try again later. %s";
-
-    const MESSAGE_BROADCAST_GAMES_WON = "Hi %s, System";
-
     /**
      * The database table used by the model.
      *
@@ -95,32 +86,29 @@ class Message extends Model
     }
 
     /**
-     * Retrieve message text given the appropriate parameters
-     *
-     * @param $message
-     * @param $msgDataAry
-     * @return string
-     */
-    public static function retrieveMessageText($message, $msgDataAry)
-    {
-        $messageText = sprintf($message, $msgDataAry[0], $msgDataAry[1], $msgDataAry[2]);
-
-        return $messageText;
-    }
-
-    /**
      * Send a message to all users
      */
-    public static function broadcastMessage($users, $systemUserId, $messageText)
+    public static function sendAnyBroadcastMessages()
     {
-        if (isset($users) && count($users) > 0) {
-            foreach ($users as $user) {
-                $message = Message::getMessage();
-                $message->message_text = $messageText;
-                $message->status = self::STATUS_OPEN;
-                $message->sending_user_id = $systemUserId;
-                $message->receiving_user_id = $user->id;
-                $message->save();
+        $messageTexts = MessageText::getNewBroadcastMessages();
+        if (isset($messageTexts) && count($messageTexts) > 0) {
+            $users = User::getUsers();
+            // Broadcast messages are sent by the System user
+            $systemUserId = User::systemUser()->id;
+            foreach ($messageTexts as $messageText) {
+                // Send this message to each user
+                foreach ($users as $user) {
+                    $message = Message::getMessage();
+                    // Standard data to embed is the user name
+                    $message->message_text = sprintf($messageText->text, $user->name);
+                    $message->status = self::STATUS_OPEN;
+                    $message->sending_user_id = $systemUserId;
+                    $message->receiving_user_id = $user->id;
+                    $message->save();
+                }
+                // Ok, we are done with this broadcast message
+                $messageText->status = MessageText::STATUS_SENT;
+                $messageText->save();
             }
         }
     }
