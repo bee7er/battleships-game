@@ -13,6 +13,7 @@ class FleetsTableSeeder extends Seeder {
         DB::table('fleets')->delete();
 
         $brian = User::where('name', User::USER_BRIAN)->firstOrFail();
+        $ben = User::where('name', User::USER_BEN)->firstOrFail();
         $steve = User::where('name', User::USER_STEVE)->firstOrFail();
         $game = Game::where('name', Game::GAME_FIRST_NAVAL_BATTLE)->firstOrFail();
         $game2 = Game::where('name', Game::GAME_SECOND_NAVAL_BATTLE)->firstOrFail();
@@ -26,7 +27,7 @@ class FleetsTableSeeder extends Seeder {
 
         $fleet = new Fleet();
         $fleet->name = Fleet::FLEET_VICTORY;
-        $fleet->user_id = $steve->id;
+        $fleet->user_id = $ben->id;
         $fleet->game_id = $game2->id;
         $fleet->save();
 

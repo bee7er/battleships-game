@@ -335,6 +335,7 @@ use App\Game;
                     let location = fleetVessel.locations[j];
                     let tableCell = $('#theirCell_' + location.row + '_' + location.col);
                     let cssClass = getCssClass(location, '');
+//                    let cssClass = getCssClass(location, 'bs-pos-cell-started');
                     setElemStatusClass(tableCell, cssClass);
                     // Only show the vessel identifier if it has been hit or destroyed
                     if ('{{FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT}}' == location.status
