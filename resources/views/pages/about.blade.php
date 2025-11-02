@@ -33,6 +33,7 @@
                             </li>
                             <li><b>Guessing:</b> Players take turns firing virtual missiles at coordinates (e.g., A5, G7) to attack their opponent's grid.</li>
                             <li><b>Hit or Miss:</b> The opponent's grid shows where the missile hit and the effect it had.</li>
+                            <li><b>Hit and Go again:</b> A successful hit is rewarded by having another go, and keep going until you miss.</li>
                             <li><b>Sinking a Ship:</b> If a player hits all the squares occupied by a ship, it's considered sunk.</li>
                             <li><b>Winning:</b> The game ends when one player has sunk all of their opponent's ships. That player is the winner.</li>
                         </ol>
