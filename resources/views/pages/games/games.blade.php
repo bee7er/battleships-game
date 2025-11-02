@@ -59,8 +59,8 @@ use App\Game;
                                 <td>{{$game->opponent_name}} {{($game->opponent_id == $game->winner_id ? '*': '')}}</td>
                                 <td>{{isset($game->fleet) ? $game->fleet->fleet_name: 'not set yet'}}</td>
                                 <td>{{$game->status}}</td>
-                                <td>{{$game->started_at}}</td>
-                                <td>{{$game->ended_at}}</td>
+                                <td>{{getFormattedDate($game->started_at)}}</td>
+                                <td>{{getFormattedDate($game->ended_at)}}</td>
                                 <td>
                                     @if ($game->status == Game::STATUS_DELETED)
                                         <div title="Visualize the game by replaying all the moves"><a class="bs-games-button" href="javascript: gotoReplay('{{$game->id}}')">Replay</a></div>

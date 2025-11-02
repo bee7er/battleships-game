@@ -47,3 +47,16 @@ if (!function_exists('getAlpha')) {
         return substr('abcdefghij', ($i-1), 1); // nb zero based
     }
 }
+
+if (!function_exists('getFormattedDate')) {
+    /**
+     * Returns a formatted date, or blank if none
+     */
+    function getFormattedDate($date)
+    {
+        if (isset($date) && $date != null) {
+            return date('d/m/Y H:i', strtotime($date));
+        }
+        return '';
+    }
+}
