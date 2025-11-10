@@ -302,11 +302,20 @@ class GamesController extends Controller
 			if ($currentUserIsProtagonist) {
 				$theirUser = User::getUser($game->opponent_id);
 				$theirFleet = Fleet::getFleetDetails($gameId, $game->opponent_id);
-				$myGo = ($latestMove == null) ? true: ($latestMove->player_id != $myUser->id);
 			} else {
 				$theirUser = User::getUser($game->protagonist_id);
 				$theirFleet = Fleet::getFleetDetails($gameId, $game->protagonist_id);
-				$myGo = ($latestMove == null) ? false:  ($latestMove->player_id != $myUser->id);
+			}
+			$myGo = false;
+			if ($latestMove == null && $currentUserIsProtagonist) {
+				// No previous moves, so protagonist (game owner) starts things off
+				$myGo = true;
+			} elseif ($latestMove->player_id == $myUser->id && 1 == $latestMove->hit_vessel) {
+				// I had a successful hit with the last move and continue my go
+				$myGo = true;
+			} elseif ($latestMove->player_id != $myUser->id && 0 == $latestMove->hit_vessel) {
+				// The opponent had the last move, and did not have a successful hit
+				$myGo = true;
 			}
 
             $myMoves = Move::getMoves($gameId, $myUser->id);

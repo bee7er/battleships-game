@@ -295,6 +295,9 @@ class BattleshipsApiController extends Controller
 				$fvl->save();
 				// The strike has hit a vessel at that location.  Get all affected locations.
 				$affectedLocations = $this->getAffectedLocations($locationHit, $userId);
+				// The move was successful, so record that against the move
+				$move->hit_vessel = 1;
+				$move->save();
 			}
 
 			// Check if all fleet vessels have been destroyed, derives the game status as it currently stands

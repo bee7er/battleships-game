@@ -18,8 +18,9 @@ class CreateMovesTable extends Migration
             $table->increments('id')->unsigned();
             $table->unsignedInteger('game_id');
             $table->unsignedInteger('player_id');
-            $table->unsignedInteger('row');
-            $table->unsignedInteger('col');
+            $table->unsignedInteger('row')->default(0);
+            $table->unsignedInteger('col')->default(0);
+            $table->unsignedInteger('hit_vessel')->default(0);
             $table->timestamps();
         });
     }

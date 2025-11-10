@@ -20,22 +20,14 @@ class Move extends Model
      *
      * @var array
      */
-    protected $fillable = ['game_id', 'player_id', 'row', 'col'];
+    protected $fillable = ['game_id', 'player_id', 'row', 'col', 'hit_vessel'];
 
     /**
      * Retrieve a move
      */
     public static function getMove($id=null)
     {
-        $builder = self::select(
-            array(
-                'moves.id',
-                'moves.game_id',
-                'moves.player_id',
-                'moves.row',
-                'moves.col'
-            )
-        );
+        $builder = self::select('*');
 
         $move = $builder
             ->where("moves.id", "=", $id)->get();
@@ -57,16 +49,7 @@ class Move extends Model
      */
     public static function getMoves($gameId, $userId=null)
     {
-        $builder = self::select(
-            array(
-                'moves.id',
-                'moves.game_id',
-                'moves.player_id',
-                'users.name as player_name',
-                'moves.row',
-                'moves.col'
-            )
-        )
+        $builder = self::select('*')
             ->join('users', 'users.id', '=', 'moves.player_id')
             ->orderBy("moves.id");
 
@@ -89,15 +72,7 @@ class Move extends Model
      */
     public static function getLatestMove($gameId)
     {
-        $builder = self::select(
-            array(
-                'moves.id',
-                'moves.game_id',
-                'moves.player_id',
-                'moves.row',
-                'moves.col'
-            )
-        )
+        $builder = self::select('*')
             ->orderBy("moves.id", "DESC")
             ->limit(1);
 
