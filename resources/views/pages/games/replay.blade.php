@@ -5,7 +5,7 @@ use App\Game;
 ?>
 
 @extends('layouts.app')
-@section('title') home @parent @endsection
+@section('title') replay @parent @endsection
 
 @section('content')
 

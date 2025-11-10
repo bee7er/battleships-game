@@ -97,13 +97,7 @@ class User extends Model implements AuthenticatableContract,
      */
     public static function getUsers($exceptUserId=null)
     {
-        $builder = self::select(
-            array(
-                'users.id',
-                'users.name',
-                'users.email'
-            )
-        )
+        $builder = self::select('*')
             ->where("users.name", "<>", self::SYSTEM_USER_NAME)
             ->orderBy("users.name");
 

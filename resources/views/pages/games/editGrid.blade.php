@@ -6,7 +6,7 @@ $fleetId = 0;
 ?>
 
 @extends('layouts.app')
-@section('title') home @parent @endsection
+@section('title') edit grid @parent @endsection
 
 @section('content')
 

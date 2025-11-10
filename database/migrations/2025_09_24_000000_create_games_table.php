@@ -24,7 +24,8 @@ class CreateGamesTable extends Migration
                     Game::STATUS_READY,
                     Game::STATUS_ENGAGED,
                     Game::STATUS_COMPLETED,
-                    Game::STATUS_DELETED
+                    Game::STATUS_DELETED,
+                    Game::STATUS_UNDELETED,
                 ]
             );
             $table->unsignedInteger('protagonist_id');

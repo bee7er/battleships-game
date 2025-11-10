@@ -216,6 +216,15 @@ hr {
     color: #00c400;
 }
 
+.bs-admin-button {
+    margin-right: 25px;
+    font-weight: bold;
+    color: #0000c4;
+}
+.bs-admin-button:hover {
+    color: #00c400;
+}
+
 .bs-common-block {
     padding: 10px 50px 10px 50px;
     margin: 0;

@@ -13,8 +13,10 @@ class MessageText extends Model
 
     const STATUS_READY = 'ready';
     const STATUS_SENT = 'sent';
+    const STATUS_ARRAY = [self::STATUS_READY, self::STATUS_SENT];
 
     const MESSAGE_INVITE = "Invite player";
+    const MESSAGE_INVITE_OWNER = "Invite owner";
     const MESSAGE_ACCEPT = "Accept invitation";
     const MESSAGE_READY = "Game ready";
     const MESSAGE_WAITING = "Waiting";
@@ -41,6 +43,21 @@ class MessageText extends Model
     /**
      * Find and return the identified message text
      */
+    public static function getMessageText($id=null)
+    {
+        if (null == $id) {
+            // Add mode
+            return new MessageText();
+        }
+
+        $message = self::where("message_texts.id", "=", $id);
+
+        return $message->get()[0];
+    }
+
+    /**
+     * Find and return the identified message text
+     */
     private static function getMessageTextByName($name)
     {
         $message = self::where("message_texts.name", "=", $name);
@@ -63,13 +80,17 @@ class MessageText extends Model
     }
 
     /**
-     * Returns any broadcast messages, which have not yet been processed
+     * Returns any broadcast messages, which, by default, have not yet been processed
      */
-    public static function getNewBroadcastMessages()
+    public static function getBroadcastMessages($status=self::STATUS_READY)
     {
         $builder = self::select('*')
             ->where("message_texts.type", "=", self::TYPE_BROADCAST)
-            ->where("message_texts.status", "=", self::STATUS_READY);
+            ->orderBy("message_texts.name");
+
+        if (null != $status) {
+            $builder->where("message_texts.status", "=", $status);
+        }
 
         return $builder->get();
     }

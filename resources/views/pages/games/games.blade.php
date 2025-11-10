@@ -3,7 +3,7 @@ use App\Game;
 ?>
 
 @extends('layouts.app')
-@section('title') home @parent @endsection
+@section('title') my games @parent @endsection
 
 @section('content')
 

@@ -159,6 +159,7 @@ class GamesController extends Controller
 
 		$name = $request->get('gameName');
 		try {
+			$name = Game::getUniqueGameName($name, $gameId);
 			$game = Game::getGame($gameId);
 			$game->name = $name;
 			if ('add' == $mode) {

@@ -4,7 +4,7 @@ use App\Game;
 ?>
 
 @extends('layouts.app')
-@section('title') home @parent @endsection
+@section('title') edit game @parent @endsection
 
 @section('content')
 
@@ -126,8 +126,8 @@ use App\Game;
                     errMsgs += (sep + errors[i]);
                     sep = '<br />';
                 }
-                $('#customErrors').html(errMsgs).show();
-                $('#customErrors').delay(3000).fadeOut();
+                let ce = $('#customErrors');
+                ce.html(errMsgs).show().delay(3000).fadeOut();
                 return false;
             }
 

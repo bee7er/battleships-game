@@ -23,6 +23,49 @@ class FleetTemplate extends Model
     protected $fillable = ['vessel_id'];
 
     /**
+     * Retrieve a user
+     */
+    public static function getFleetTemplate($id=null)
+    {
+        if (null == $id) {
+            // Add mode
+            return new FleetTemplate();
+        }
+
+        $builder = self::select(
+            array(
+                'fleet_templates.id',
+                'fleet_templates.vessel_id',
+                'vessels.name as vessel_name'
+            )
+        )
+            ->where("fleet_templates.id", "=", $id)
+            ->join('vessels', 'vessels.id', '=', 'fleet_templates.vessel_id');
+
+        return $builder->get()[0];
+    }
+
+    /**
+     * Retrieve all fleet template entries
+     *
+     * @return mixed
+     */
+    public static function getFleetTemplates()
+    {
+        $builder = self::select(
+            array(
+                'fleet_templates.id',
+                'fleet_templates.vessel_id',
+                'vessels.name as vessel_name'
+            )
+        )
+            ->join('vessels', 'vessels.id', '=', 'fleet_templates.vessel_id')
+            ->orderBy("vessels.name");
+
+        return $builder->get();
+    }
+
+    /**
      * Get the fleet vessel size and their lengths, to return the fleet location size
      */
     public static function getFleetLocationSize()

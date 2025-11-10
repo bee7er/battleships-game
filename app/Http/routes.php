@@ -49,3 +49,32 @@ Route::post('/replaceFleetVesselLocations', 'API\BattleshipsApiController@replac
 
 /* Admin section */
 Route::get('/admin/dashboard', 'Admin\AdminController@index');
+Route::get('/admin/users', 'Admin\UsersController@index');
+Route::get('/admin/editUser', 'Admin\UsersController@editUser');
+Route::get('/admin/addUser', 'Admin\UsersController@addUser');
+Route::post('/admin/updateUser', 'Admin\UsersController@updateUser');
+
+Route::get('/admin/fleetTemplates', 'Admin\FleetTemplatesController@index');
+Route::get('/admin/editFleetTemplate', 'Admin\FleetTemplatesController@editFleetTemplate');
+Route::get('/admin/addFleetTemplate', 'Admin\FleetTemplatesController@addFleetTemplate');
+Route::post('/admin/updateFleetTemplate', 'Admin\FleetTemplatesController@updateFleetTemplate');
+Route::get('/admin/deleteFleetTemplate', 'Admin\FleetTemplatesController@deleteFleetTemplate');
+
+Route::get('/admin/messageTexts', 'Admin\MessageTextsController@index');
+Route::get('/admin/editMessageText', 'Admin\MessageTextsController@editMessageText');
+Route::get('/admin/addMessageText', 'Admin\MessageTextsController@addMessageText');
+Route::post('/admin/updateMessageText', 'Admin\MessageTextsController@updateMessageText');
+Route::get('/admin/deleteMessageText', 'Admin\MessageTextsController@deleteMessageText');
+
+Route::get('/admin/vessels', 'Admin\VesselsController@index');
+Route::get('/admin/editVessel', 'Admin\VesselsController@editVessel');
+Route::get('/admin/addVessel', 'Admin\VesselsController@addVessel');
+Route::post('/admin/updateVessel', 'Admin\VesselsController@updateVessel');
+Route::get('/admin/deleteVessel', 'Admin\VesselsController@deleteVessel');
+
+Route::get('/admin/games', 'Admin\GamesController@index');
+Route::get('/admin/editGame', 'Admin\GamesController@editGame');
+Route::get('/admin/addGame', 'Admin\GamesController@addGame');
+Route::post('/admin/updateGame', 'Admin\GamesController@updateGame');
+Route::get('/admin/deleteGame', 'Admin\GamesController@deleteGame');
+Route::get('/admin/undeleteGame', 'Admin\GamesController@undeleteGame');

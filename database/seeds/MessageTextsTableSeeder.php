@@ -13,6 +13,13 @@ class MessageTextsTableSeeder extends Seeder {
         DB::table('messages')->delete();
 
         $messageText = new MessageText();
+        $messageText->name = MessageText::MESSAGE_INVITE_OWNER;
+        $messageText->text = "Hi %s, a game has been created for you by the system called '%s' against opponent '%s'. System";
+        $messageText->type = MessageText::TYPE_SPECIFIC;
+        $messageText->status = MessageText::STATUS_READY;
+        $messageText->save();
+
+        $messageText = new MessageText();
         $messageText->name = MessageText::MESSAGE_INVITE;
         $messageText->text = "Hi %s, will you play '%s' with me? %s";
         $messageText->type = MessageText::TYPE_SPECIFIC;

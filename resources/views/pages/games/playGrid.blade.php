@@ -5,7 +5,7 @@ use App\Game;
 ?>
 
 @extends('layouts.app')
-@section('title') home @parent @endsection
+@section('title') play grid @parent @endsection
 
 @section('content')
 
@@ -196,7 +196,8 @@ use App\Game;
                         row: {{$fleetVesselLocation['row']}},
                         col: {{$fleetVesselLocation['col']}},
                         status: '{{$fleetVesselLocation['vessel_location_status']}}',
-                        vessel_name: '{{$fleetVesselLocation['vessel_name']}}'
+                        vessel_name: '{{$fleetVesselLocation['vessel_name']}}',
+                        sounded: 0
                     };
             @endforeach
 
@@ -225,7 +226,8 @@ use App\Game;
                         row: {{$fleetVesselLocation['row']}},
                         col: {{$fleetVesselLocation['col']}},
                         status: '{{$fleetVesselLocation['vessel_location_status']}}',
-                        vessel_name: '{{$fleetVesselLocation['vessel_name']}}'
+                        vessel_name: '{{$fleetVesselLocation['vessel_name']}}',
+                        sounded: 0
                     };
             @endforeach
 
@@ -404,9 +406,24 @@ use App\Game;
                             let fvl = fleetVessel.locations[j];
                             if (fvl.id == loc.fleetVesselLocationId) {
                                 fvl.status = loc.status;
-                                if (loc.status == '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT}}'
-                                        || loc.status == '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED}}') {
+                                if (loc.status == '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT}}') {
                                     hitOrDestroyed = true;
+                                    if (fvl.sounded <= 0) {
+                                        playGameSound('hit');
+                                        // Only play sound for this location once
+                                        fvl.sounded = 1;
+                                    }
+                                } else if (loc.status == '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED}}') {
+                                    hitOrDestroyed = true;
+                                    if (fvl.sounded <= 0) {
+                                        playGameSound('destroyed');
+                                        fvl.sounded = 1;
+                                    }
+                                } else {
+                                    if (fvl.sounded <= 0) {
+                                        playGameSound('splash');
+                                        fvl.sounded = 1;
+                                    }
                                 }
                                 break;
                             }
@@ -590,10 +607,14 @@ use App\Game;
         function setMyGoOrTheirGo(winnerId)
         {
             if (gameOver) {
+                stopCheckingForMoves();
+
                 if (winnerId == myUserId) {
+                    playGameSound('success');
                     $('#myGoId').addClass('bs-status').html(myName + " YOU WON !! ;o)");
                     $('#theirGoId').removeClass('bs-status').html(theirName);
                 } else {
+                    playGameSound('failure');
                     $('#myGoId').addClass('bs-status').html(myName + " YOU LOST !! :o(");
                     $('#theirGoId').removeClass('bs-status').html(theirName);
                 }

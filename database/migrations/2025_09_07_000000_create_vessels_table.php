@@ -22,6 +22,7 @@ class CreateVesselsTable extends Migration
                 Vessel::VESSEL_TYPE_DESTROYER,
                 Vessel::VESSEL_TYPE_SUBMARINE,
                 Vessel::VESSEL_TYPE_ZODIAC,
+                Vessel::VESSEL_TYPE_CUSTOM,
                 ]
             );
             $table->integer('length')->unsigned();

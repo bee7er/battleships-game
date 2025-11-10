@@ -14,15 +14,17 @@ class DatabaseSeeder extends Seeder
     {
         Model::unguard();
 
+        // Reference tables
         $this->call(UsersTableSeeder::class);
         $this->call(VesselsTableSeeder::class);
-        $this->call(GamesTableSeeder::class);
         $this->call(FleetTemplatesTableSeeder::class);
-        $this->call(FleetsTableSeeder::class);
-        $this->call(FleetVesselsTableSeeder::class);
-        $this->call(FleetVesselLocationsTableSeeder::class);
         $this->call(MessageTextsTableSeeder::class);
-        $this->call(MessagesTableSeeder::class);
+        // Test tables
+        //$this->call(GamesTableSeeder::class);
+        //$this->call(FleetsTableSeeder::class);
+        //$this->call(FleetVesselsTableSeeder::class);
+        //$this->call(FleetVesselLocationsTableSeeder::class);
+        //$this->call(MessagesTableSeeder::class);
 
         Model::reguard();
     }

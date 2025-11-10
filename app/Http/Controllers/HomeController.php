@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Game;
 use App\User;
 use App\Message;
+use App\Vessel;
 use Exception;
 use Illuminate\Auth\Guard;
 use Illuminate\Http\Request;
@@ -82,7 +83,9 @@ class HomeController extends Controller
 		$errors = [];
 		$msgs = [];
 
-		return view('pages.about', compact('loggedIn', 'errors', 'msgs'));
+		$vessels = Vessel::getVessels();
+
+		return view('pages.about', compact('loggedIn', 'vessels', 'errors', 'msgs'));
 	}
 
 	/**

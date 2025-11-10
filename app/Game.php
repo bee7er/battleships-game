@@ -18,8 +18,9 @@ class Game extends Model
     const STATUS_ENGAGED = 'engaged';
     const STATUS_COMPLETED = 'completed';
     const STATUS_DELETED = 'deleted';
+    const STATUS_UNDELETED = 'undeleted';
 
-    const STATUS_ARRAY = [self::STATUS_EDIT, self::STATUS_WAITING, self::STATUS_READY, self::STATUS_ENGAGED, self::STATUS_COMPLETED, self::STATUS_DELETED];
+    const STATUS_ARRAY = [self::STATUS_EDIT, self::STATUS_WAITING, self::STATUS_READY, self::STATUS_ENGAGED, self::STATUS_COMPLETED, self::STATUS_DELETED, self::STATUS_UNDELETED];
 
     /**
      * The database table used by the model.
@@ -71,6 +72,40 @@ class Game extends Model
     }
 
     /**
+     * Retrieve a game by name
+     */
+    public static function getGameByName($name)
+    {
+        return self::select('*')->where("games.name", "=", $name)->get();
+    }
+
+    /**
+     * Retrieve a unique game name
+     */
+    public static function getUniqueGameName($name, $gameId)
+    {
+        $game = self::getGameByName($name);
+        // Make it unique
+        if (isset($game) && count($game) > 0) {
+            if ($game[0]->id == $gameId) {
+                // It is unique to the same game
+                return $name;
+            }
+            // Add numbers until we get a unique name
+            for ($n=1; $n<25; $n++) {
+                $name = $name."_$n";
+                $game = self::getGameByName($name);
+                if (!isset($game) || count($game) <= 0) {
+                    return $name;
+                }
+            }
+            throw new Exception("Could not generate a unique name and gave up.");
+        }
+        // It is unique
+        return $name;
+    }
+
+    /**
      * Retrieve all games for the given user, where they created the game and where they
      * have been nominated as an opponent
      *
@@ -78,7 +113,7 @@ class Game extends Model
      * @param $showDeletedGames - check whether they have been soft deleted
      * @return mixed
      */
-    public static function getGames($userId, $showDeletedGames)
+    public static function getGames($userId=null, $showDeletedGames=true)
     {
         $builder = self::select(
             array(
@@ -95,8 +130,8 @@ class Game extends Model
                 'games.deleted_at',
             )
         )
-            ->join('users as opponent', 'opponent.id', '=', 'games.opponent_id')
-            ->join('users as protagonist', 'protagonist.id', '=', 'games.protagonist_id')
+            ->leftjoin('users as opponent', 'opponent.id', '=', 'games.opponent_id')
+            ->leftjoin('users as protagonist', 'protagonist.id', '=', 'games.protagonist_id')
             ->orderBy("games.name");
 
         if (false == $showDeletedGames) {
@@ -104,9 +139,11 @@ class Game extends Model
                 ->where("games.status", "!=", Game::STATUS_DELETED);
         }
 
-        $builder = $builder
-            ->where("games.protagonist_id", "=", $userId)
-            ->orWhere("games.opponent_id", "=", $userId);
+        if (null != $userId) {
+            $builder = $builder
+                ->where("games.protagonist_id", "=", $userId)
+                ->orWhere("games.opponent_id", "=", $userId);
+        }
 
         $games = $builder->get();
 
@@ -247,6 +284,16 @@ class Game extends Model
     {
         $this->status = self::STATUS_DELETED;
         $this->deleted_at = date("Y-m-d H:i:s");
+        $this->save();
+    }
+
+    /**
+     * Undelete a game
+     */
+    public function undeleteGame()
+    {
+        $this->status = self::STATUS_UNDELETED;
+        $this->deleted_at = null;
         $this->save();
     }
 

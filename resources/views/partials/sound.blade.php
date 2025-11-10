@@ -19,7 +19,6 @@
     var audioLevel = 1.0;
     function playGameSound(sound)
     {
-        console.log(audioLevel);
         if (audioLevel > 0.0) {
             playAudio(sound);
         }
@@ -28,7 +27,6 @@
     {
         audioLevel = $(elem).val();
     }
-
 
     /**
      * Check for the issuing of a sound

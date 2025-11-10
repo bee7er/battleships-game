@@ -23,12 +23,13 @@
                         <h3 class="title is-4">Gameplay</h3>
                         <ol class="is-4">
                             <li><b>Setup:</b> Each player places their ships on a grid, which consists of 10x10 squares, without showing their opponent.</li>
-                            <li><b>Ships:</b> The fleet consists of several ships of different sizes:
+                            <li><b>Ships:</b> The fleet consists of several ships of different sizes and which score different points:
+                                @if (isset($vessels) && $vessels->count() > 0)
                                 <ul>
-                                    <li>1 x Battleship (3 squares)</li>
-                                    <li>2 x Submarine (2 squares)</li>
-                                    <li>2 x Destroyer (2 squares)</li>
-                                    <li>3 x Zodiac (1 squares)</li>
+                                    @foreach($vessels as $vessel)
+                                            <li><b>{{$vessel->name}}</b>: <b>{{$vessel->length}}</b> square{{($vessel->length > 1 ? 's':'')}}, <b>{{$vessel->points}}</b> points</li>
+                                    @endforeach
+                                @endif
                                 </ul>
                             </li>
                             <li><b>Guessing:</b> Players take turns firing virtual missiles at coordinates (e.g., A5, G7) to attack their opponent's grid.</li>

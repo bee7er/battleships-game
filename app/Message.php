@@ -90,7 +90,7 @@ class Message extends Model
      */
     public static function sendAnyBroadcastMessages()
     {
-        $messageTexts = MessageText::getNewBroadcastMessages();
+        $messageTexts = MessageText::getBroadcastMessages();
         if (isset($messageTexts) && count($messageTexts) > 0) {
             $users = User::getUsers();
             // Broadcast messages are sent by the System user

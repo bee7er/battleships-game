@@ -11,6 +11,7 @@ class Vessel extends Model
     const VESSEL_TYPE_DESTROYER = 'destroyer';
     const VESSEL_TYPE_SUBMARINE = 'submarine';
     const VESSEL_TYPE_ZODIAC = 'zodiac';
+    const VESSEL_TYPE_CUSTOM = 'custom';
 
     /**
      * The database table used by the model.
@@ -26,4 +27,29 @@ class Vessel extends Model
      */
     protected $fillable = ['name', 'length', 'points'];
 
+    /**
+     * Retrieve a vessel
+     */
+    public static function getVessel($id=null)
+    {
+        if (null == $id) {
+            // Add mode
+            return new Vessel();
+        }
+
+        return self::findOrFail($id);
+    }
+
+    /**
+     * Retrieve all vessels
+     *
+     * @return mixed
+     */
+    public static function getVessels()
+    {
+        $builder = self::select('*')
+            ->orderBy("vessels.name");
+
+        return $builder->get();
+    }
 }
