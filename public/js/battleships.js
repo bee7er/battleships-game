@@ -36,11 +36,12 @@ function ajaxCall(url, data, callBackFunction) {
 
             return true;
         }
-        alert('Unexpected result from submission, please check the console log');
+
+        alert(responseData.message);
 
     }).fail(function (jqXHR, textStatus, errorThrown) {
 
-        alert("Error on Ajax call");
+        alert("Error on Ajax call. Please report this issue to the administrator.");
 
         console.log(textStatus);
         console.log(errorThrown);

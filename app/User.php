@@ -163,12 +163,12 @@ class User extends Model implements AuthenticatableContract,
     public static function checkUserToken($userToken)
     {
         if (!isset($userToken)) {
-            throw new \Exception('API authentication not provided');
+            throw new \Exception('API authentication not provided. Please report this to the administrator.');
         }
         $builder = self::where("users.user_token", "=", $userToken);
         $users = $builder->get();
         if (!isset($users) || count($users) == 0) {
-            throw new \Exception('API authentication is invalid');
+            throw new \Exception('API authentication is invalid. Probably due to the session being timed out. Please try logging in once more.');
         }
     }
 }
