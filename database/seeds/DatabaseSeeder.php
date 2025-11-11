@@ -20,11 +20,11 @@ class DatabaseSeeder extends Seeder
         $this->call(FleetTemplatesTableSeeder::class);
         $this->call(MessageTextsTableSeeder::class);
         // Test tables
-        $this->call(GamesTableSeeder::class);
-        $this->call(FleetsTableSeeder::class);
-        $this->call(FleetVesselsTableSeeder::class);
-        $this->call(FleetVesselLocationsTableSeeder::class);
-        $this->call(MessagesTableSeeder::class);
+//        $this->call(GamesTableSeeder::class);
+//        $this->call(FleetsTableSeeder::class);
+//        $this->call(FleetVesselsTableSeeder::class);
+//        $this->call(FleetVesselLocationsTableSeeder::class);
+//        $this->call(MessagesTableSeeder::class);
 
         Model::reguard();
     }
