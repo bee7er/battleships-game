@@ -444,15 +444,23 @@ $fleetId = 0;
                     for (j = 0; j < itr; j++) {
                         if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
 
-                        let elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)); //.html('' + i + j);    // To see offsets
+                        let elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)).html('' + i + j);    // To see offsets
                         if ($(elem).hasClass('bs-pos-cell-plotted') || $(elem).hasClass('bs-pos-cell-started')) {
                             // Ignore this location
                         } else {
-                            setElemStatusClass(elem, 'bs-pos-cell-available');
-                            if (1 == i && 1 == j) {
-                                // Do not count the primary cell, it is always at 1,1
+                            let idx = ('' + i + j);
+                            if (fleetVessel.length == 2) {
+                                if ('01' == idx || '10' == idx || '12' == idx || '21' == idx) {
+                                    setElemStatusClass(elem, 'bs-pos-cell-available');
+                                    numberOfAvailableCells += 1;
+                                }
                             } else {
-                                numberOfAvailableCells += 1;
+                                if ('02' == idx || '12' == idx || '23' == idx || '24' == idx
+                                    || '32' == idx || '42' == idx || '20' == idx || '21' == idx
+                                ) {
+                                    setElemStatusClass(elem, 'bs-pos-cell-available');
+                                    numberOfAvailableCells += 1;
+                                }
                             }
                         }
                     }
@@ -491,11 +499,9 @@ $fleetId = 0;
                 for (j = 0; j < itr; j++) {
                     if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
 
-                    elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)); //.html('' + i + j);    // To see offsets
+                    elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)).html('' + i + j);    // To see offsets
                     let elemObj = {
                         elem: elem,
-                        row: i,
-                        col: j,
                         idx: ('' + i + j)       // Speeds things up below
                     };
                     if ($(elem).hasClass('bs-pos-cell-started')) {
@@ -510,7 +516,7 @@ $fleetId = 0;
                     }
                 }
             }
-            // For each offset cell it can only be used if a required cell is available to complete the set of three
+            // For each offset cell it can only be used if another required cell is available to complete the set of three
             // The starting position is always 2,2, the following table can be read as:
             //      if the other started cell is '00', then only '11' can be used, if it is available
             for (let i = 0; i < hasStarted.length; i++) {
@@ -518,22 +524,14 @@ $fleetId = 0;
                 let n1 = 0;
                 let n2 = 0;
 
-                if ('00' == started.idx) { n1=setAvailableElem(availableElems, '11'); }
                 if ('02' == started.idx) { n1=setAvailableElem(availableElems, '12'); }
-                if ('04' == started.idx) { n1=setAvailableElem(availableElems, '13'); }
-                if ('11' == started.idx) { n1=setAvailableElem(availableElems, '00'); n2=setAvailableElem(availableElems, '33'); }
                 if ('12' == started.idx) { n1=setAvailableElem(availableElems, '02'); n2=setAvailableElem(availableElems, '32'); }
-                if ('13' == started.idx) { n1=setAvailableElem(availableElems, '04'); n2=setAvailableElem(availableElems, '31'); }
                 if ('20' == started.idx) { n1=setAvailableElem(availableElems, '21'); }
                 if ('21' == started.idx) { n1=setAvailableElem(availableElems, '20'); n2=setAvailableElem(availableElems, '23'); }
                 if ('23' == started.idx) { n1=setAvailableElem(availableElems, '21'); n2=setAvailableElem(availableElems, '24'); }
                 if ('24' == started.idx) { n1=setAvailableElem(availableElems, '23'); }
-                if ('31' == started.idx) { n1=setAvailableElem(availableElems, '40'); n2=setAvailableElem(availableElems, '13'); }
                 if ('32' == started.idx) { n1=setAvailableElem(availableElems, '12'); n2=setAvailableElem(availableElems, '42'); }
-                if ('33' == started.idx) { n1=setAvailableElem(availableElems, '11'); n2=setAvailableElem(availableElems, '44'); }
-                if ('40' == started.idx) { n1=setAvailableElem(availableElems, '31'); }
                 if ('42' == started.idx) { n1=setAvailableElem(availableElems, '32'); }
-                if ('44' == started.idx) { n1=setAvailableElem(availableElems, '33'); }
 
                 numberOfAvailableCells += (n1 + n2);
             }
@@ -566,28 +564,6 @@ $fleetId = 0;
             let itr = 5;        // A 5 x 5 set of cells which could possibly be available
             let numberOfAvailableCells = 0;
 
-            // Remove those entries that can never be used because 3 in a row must be diagonally or in a line
-            let elem = null;
-            for (i = 0; i < itr; i++) {
-                if ((tryRow + i) <= 0 || (tryRow + i) > gridSize) continue;
-
-                for (j = 0; j < itr; j++) {
-                    if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
-
-                    if ((0 == i && (1 == j || 3 == j))
-                            || (1 == i && (0 == j || 4 == j))
-                            || (3 == i && (0 == j || 4 == j))
-                            || (4 == i && (1 == j || 3 == j))
-                    ) {
-                        // Remove the available class, if present
-                        elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j));
-                        if ($(elem).hasClass('bs-pos-cell-available')) {
-                            // Remove all classes
-                            setElemStatusClass(elem, '');
-                        }
-                    }
-                }
-            }
             // Create an array of all elems with the available class, these are those that might be possible
             let hasAvailable = [];
             for (i = 0; i < itr; i++) {
@@ -600,8 +576,6 @@ $fleetId = 0;
                     if ($(elem).hasClass('bs-pos-cell-available')) {
                         hasAvailable[hasAvailable.length] = {
                             elem: elem,
-                            row: i,
-                            col: j,
                             idx: ('' + i + j)       // Speeds things up below
                         };
                         if (2 == i && 2 == j) {
@@ -614,25 +588,18 @@ $fleetId = 0;
             }
 
             // For each offset cell it can only be used if a required cell is available to complete the set of three
+            // So '02' is only available if '12' is also available
             for (let i = 0; i < hasAvailable.length; i++) {
                 let avail = hasAvailable[i];
                 if (
-                        '00' == avail.idx && !hasAvailableElem(hasAvailable, '11')
-                        || '02' == avail.idx && !hasAvailableElem(hasAvailable, '12')
-                        || '04' == avail.idx && !hasAvailableElem(hasAvailable, '13')
-                        || '11' == avail.idx && (!hasAvailableElem(hasAvailable, '00') && !hasAvailableElem(hasAvailable, '33'))
+                        '02' == avail.idx && !hasAvailableElem(hasAvailable, '12')
                         || '12' == avail.idx && (!hasAvailableElem(hasAvailable, '02') && !hasAvailableElem(hasAvailable, '32'))
-                        || '13' == avail.idx && (!hasAvailableElem(hasAvailable, '04') && !hasAvailableElem(hasAvailable, '31'))
                         || '20' == avail.idx && !hasAvailableElem(hasAvailable, '21')
                         || '21' == avail.idx && (!hasAvailableElem(hasAvailable, '20') && !hasAvailableElem(hasAvailable, '23'))
                         || '23' == avail.idx && (!hasAvailableElem(hasAvailable, '21') && !hasAvailableElem(hasAvailable, '24'))
                         || '24' == avail.idx && !hasAvailableElem(hasAvailable, '23')
-                        || '31' == avail.idx && (!hasAvailableElem(hasAvailable, '40') && !hasAvailableElem(hasAvailable, '13'))
                         || '32' == avail.idx && (!hasAvailableElem(hasAvailable, '12') && !hasAvailableElem(hasAvailable, '42'))
-                        || '33' == avail.idx && (!hasAvailableElem(hasAvailable, '11') && !hasAvailableElem(hasAvailable, '44'))
-                        || '40' == avail.idx && !hasAvailableElem(hasAvailable, '31')
                         || '42' == avail.idx && !hasAvailableElem(hasAvailable, '32')
-                        || '44' == avail.idx && !hasAvailableElem(hasAvailable, '33')
                 ) {
                     // The cell cannot be used as a required cell isn't available
                     setElemStatusClass(avail.elem, '');

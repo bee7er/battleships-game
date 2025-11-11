@@ -69,7 +69,7 @@
                         <p>Once all the parts of a vessel have been hit the status changes to destroyed for all the parts and the vessel overall.</p>
 
                         <h4 class="title is-5">What just happened?</h4>
-                        <p>As mentioned above, when the game is over, it is set to <span class="has-text-link">completed</span> and the <span class="has-text-link">Replay</span> link can be used to see a simulation of how the game progressed. Use this option to improve your strategy when playing next time.  You will have noticed that vessels can be plotted vertically, horizontally and diagonally. You should bear this in mind while deciding on your next move.  When replaying the game you get to see the full distribution of your opponent's vessels, and can perhaps see opportunities you missed during the game.</p>
+                        <p>As mentioned above, when the game is over, it is set to <span class="has-text-link">completed</span> and the <span class="has-text-link">Replay</span> link can be used to see a simulation of how the game progressed. Use this option to improve your strategy when playing next time.  You will have noticed that vessels can only be plotted vertically or horizontally. You should bear this in mind while deciding on your next move.  When replaying the game you get to see the full distribution of your opponent's vessels, and can perhaps see opportunities you missed during the game.</p>
                         <p>The destruction of vessels and the points scored are accumulated in your profile.</p>
                         <p>Go to the <span class="has-text-link">Leaderboard</span> page to see how your performances compare with others.</p>
 
