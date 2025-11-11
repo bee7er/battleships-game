@@ -444,7 +444,7 @@ $fleetId = 0;
                     for (j = 0; j < itr; j++) {
                         if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
 
-                        let elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)).html('' + i + j);    // To see offsets
+                        let elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)); //.html('' + i + j);    // To see offsets
                         if ($(elem).hasClass('bs-pos-cell-plotted') || $(elem).hasClass('bs-pos-cell-started')) {
                             // Ignore this location
                         } else {
