@@ -60,7 +60,7 @@ use App\Game;
             <div class=""><span class="bs-table-title">Messages:</span> <span id="notification" class="bs-notification">&nbsp;</span></div>
         </div>
 
-        <div class="columns">
+        <div class="columns is-centered">
 
             <div class="column">
 
@@ -114,6 +114,22 @@ use App\Game;
                 </table>
 
                 @include('partials.sound')
+
+                <table class="table is-bordered bs-progress-table">
+                <tbody>
+                    <tr class=""><td class="bs-pos-key-blank bs-table-title" colspan="4">Battle progress:</td></tr>
+                    <tr class=""><th class="">Vessel</th><th class="">Length</th><th class="">Points</th><th class="">Status</th></tr>
+                    @foreach ($theirFleet as $fleetVessel)
+
+                        <?php $i = 1; ?>
+                        <tr class=""><td class="bs-pos-cell-plotted" id="progress_name_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->vessel_name}}</td><td class="bs-pos-cell-blank">{{$fleetVessel->length}}</td><td class="bs-pos-cell-blank">{{$fleetVessel->points}}</td><td class="bs-pos-cell-{{$fleetVessel['status']}}" id="progress_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel['status']}}</td></tr>
+                            @foreach ($fleetVessel->locations as $fleetVesselLocation)
+                                <tr class=""><td class="bs-pos-cell-blank">part {{$i++}}:</td><td class="bs-pos-cell-{{$fleetVesselLocation['vessel_location_status']}}" id="progress_location_{{$fleetVesselLocation['id']}}">{{$fleetVesselLocation['vessel_location_status']}}</td><td class="bs-pos-cell-blank" colspan="2">&nbsp;</td></tr>
+
+                        @endforeach
+                    @endforeach
+                </tbody>
+                </table>
 
             </div>
 
@@ -183,7 +199,7 @@ use App\Game;
             setMyGoOrTheirGo(winnerId);
         }
 
-        // Load all the existing data for the fleet
+        // Load all the existing data for my fleet
         @foreach ($myFleet as $fleetVessel)
 
             fleetVesselLocations = [];
@@ -213,7 +229,7 @@ use App\Game;
             myFleetVessels[myFleetVessels.length] = fleetVessel;
         @endforeach
 
-        // Load all the existing data for the fleet
+        // Load all the existing data for their fleet
         @foreach ($theirFleet as $fleetVessel)
 
             fleetVesselLocations = [];
@@ -479,8 +495,13 @@ use App\Game;
                                 fvl.status = loc.status;
                                 checkForSound(loc.status);
                                 if (loc.status == '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT}}'
-                                        || loc.status == '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED}}') {
+                                    || loc.status == '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED}}') {
                                     hitOrDestroyed = true;
+                                    // Update the battle progress table
+                                    $('#progress_' + fvl.fleet_vessel_id).html(loc.status);
+                                    setElemStatusClass($('#progress_' + fvl.fleet_vessel_id).get(0), ('bs-pos-cell-' + loc.status));
+                                    $('#progress_location_' + fvl.id).html(loc.status);
+                                    setElemStatusClass($('#progress_location_' + fvl.id).get(0), ('bs-pos-cell-' + loc.status));
                                 }
                                 break;
                             }
@@ -674,7 +695,6 @@ use App\Game;
             if (gameOver) {
                 showNotification('The game is now over');
             } else {
-
                 if (!myGo) {
                     // We poll the server for their move
                     startCheckingForMoves();

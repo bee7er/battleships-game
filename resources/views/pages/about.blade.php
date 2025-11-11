@@ -63,6 +63,11 @@
                             <li><b>Completed:</b> When the game has been won by one of the players. Click <span class="has-text-link">Replay</span> to see a simulation of the game. Click <span class="has-text-link">Delete</span> to remove the game from the list (a soft delete).</li>
                         </ol>
 
+                        <h4 class="title is-5">Battle Progress</h4>
+                        <p>When engaged in a battle the <span class="has-text-link">Battle Progress table</span> shows each player the status of the opponent's fleet.</p>
+                        <p>A hit is registered against the opponent's vessel, showing that the vessel has been hit and which part of the vessel, if appropriate.</p>
+                        <p>Once all the parts of a vessel have been hit the status changes to destroyed for all the parts and the vessel overall.</p>
+
                         <h4 class="title is-5">What just happened?</h4>
                         <p>As mentioned above, when the game is over, it is set to <span class="has-text-link">completed</span> and the <span class="has-text-link">Replay</span> link can be used to see a simulation of how the game progressed. Use this option to improve your strategy when playing next time.  You will have noticed that vessels can be plotted vertically, horizontally and diagonally. You should bear this in mind while deciding on your next move.  When replaying the game you get to see the full distribution of your opponent's vessels, and can perhaps see opportunities you missed during the game.</p>
                         <p>The destruction of vessels and the points scored are accumulated in your profile.</p>

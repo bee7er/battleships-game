@@ -329,9 +329,14 @@ class BattleshipsApiController extends Controller
 	 */
 	private function getAffectedLocations($locationHit, $userId=null)
 	{
+		$fleetVessel = FleetVessel::getFleetVessel($locationHit->fleet_vessel_id);
+
 		$affectedLocations = [];
-		$affectedLocations[] = ['fleetVesselId' => $locationHit->fleet_vessel_id, 'fleetVesselLocationId' => $locationHit->fleet_vessel_location_id,
-			'status' => FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT];
+		$affectedLocations[] = [
+			'fleetVesselId' => $locationHit->fleet_vessel_id,
+			'fleetVesselLocationId' => $locationHit->fleet_vessel_location_id,
+			'status' => FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT
+		];
 		// Update the status at that location
 		$fleetVesselLocation = FleetVesselLocation::getFleetVesselLocationById($locationHit->fleet_vessel_location_id);
 		$fleetVesselLocation->status = FleetVesselLocation::FLEET_VESSEL_LOCATION_HIT;
@@ -348,7 +353,6 @@ class BattleshipsApiController extends Controller
 
 		if (true == $isDestroyed) {
 			if (null != $userId) {
-				$fleetVessel = FleetVessel::getFleetVessel($locationHit->fleet_vessel_id);
 				// Vessel destroyed, bump up the destroyed and points counts
 				User::addDestroyedCount($userId, $fleetVessel->points);
 			}
@@ -362,7 +366,11 @@ class BattleshipsApiController extends Controller
 				$affectedLocations[] = ['fleetVesselId' => $fvl->fleet_vessel_id, 'fleetVesselLocationId' => $fvl->id,
 					'status' => FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED];
 			}
+			$fleetVessel->status = FleetVessel::FLEET_VESSEL_DESTROYED;
+		} else {
+			$fleetVessel->status = FleetVessel::FLEET_VESSEL_HIT;
 		}
+		$fleetVessel->save();
 
 		return $affectedLocations;
 	}

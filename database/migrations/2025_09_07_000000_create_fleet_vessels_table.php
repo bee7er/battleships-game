@@ -22,7 +22,9 @@ class CreateFleetVesselsTable extends Migration
             $table->enum('status', [
                 FleetVessel::FLEET_VESSEL_AVAILABLE,
                 FleetVessel::FLEET_VESSEL_STARTED,
-                FleetVessel::FLEET_VESSEL_PLOTTED]
+                FleetVessel::FLEET_VESSEL_PLOTTED,
+                FleetVessel::FLEET_VESSEL_HIT,
+                FleetVessel::FLEET_VESSEL_DESTROYED]
             );
             $table->timestamps();
         });

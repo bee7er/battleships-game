@@ -19,6 +19,10 @@ hr {
     padding:10px;
 }
 
+.bs-footer-spacer {
+    padding:20px;
+}
+
 .bs-footer {
     position: fixed;
     left: 0;
@@ -105,15 +109,19 @@ hr {
     margin: 0;
 }
 
-.bs-add-link, .bs-show-deleted {
+.bs-add-link, .bs-show-deleted, .bs-sound-checkbox {
     color: #0000c4 !important;
     font-weight: bold;
     font-size: 1.2em;
     margin: 0 10px 10px 0;
 }
 
-.bs-show-deleted {
+.bs-show-deleted, .bs-sound-checkbox {
     font-size: 1.0em;
+}
+
+.bs-sound {
+    margin-right: 6px;
 }
 
 .bs-notification {
@@ -122,14 +130,17 @@ hr {
     font-weight: bold;
     color: #c40000;
 }
-
-.bs-plot-table {
+.bs-plot-table, .bs-progress-table {
     text-align: center;
     margin-left: auto;
     margin-right: auto;
     font-size: 0.7em;
     border-bottom: 3px solid #a2a2a2;
     border-right: 3px solid #a2a2a2;
+}
+
+.bs-progress-table th, .bs-progress-table td {
+    padding: 2px 2px 2px 2px;
 }
 
 .bs-plot-cell-header {

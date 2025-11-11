@@ -10,6 +10,8 @@ class FleetVessel extends Model
     const FLEET_VESSEL_AVAILABLE = 'available';
     const FLEET_VESSEL_STARTED = 'started';
     const FLEET_VESSEL_PLOTTED = 'plotted';
+    const FLEET_VESSEL_HIT = 'hit';
+    const FLEET_VESSEL_DESTROYED = 'destroyed';
 
     /**
      * The database table used by the model.
