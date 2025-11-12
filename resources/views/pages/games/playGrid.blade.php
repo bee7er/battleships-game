@@ -119,14 +119,14 @@ use App\Game;
 
             <div class="column bs-scrollable">
 
-                <table class="table is-bordered bs-progress-table">
+                <table id="progressTableId" class="table is-bordered bs-progress-table">
                 <tbody>
                     <tr class=""><td class="bs-pos-key-blank bs-table-title" colspan="4">Battle progress:</td></tr>
                     <tr class=""><th class="">Vessel</th><th class="">Length</th><th class="">Points</th><th class="">Status</th></tr>
                     @foreach ($theirFleet as $fleetVessel)
 
                         <?php $i = 1; ?>
-                        <tr class="bs-progress-entry"><td class="bs-pos-cell-plotted" id="progress_name_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->vessel_name}}</td><td class="bs-pos-cell-blank">{{$fleetVessel->length}}</td><td class="bs-pos-cell-blank">{{$fleetVessel->points}}</td><td class="bs-pos-cell-{{$fleetVessel['status']}}" id="progress_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel['status']}}</td></tr>
+                        <tr id="progress_row_{{$fleetVessel->fleet_vessel_id}}" class="bs-progress-entry"><td class="bs-pos-cell-{{$fleetVessel->status}}" id="progress_name_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->vessel_name}}</td><td class="bs-pos-cell-blank">{{$fleetVessel->length}}</td><td class="bs-pos-cell-blank">{{$fleetVessel->points}}</td><td class="bs-pos-cell-{{$fleetVessel['status']}}" id="progress_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel['status']}}</td></tr>
                             @foreach ($fleetVessel->locations as $fleetVesselLocation)
                                 <tr class="bs-progress-entry"><td class="bs-pos-cell-blank">part {{$i++}}:</td><td class="bs-pos-cell-{{$fleetVesselLocation['vessel_location_status']}}" id="progress_location_{{$fleetVesselLocation['id']}}">{{$fleetVesselLocation['vessel_location_status']}}</td><td class="bs-pos-cell-blank" colspan="2">&nbsp;</td></tr>
 
@@ -507,6 +507,17 @@ use App\Game;
                                     $('#progress_location_' + fvl.id).html(loc.status);
                                     setElemStatusClass($('#progress_location_' + fvl.id).get(0), ('bs-pos-cell-' + loc.status));
                                 }
+                                if (loc.status == '{{FleetVesselLocation::FLEET_VESSEL_LOCATION_DESTROYED}}') {
+                                    // Update the name on the battle progress table
+                                    setElemStatusClass($('#progress_name_' + fvl.fleet_vessel_id).get(0), 'bs-pos-cell-hit');
+                                    // Switch to destroyed after a couple of seconds
+                                    setTimeout(() => {
+                                        setElemStatusClass($('#progress_name_' + fvl.fleet_vessel_id).get(0), 'bs-pos-cell-destroyed');
+                                    }, 2500);
+                                }
+
+                                $('#progress_row_' + fvl.fleet_vessel_id).get(0).scrollIntoView();
+
                                 break;
                             }
                         }
