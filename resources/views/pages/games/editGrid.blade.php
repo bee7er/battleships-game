@@ -499,7 +499,7 @@ $fleetId = 0;
                 for (j = 0; j < itr; j++) {
                     if ((tryCol + j) <= 0 || (tryCol + j) > gridSize) continue;
 
-                    elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)).html('' + i + j);    // To see offsets
+                    elem = $('#cell_' + (tryRow + i) + '_' + (tryCol + j)); //.html('' + i + j);    // To see offsets
                     let elemObj = {
                         elem: elem,
                         idx: ('' + i + j)       // Speeds things up below

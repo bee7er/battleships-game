@@ -1,6 +1,6 @@
-<div class="mr-6 bs-sound-checkbox">
+<div class="mr-6 bs-sound-checkbox is-pulled-right">
     <label class="checkbox">
-        <span class="bs-sound">Sound:</span>
+        <div class="bs-sound">Sound:</div>
         <input type="radio" id="audio_id_1" name="audio" value="1.0" onclick="onClickSelectAudio(this);" />
         <label class="bs-sound" for="audio_id_1">Full</label>
         <input type="radio" id="audio_id_2" name="audio" value="0.75" onclick="onClickSelectAudio(this);" />

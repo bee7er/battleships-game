@@ -115,6 +115,10 @@ use App\Game;
 
                 @include('partials.sound')
 
+            </div>
+
+            <div class="column bs-scrollable">
+
                 <table class="table is-bordered bs-progress-table">
                 <tbody>
                     <tr class=""><td class="bs-pos-key-blank bs-table-title" colspan="4">Battle progress:</td></tr>
@@ -122,9 +126,9 @@ use App\Game;
                     @foreach ($theirFleet as $fleetVessel)
 
                         <?php $i = 1; ?>
-                        <tr class=""><td class="bs-pos-cell-plotted" id="progress_name_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->vessel_name}}</td><td class="bs-pos-cell-blank">{{$fleetVessel->length}}</td><td class="bs-pos-cell-blank">{{$fleetVessel->points}}</td><td class="bs-pos-cell-{{$fleetVessel['status']}}" id="progress_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel['status']}}</td></tr>
+                        <tr class="bs-progress-entry"><td class="bs-pos-cell-plotted" id="progress_name_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel->vessel_name}}</td><td class="bs-pos-cell-blank">{{$fleetVessel->length}}</td><td class="bs-pos-cell-blank">{{$fleetVessel->points}}</td><td class="bs-pos-cell-{{$fleetVessel['status']}}" id="progress_{{$fleetVessel->fleet_vessel_id}}">{{$fleetVessel['status']}}</td></tr>
                             @foreach ($fleetVessel->locations as $fleetVesselLocation)
-                                <tr class=""><td class="bs-pos-cell-blank">part {{$i++}}:</td><td class="bs-pos-cell-{{$fleetVesselLocation['vessel_location_status']}}" id="progress_location_{{$fleetVesselLocation['id']}}">{{$fleetVesselLocation['vessel_location_status']}}</td><td class="bs-pos-cell-blank" colspan="2">&nbsp;</td></tr>
+                                <tr class="bs-progress-entry"><td class="bs-pos-cell-blank">part {{$i++}}:</td><td class="bs-pos-cell-{{$fleetVesselLocation['vessel_location_status']}}" id="progress_location_{{$fleetVesselLocation['id']}}">{{$fleetVesselLocation['vessel_location_status']}}</td><td class="bs-pos-cell-blank" colspan="2">&nbsp;</td></tr>
 
                         @endforeach
                     @endforeach
