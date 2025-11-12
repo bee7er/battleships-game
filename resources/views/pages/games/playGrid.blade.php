@@ -139,7 +139,8 @@ use App\Game;
 
             <div class="column">
 
-                <table class="table is-bordered is-striped bs-plot-table">
+                <table class="table is-bordered is-striped bs-plot-table"
+                       onmouseover="$(this).removeClass('bs-cursor-pointer').addClass('bs-cursor-crosshair')" onmouseout="$(this).removeClass('bs-cursor-crosshair').addClass('bs-cursor-pointer')">
                     <tbody>
                     <tr class="">
                         <th class="bs-section-title" colspan="99">Their Fleet Vessel Locations:</th>
