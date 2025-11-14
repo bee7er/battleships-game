@@ -114,6 +114,9 @@ use App\Game;
                 </table>
 
                 @include('partials.sound')
+                <div>
+                    <button class="button bs-random_button" onclick="playGameSound('hit'); return false;">Play sound</button>
+                </div>
 
             </div>
 
