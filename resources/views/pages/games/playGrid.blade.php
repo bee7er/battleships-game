@@ -114,18 +114,23 @@ use App\Game;
                 </table>
 
                 @include('partials.sound')
-                <div>
-                    <button class="button bs-random_button" onclick="playGameSound('hit'); return false;">Play sound</button>
-                </div>
 
             </div>
 
-            <div class="column bs-scrollable">
+            <div class="column bs-progress-container bs-scrollable">
 
                 <table id="progressTableId" class="table is-bordered bs-progress-table">
+                    <thead>
+                    <tr class=""><td class="bs-table-title" colspan="4">Battle progress</td></tr>
+                    <tr class="">
+                        <th class="bs-progress-header">Vessel</th>
+                        <th class="bs-progress-header">Length</th>
+                        <th class="bs-progress-header">Points</th>
+                        <th class="bs-progress-header">Status</th>
+                    </tr>
+                    </thead>
                 <tbody>
-                    <tr class=""><td class="bs-pos-key-blank bs-table-title" colspan="4">Battle progress:</td></tr>
-                    <tr class=""><th class="">Vessel</th><th class="">Length</th><th class="">Points</th><th class="">Status</th></tr>
+
                     @foreach ($theirFleet as $fleetVessel)
 
                         <?php $i = 1; ?>
@@ -518,6 +523,11 @@ use App\Game;
                                     setTimeout(() => {
                                         setElemStatusClass($('#progress_name_' + fvl.fleet_vessel_id).get(0), 'bs-pos-cell-destroyed');
                                     }, 2500);
+                                    // Remove the row after a few more seconds
+                                    // NB Needs to remove all the locations, too, if going to do this`
+//                                    setTimeout(() => {
+//                                        $('#progress_name_' + fvl.fleet_vessel_id).remove();
+//                                     }, 5000);
                                 }
 
                                 $('#progress_row_' + fvl.fleet_vessel_id).get(0).scrollIntoView();
@@ -651,27 +661,27 @@ use App\Game;
 
                 if (winnerId == myUserId) {
                     playGameSound('success');
-                    $('#myGoId').addClass('bs-status').html(myName + " YOU WON !! ;o)");
-                    $('#theirGoId').removeClass('bs-status').html(theirName);
+                    $('#myGoId').addClass('bs-play-status').html(myName + " YOU WON !! ;o)");
+                    $('#theirGoId').removeClass('bs-play-status').html(theirName);
                 } else {
                     playGameSound('failure');
-                    $('#myGoId').addClass('bs-status').html(myName + " YOU LOST !! :o(");
-                    $('#theirGoId').removeClass('bs-status').html(theirName);
+                    $('#myGoId').addClass('bs-play-status').html(myName + " YOU LOST !! :o(");
+                    $('#theirGoId').removeClass('bs-play-status').html(theirName);
                 }
             } else {
                 if (myGo) {
-                    $('#myGoId').addClass('bs-status').html(myName + yourGoText);
-                    $('#theirGoId').removeClass('bs-status').html(theirName);
+                    $('#myGoId').addClass('bs-play-status').html(myName + yourGoText);
+                    $('#theirGoId').removeClass('bs-play-status').html(theirName);
                 } else {
-                    $('#theirGoId').addClass('bs-status').html(theirName + ' << Their go!');
-                    $('#myGoId').removeClass('bs-status').html(myName);
+                    $('#theirGoId').addClass('bs-play-status').html(theirName + ' << Their go!');
+                    $('#myGoId').removeClass('bs-play-status').html(myName);
                 }
             }
         }
 
         function setYourGoText(theText)
         {
-            $('#myGoId').addClass('bs-status').html(myName + theText);
+            $('#myGoId').addClass('bs-play-status').html(myName + theText);
         }
 
         // Call across to the server to see if there have been any changes

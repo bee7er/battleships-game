@@ -12,7 +12,7 @@
     <!-- Fonts -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
 
-    <link href="/css/site.css?v9" rel="stylesheet">
+    <link href="/css/site.css?v10" rel="stylesheet">
     <!-- Javascript -->
     <script type="text/javascript" src="/js/battleships.js?v5"></script>
 </head>

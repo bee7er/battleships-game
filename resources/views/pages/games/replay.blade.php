@@ -33,7 +33,7 @@ use App\Game;
                             <td class="cell bs-section-title">
                                 Game status:
                             </td>
-                            <td class="cell bs-status" id="gameStatus">
+                            <td class="cell bs-play-status" id="gameStatus">
                                 {{ucfirst($game->status)}}
                             </td>
                         </tr>
@@ -311,19 +311,19 @@ use App\Game;
         {
             if (gameOver) {
                 if (winnerId == myUserId) {
-                    $('#myGoId').addClass('bs-status').html(myName + " WINNER ;o)");
-                    $('#theirGoId').addClass('bs-status').html(theirName + " LOSER :o(");
+                    $('#myGoId').addClass('bs-play-status').html(myName + " WINNER ;o)");
+                    $('#theirGoId').addClass('bs-play-status').html(theirName + " LOSER :o(");
                 } else {
-                    $('#myGoId').addClass('bs-status').html(myName + " LOSER :o(");
-                    $('#theirGoId').addClass('bs-status').html(theirName + " WINNER ;o)");
+                    $('#myGoId').addClass('bs-play-status').html(myName + " LOSER :o(");
+                    $('#theirGoId').addClass('bs-play-status').html(theirName + " WINNER ;o)");
                 }
             } else {
                 if (myGo) {
-                    $('#myGoId').addClass('bs-status').html(myName);
-                    $('#theirGoId').removeClass('bs-status').html(theirName);
+                    $('#myGoId').addClass('bs-play-status').html(myName);
+                    $('#theirGoId').removeClass('bs-play-status').html(theirName);
                 } else {
-                    $('#theirGoId').addClass('bs-status').html(theirName);
-                    $('#myGoId').removeClass('bs-status').html(myName);
+                    $('#theirGoId').addClass('bs-play-status').html(theirName);
+                    $('#myGoId').removeClass('bs-play-status').html(myName);
                 }
             }
         }

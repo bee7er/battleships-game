@@ -11,7 +11,7 @@ class FleetTemplatesTableSeeder extends Seeder {
     {
         DB::table('fleet_templates')->delete();
 
-        $aircraftCarrier = Vessel::where('name', Vessel::VESSEL_TYPE_AIRCRAFT_CARRIER)->firstOrFail();
+        ///$aircraftCarrier = Vessel::where('name', Vessel::VESSEL_TYPE_AIRCRAFT_CARRIER)->firstOrFail();
         $battleship = Vessel::where('name', Vessel::VESSEL_TYPE_BATTLESHIP)->firstOrFail();
         $destroyer = Vessel::where('name', Vessel::VESSEL_TYPE_DESTROYER)->firstOrFail();
         $submarine = Vessel::where('name', Vessel::VESSEL_TYPE_SUBMARINE)->firstOrFail();
