@@ -256,43 +256,10 @@ $fleetId = 0;
             let fleetVesselId = selected.val();
             fleetVessel = findFleetVessel(fleetVesselId);
 
+            // If already started then we undo that and remove it from the locations for this vessel
             if ($(elem).hasClass('bs-pos-cell-started')) {
-                fleetVesselByRowCol = findFleetVesselByRowCol(row, col);
-                if (fleetVessel.fleetVesselId != fleetVesselByRowCol.fleetVesselId) {
-                    showNotification('This location is occupied by another vessel');
-                    return false;
-                }
-                fleetVessel.subjectRow = 0;
-                fleetVessel.subjectCol = 0;
-                // If there is a second allocated elem then we want to reposition to that on return
-                if (2 == fleetVessel.locations.length) {
-                    for (let i=0; i<fleetVessel.locations.length; i++) {
-                        let location = fleetVessel.locations[i];
-                        if (location.row != row || location.col != col) {
-                            fleetVessel.subjectRow = location.row;
-                            fleetVessel.subjectCol = location.col;
-                            break;
-                        }
-                    }
-                }
-                // Ok, release this plotted cell
-                let location = {
-                    gameId: gameId,
-                    fleetVessel: fleetVessel,
-                    row: row,
-                    col: col,
-                    user_token: getCookie('user_token')
-                };
-
-                // ========================================================================
-                ajaxCall('removeVesselLocation', JSON.stringify(location), updateFleetVessel);
-                // Clear the cell and availability
-                setElemStatusClass(elem, '');
-                $(elem).html('O');
-                // Generic removal of all cells flagged as available
-                $('.grid-cell').removeClass('bs-pos-cell-available');
-
-                showNotification('Location has been cleared');
+                // User re-clicked on an allocated cell, so undo the selection
+                removeCellAllocation(elem, row, col);
 
                 return false;
             } else if (0 == fleetVessel.locations.length || $(elem).hasClass('bs-pos-cell-available')) {
@@ -325,22 +292,86 @@ $fleetId = 0;
         }
 
         /**
-         * Allocates a cell to a vessel
+         * User has clicked on a started cell, or has abandoned allocating for a vessel
+         * by clicking on another vessel.  We remove the cell from the set of allocated ones.
          */
-        function onClickSelectVessel(elem)
+        function removeCellAllocation(elem, row, col)
         {
+            fleetVesselByRowCol = findFleetVesselByRowCol(row, col);
+            if (fleetVessel.fleetVesselId != fleetVesselByRowCol.fleetVesselId) {
+                showNotification('This location is occupied by another vessel');
+                return false;
+            }
+
+            fleetVessel.subjectRow = 0;
+            fleetVessel.subjectCol = 0;
+            // TODO We may need this
+            // If there is a second allocated elem then we want to reposition to that on return
+            if (2 == fleetVessel.locations.length) {
+                for (let i=0; i<fleetVessel.locations.length; i++) {
+                    let location = fleetVessel.locations[i];
+                    if (location.row != row || location.col != col) {
+                        fleetVessel.subjectRow = location.row;
+                        fleetVessel.subjectCol = location.col;
+                        break;
+                    }
+                }
+            }
+            // Ok, release this plotted cell
+            let location = {
+                gameId: gameId,
+                fleetVessel: fleetVessel,
+                row: row,
+                col: col,
+                user_token: getCookie('user_token')
+            };
+
+            // ========================================================================
+            ajaxCall('removeVesselLocation', JSON.stringify(location), updateFleetVessel);
+            // Clear the cell and availability
+            setElemStatusClass(elem, '');
+            $(elem).html('O');
             // Generic removal of all cells flagged as available
             $('.grid-cell').removeClass('bs-pos-cell-available');
 
-            // Get vessel id from the clicked element
-            let elemIdData = elem.id.split('_');
-            let fleetVesselId = parseInt(elemIdData[2]);
+            showNotification('Location has been cleared');
+        }
 
-            fleetVessel = findFleetVessel(fleetVesselId);
-            if ('{{FleetVessel::FLEET_VESSEL_STARTED}}' == fleetVessel.status) {
-                // Show available cells corresponding with the first row/col
-                availableCells(fleetVessel.locations[0].row, fleetVessel.locations[0].col, fleetVessel);
+        /**
+         * Allocates a cell to a vessel
+         */
+        function onClickSelectVessel(rowElem)
+        {
+            // Generic removal of all cells flagged as available or started
+            $('.grid-cell').removeClass('bs-pos-cell-available');
+            let starteds = $('.bs-pos-cell-started');
+            if (starteds.length > 0) {
+                let started = starteds[0];
+                // Get row/col from the clicked element
+                let elemIdData = started.id.split('_');
+                let row = parseInt(elemIdData[1]);
+                let col = parseInt(elemIdData[2]);
+                let fleetVesselStarted = findFleetVesselByRowCol(row, col);
+                // No other locations will be involved
+                fleetVesselStarted.subjectRow = 0;
+                fleetVesselStarted.subjectCol = 0;
+                // If there are any started cells then we remove them all
+                let location = {
+                    gameId: gameId,
+                    fleetVessel: fleetVesselStarted,
+                    user_token: getCookie('user_token')
+                };
+
+                // ========================================================================
+                ajaxCall('removeAllVesselLocations', JSON.stringify(location), updateFleetVessel);
             }
+            // Clear all started cells
+            $('.bs-pos-cell-started').each(function() {
+                $(this).html('O');
+                $(this).removeClass('bs-pos-cell-started');
+            });
+
+            return false;
         }
 
         /**
@@ -489,7 +520,7 @@ $fleetId = 0;
             let numberOfAvailableCells = 0;
 
             // There can only be 1 or 2 cells already started, as 3 would mean the vessel has been plotted
-            // This drastically reduces the cells that are available
+            // This reduces the cells that are available
             // Create an array of all elems with the started class, narrows down those available even more
             let hasStarted = [];
             let availableElems = [];
@@ -507,7 +538,7 @@ $fleetId = 0;
                     if ($(elem).hasClass('bs-pos-cell-started')) {
                         hasStarted[hasStarted.length] = elemObj;
                     } else {
-                        if ($(elem).hasClass('bs-pos-cell-plotted') || $(elem).hasClass('bs-pos-cell-started')) {
+                        if ($(elem).hasClass('bs-pos-cell-plotted')) {
                             // Ignore this location
                         } else {
                             // This location is possibly available
@@ -516,9 +547,12 @@ $fleetId = 0;
                     }
                 }
             }
+            // For testing purposes use the .html('' + i + j) in line above to show the matrix of cell locations. It makes
+            // sense of the bank of number tests below.
             // For each offset cell it can only be used if another required cell is available to complete the set of three
             // The starting position is always 2,2, the following table can be read as:
-            //      if the other started cell is '00', then only '11' can be used, if it is available
+            //      if the other started cell is '02', then only '12' can be used, if it is available
+            //      if the other started cell is '12', then '02' or '32' can be used, if available
             for (let i = 0; i < hasStarted.length; i++) {
                 let started = hasStarted[i];
                 let n1 = 0;

@@ -202,6 +202,45 @@ class BattleshipsApiController extends Controller
 	}
 
 	/**
+	 * Remove the locations of a vesssel
+	 *
+	 * @param Request $request
+	 * @return Response
+	 */
+	public function removeAllVesselLocations(Request $request)
+	{
+		$message = "Data received OK";
+		$result = 'Error';
+		$location = Input::all();
+		$fleetVessel = null;
+
+		try {
+			// User token must be provided and valid for all API calls
+			User::checkUserToken($request->get(User::USER_TOKEN));
+
+			// We update the fleet vessel, returned below
+			$fleetVessel = $location['fleetVessel'];
+			$fleetVessel['status'] = FleetVesselLocation::deleteAllLocations($fleetVessel['fleetVesselId']);
+			$fleetVessel['locations'] = [];
+
+			$result = 'OK';
+
+		} catch(\Exception $exception) {
+			$result = 'Error';
+			$message = $exception->getMessage();
+			Log::info('Error in removeVesselLocation(): ' . $message);
+		}
+
+		$returnData = [
+			"message" => $message,
+			"result" => $result,
+			"returnedData" => $fleetVessel
+		];
+
+		return $returnData;   // Gets converted to json
+	}
+
+	/**
 	 * Find and return the latest move for the specified user
 	 *
 	 * @param Request $request

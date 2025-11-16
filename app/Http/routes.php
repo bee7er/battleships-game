@@ -46,6 +46,7 @@ Route::post('/markAsRead', 'API\BattleshipsApiController@markAsRead');
 Route::post('/getLatestOpponentMove', 'API\BattleshipsApiController@getLatestOpponentMove');
 Route::post('/strikeVesselLocation', 'API\BattleshipsApiController@strikeVesselLocation');
 Route::post('/replaceFleetVesselLocations', 'API\BattleshipsApiController@replaceFleetVesselLocations');
+Route::post('/removeAllVesselLocations', 'API\BattleshipsApiController@removeAllVesselLocations');
 
 /* Admin section */
 Route::get('/admin/dashboard', 'Admin\AdminController@index');

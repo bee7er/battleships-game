@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 
 class Vessel extends Model
 {
+    const VESSEL_TYPE_AIRCRAFT_CARRIER = 'aircraft carrier';
     const VESSEL_TYPE_BATTLESHIP = 'battleship';
     const VESSEL_TYPE_DESTROYER = 'destroyer';
     const VESSEL_TYPE_SUBMARINE = 'submarine';
     const VESSEL_TYPE_ZODIAC = 'zodiac';
-    const VESSEL_TYPE_CUSTOM = 'custom';
 
     /**
      * The database table used by the model.

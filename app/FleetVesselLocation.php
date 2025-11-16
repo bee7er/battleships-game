@@ -161,4 +161,25 @@ class FleetVesselLocation extends Model
         return $fleetVessel->status;
     }
 
+    /**
+     * Removes the location of the fleet vessel
+     *
+     */
+    public static function deleteAllLocations($fleetVesselId)
+    {
+        $locations = self::getFleetVesselLocations($fleetVesselId);
+        if (isset($locations) && 0 < count($locations)) {
+            foreach ($locations as $location) {
+                $location->delete();
+            }
+        }
+
+        // Set the status of the fleet vessel
+        $fleetVessel = FleetVessel::getFleetVessel($fleetVesselId);
+        $fleetVessel->status = FleetVessel::FLEET_VESSEL_AVAILABLE;
+        $fleetVessel->save();
+
+        return $fleetVessel->status;
+    }
+
 }

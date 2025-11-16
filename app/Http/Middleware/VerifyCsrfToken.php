@@ -21,6 +21,7 @@ class VerifyCsrfToken extends BaseVerifier
         '/getLatestOpponentMove',
         '/strikeVesselLocation',
         '/replaceFleetVesselLocations',
+        '/removeAllVesselLocations',
     ];
 
     public function handle($request, Closure $next)

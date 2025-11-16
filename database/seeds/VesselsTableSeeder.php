@@ -10,6 +10,12 @@ class VesselsTableSeeder extends Seeder {
     {
         DB::table('vessels')->delete();
 
+//        $vessel = new Vessel();
+//        $vessel->name = 'aircraft carrier';
+//        $vessel->length = 4;
+//        $vessel->points = 7;
+//        $vessel->save();
+
         $vessel = new Vessel();
         $vessel->name = 'battleship';
         $vessel->length = 3;

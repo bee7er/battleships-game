@@ -18,11 +18,11 @@ class CreateVesselsTable extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id')->unsigned();
             $table->enum('name', [
+                Vessel::VESSEL_TYPE_AIRCRAFT_CARRIER,
                 Vessel::VESSEL_TYPE_BATTLESHIP,
                 Vessel::VESSEL_TYPE_DESTROYER,
                 Vessel::VESSEL_TYPE_SUBMARINE,
                 Vessel::VESSEL_TYPE_ZODIAC,
-                Vessel::VESSEL_TYPE_CUSTOM,
                 ]
             );
             $table->integer('length')->unsigned();
