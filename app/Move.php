@@ -49,7 +49,16 @@ class Move extends Model
      */
     public static function getMoves($gameId, $userId=null)
     {
-        $builder = self::select('*')
+        $builder = self::select([
+            'moves.id',
+            'moves.game_id',
+            'moves.player_id',
+            'moves.row',
+            'moves.col',
+            'moves.hit_vessel',
+            'users.id as user_id',
+            'users.name as user_name',
+        ])
             ->join('users', 'users.id', '=', 'moves.player_id')
             ->orderBy("moves.id");
 

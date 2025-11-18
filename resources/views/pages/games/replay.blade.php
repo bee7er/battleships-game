@@ -116,10 +116,13 @@ use App\Game;
                 <hr />
                 <span class="bs-table-title">Start or stop the replay:</span>
                 <div>
-                    <button class="button bs-random_button" onclick="return startPlottingMoves();">Start Replay</button>
+                    <button id="startButtonId" class="button bs-random_button" onclick="return startPlottingMoves();">Start Replay</button>
                 </div>
                 <div>
-                    <button class="button bs-random_button" onclick="return stopPlottingMoves();">Stop Replay</button>
+                    <button id="resumeButtonId" class="button bs-random_button" disabled="disabled" onclick="return resumePlottingMoves();">Resume Replay</button>
+                </div>
+                <div>
+                    <button id="stopButtonId" class="button bs-random_button" disabled="disabled" onclick="return stopPlottingMoves();">Stop Replay</button>
                 </div>
 
                 @include('partials.sound')
@@ -177,7 +180,8 @@ use App\Game;
         var myFleetVessels = [];
         var theirFleetVessels = [];
         var allMoves = [];
-        var allMovesClone = null;
+        var allMovesIndex = 0;
+        var allMovesResumeIndex = 0;
         var fleetVesselLocations = [];
         var myUserId = {{$myUser->id}};
         var theirUserId = {{$theirUser->id}};
@@ -246,18 +250,13 @@ use App\Game;
 
         // Load all the moves for each user
         @foreach ($allMoves as $aMove)
-                allMoves[allMoves.length] = {
-                    id: {{$aMove->id}},
-                    player_id: {{$aMove->player_id}},
-                    row: {{$aMove->row}},
-                    col: {{$aMove->col}}
-                };
+            allMoves[allMoves.length] = {
+            id: {{$aMove->id}},
+            player_id: {{$aMove->player_id}},
+            row: {{$aMove->row}},
+            col: {{$aMove->col}}
+        };
         @endforeach
-
-        if (null == allMovesClone) {
-            // Back up the all moves array, so we can restore it later
-            allMovesClone = jQuery.extend(true, [], allMoves);
-        }
 
         /**
          * Plot vessels which have been allocated positions on the grid
@@ -371,15 +370,16 @@ use App\Game;
         }
 
         // We are going to plot each move in turn
-        let intervalId;
-        let originalStatus = '';
+        var intervalId;
+        var originalStatus = '';
         function startPlottingMoves()
         {
+            $("#startButtonId").prop("disabled", true);
+            $("#resumeButtonId").prop("disabled", true);
+            $("#stopButtonId").prop("disabled", false);
+
             clearGrid();
-            if (null == allMoves || allMoves.length <= 0) {
-                // Restore all moves from cloned backup
-                allMoves = allMovesClone;
-            }
+            allMovesIndex = 0;
 
             let gameStatusElem = $('#gameStatus');
             originalStatus = gameStatusElem.html();
@@ -391,11 +391,28 @@ use App\Game;
 
             intervalId = setInterval(plotMoveLocations, 700);
         }
+        function resumePlottingMoves()
+        {
+            $("#startButtonId").prop("disabled", true);
+            $("#resumeButtonId").prop("disabled", true);
+            $("#stopButtonId").prop("disabled", false);
+
+            $('#gameStatus').html('Replaying');
+            allMovesIndex = allMovesResumeIndex;
+
+            intervalId = setInterval(plotMoveLocations, 700);
+        }
         function stopPlottingMoves()
         {
+            $("#startButtonId").prop("disabled", false);
+            $("#resumeButtonId").prop("disabled", false);
+            $("#stopButtonId").prop("disabled", true);
+
             clearInterval(intervalId);
             // release our intervalId from the variable
             intervalId = null;
+            // Stop plotting moves
+            allMovesIndex = allMoves.length;
 
             $('#gameStatus').html(originalStatus);
         }
@@ -406,11 +423,14 @@ use App\Game;
          */
         function plotMoveLocations()
         {
-            let elem = allMoves.pop();
-            if (null == elem) {
+            if (allMovesIndex >= allMoves.length) {
                 stopPlottingMoves();
                 gameOver = true;
             } else {
+                let elem = allMoves[allMovesIndex];
+                allMovesIndex += 1;
+                allMovesResumeIndex = allMovesIndex;
+
                 let tableCell = null;
                 if (elem.player_id == myUserId) {
                     myGo = true;
