@@ -1,3 +1,4 @@
+<hr />
 <div class="mr-6 bs-sound-checkbox is-pulled-right">
     <label class="checkbox">
         <span class="bs-sound">Sound:</span>
@@ -11,7 +12,7 @@
         <label class="bs-sound" for="audio_id_4">20%</label>
         <input type="radio" id="audio_id_5" name="audio" value="0" onclick="onClickSelectAudio(this);" />
         <label class="bs-sound" for="audio_id_5">Off</label>
-        <button class="bs-test_button" onclick="playGameSound('hit'); return false;">Test</button>
+        <button class="button bs-test_button" onclick="playGameSound('hit'); return false;">Test</button>
     </label>
 </div>
 

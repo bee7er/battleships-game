@@ -68,7 +68,7 @@ $fleetId = 0;
             <div class="bs-section-help">Select each vessel and plot its positions on the grid.</div>
             <div class="bs-section-help">Each vessel has a length corresponding with the number of positions which must be plotted.</div>
             <div class="bs-section-help">Click the <b>Go Random</b> button to have the game generate a random set of positions.</div>
-            <div class=""><span class="bs-table-title">Messages:</span> <span id="notification" class="bs-notification">&nbsp;</span></div>
+            <div class=""><span class="bs-messages-title">Messages:</span> <span id="notification" class="bs-notification">&nbsp;</span></div>
         </div>
 
         <div class="columns">
@@ -78,10 +78,10 @@ $fleetId = 0;
                 <table class="table is-bordered is-striped bs-plot-table">
                     <tbody>
                     <tr class="">
-                        <th class="bs-section-title" colspan="99">Fleet Vessels:</th>
+                        <th class="bs-grid-title" colspan="99">Fleet Vessels:</th>
                     </tr>
 
-                    <tr class="">
+                    <tr class=" bs-grid-title">
                         <th class="cell">Select</th>
                         <th class="cell">Name</th>
                         <th class="cell">Status</th>
@@ -113,14 +113,13 @@ $fleetId = 0;
             <div class="column has-text-centered is-one-quarter">
                 <table class="table is-bordered bs-plot-table">
                     <tbody>
-                    <tr class=""><td class="bs-pos-key-blank bs-table-title" colspan="2">Key to colours:</td></tr>
+                    <tr class=""><td class="bs-grid-title" colspan="2">Key to colours:</td></tr>
                     <tr class=""><td class="bs-pos-key-available">&nbsp;</td><td class="bs-pos-key-blank">Available location</td></tr>
                     <tr class=""><td class="bs-pos-key-started">&nbsp;</td><td class="bs-pos-key-blank">Vessel started</td></tr>
                     <tr class=""><td class="bs-pos-key-plotted">&nbsp;</td><td class="bs-pos-key-blank">Vessel plotted</td></tr>
                     </tbody>
                 </table>
                 <hr />
-                <span class="bs-table-title">Get the game to plot the vessels:</span>
                 <div>
                     <button class="button bs-random_button" onclick="return goRandom();">Go Random</button>
                 </div>
@@ -138,7 +137,7 @@ $fleetId = 0;
                 <table class="table is-bordered is-striped bs-plot-table">
                     <tbody>
                     <tr class="">
-                        <th class="bs-section-title" colspan="99">Vessel Locations Grid:</th>
+                        <th class="bs-grid-title" colspan="99">Vessel Locations Grid:</th>
                     </tr>
 
                     @for ($row=0; $row<=10; $row++)
@@ -150,14 +149,14 @@ $fleetId = 0;
                                     @if ($col > 0)
                                         <td class="cell has-text-centered bs-plot-cell-header">{{$col}}</td>
                                     @else
-                                        <td class="cell">&nbsp;</td>
+                                        <td class="cell bs-grid-title">&nbsp;</td>
                                     @endif
                                 @else
                                     @if ($col == 0)
                                         @if ($row > 0)
                                             <td class="cell has-text-centered bs-plot-cell-header">{{getAlpha($row)}}</td>
                                         @else
-                                            <td class="cell">&nbsp;</td>
+                                            <td class="cell bs-grid-title">&nbsp;</td>
                                         @endif
                                     @else
                                         <td class="cell grid-cell has-text-centered bs-pos-cell-blank"

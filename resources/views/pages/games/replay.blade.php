@@ -57,7 +57,7 @@ use App\Game;
 
         </article>
         <div class="field">
-            <div class=""><span class="bs-table-title">Messages:</span> <span id="notification" class="bs-notification">&nbsp;</span></div>
+            <div class=""><span class="bs-messages-title">Messages:</span> <span id="notification" class="bs-notification">&nbsp;</span></div>
         </div>
 
         <div class="columns">
@@ -67,7 +67,7 @@ use App\Game;
                 <table class="table is-bordered is-striped bs-plot-table">
                     <tbody>
                     <tr class="">
-                        <th class="bs-section-title" colspan="99">My Fleet Vessel Locations:</th>
+                        <th class="bs-grid-title" colspan="99">My Fleet Vessel Locations:</th>
                     </tr>
 
                     @for ($row=0; $row<=10; $row++)
@@ -79,14 +79,14 @@ use App\Game;
                                     @if ($col > 0)
                                         <td class="cell has-text-centered bs-plot-cell-header">{{$col}}</td>
                                     @else
-                                        <td class="cell">&nbsp;</td>
+                                        <td class="cell bs-grid-title">&nbsp;</td>
                                     @endif
                                 @else
                                     @if ($col == 0)
                                         @if ($row > 0)
                                             <td class="cell has-text-centered bs-plot-cell-header">{{getAlpha($row)}}</td>
                                         @else
-                                            <td class="cell">&nbsp;</td>
+                                            <td class="cell bs-grid-title">&nbsp;</td>
                                         @endif
                                     @else
                                         <td class="cell grid-cell has-text-centered bs-pos-cell-blank"
@@ -105,7 +105,7 @@ use App\Game;
             <div class="column  has-text-centered">
                 <table class="table is-bordered bs-plot-table">
                     <tbody>
-                    <tr class=""><td class="bs-pos-key-blank bs-table-title" colspan="2">Key to colours:</td></tr>
+                    <tr class=""><td class="bs-table-title" colspan="2">Key to colours:</td></tr>
                     <tr class=""><td class="bs-pos-key-plotted">&nbsp;</td><td class="bs-pos-cell-blank">Vessel plotted</td></tr>
                     <tr class=""><td class="bs-pos-key-strike">&nbsp;</td><td class="bs-pos-cell-blank">Location has been bombed but missed the fleet</td></tr>
                     <tr class=""><td class="bs-pos-key-hit">&nbsp;</td><td class="bs-pos-cell-blank">Location has been bombed and hit a target</td></tr>
@@ -114,7 +114,6 @@ use App\Game;
                 </table>
 
                 <hr />
-                <span class="bs-table-title">Start or stop the replay:</span>
                 <div>
                     <button id="startButtonId" class="button bs-random_button" onclick="return startPlottingMoves();">Start Replay</button>
                 </div>
@@ -134,7 +133,7 @@ use App\Game;
                 <table class="table is-bordered is-striped bs-plot-table">
                     <tbody>
                     <tr class="">
-                        <th class="bs-section-title" colspan="99">Their Fleet Vessel Locations:</th>
+                        <th class="bs-grid-title" colspan="99">Their Fleet Vessel Locations:</th>
                     </tr>
 
                     @for ($row=0; $row<=10; $row++)
@@ -146,14 +145,14 @@ use App\Game;
                                     @if ($col > 0)
                                         <td class="cell has-text-centered bs-plot-cell-header">{{$col}}</td>
                                     @else
-                                        <td class="cell">&nbsp;</td>
+                                        <td class="cell bs-grid-title">&nbsp;</td>
                                     @endif
                                 @else
                                     @if ($col == 0)
                                         @if ($row > 0)
                                             <td class="cell has-text-centered bs-plot-cell-header">{{getAlpha($row)}}</td>
                                         @else
-                                            <td class="cell">&nbsp;</td>
+                                            <td class="cell bs-grid-title">&nbsp;</td>
                                         @endif
                                     @else
                                         <td class="cell grid-cell has-text-centered bs-pos-cell-blank"
