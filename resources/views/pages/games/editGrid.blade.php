@@ -503,8 +503,10 @@ $fleetId = 0;
             }
             // Check that there is somewhere to go
             if (numberOfAvailableCells < (fleetVessel.length - fleetVessel.locations.length)) {
-                showNotification('There is not enough room or no cells available in that position. Please move it elsewhere.');
+                showNotification('There is not enough room or no squares available in that position. Please move it elsewhere.');
+                return;
             }
+            showNotification('Now click on one of the highlighted (pink) locations');
         }
 
 
